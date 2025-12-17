@@ -256,6 +256,50 @@
       color: var(--muted);
       padding-bottom: 0.5rem;
     }
+
+    /* ---------- MINI POMODORO ---------- */
+    #miniPomodoro {
+      position: fixed;
+      top: 4.2rem; /* below header buttons */
+      right: 0.8rem;
+      width: 70px;
+      height: 70px;
+      background: var(--card);
+      border-radius: 50%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    #miniPomodoro svg {
+      position: absolute;
+    }
+
+    .mini-time {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text);
+      pointer-events: none;
+    }
+
+    .mini-btn {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--today));
+      color: #fff;
+      font-size: 0.7rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    body.dark .mini-time {
+      color: #fff;
+    }
       
     
   </style>
@@ -289,6 +333,23 @@
 <div id="calendar" class="calendar"></div>
 
 
+
+<!-- =========================
+     MINI POMODORO (TOP RIGHT)
+     ========================= -->
+<div id="miniPomodoro">
+  <button id="pomoBtn" class="mini-btn">▶</button>
+  <svg width="60" height="60">
+    <circle cx="30" cy="30" r="26" stroke="var(--muted)" stroke-width="4" fill="none" />
+    <circle id="pomoProgress" cx="30" cy="30" r="26"
+      stroke="var(--primary)" stroke-width="4" fill="none"
+      stroke-linecap="round"
+      stroke-dasharray="163"
+      stroke-dashoffset="163"
+      transform="rotate(-90 30 30)" />
+  </svg>
+  <div id="pomoTime" class="mini-time">60:00</div>
+</div>
 
 <!-- =========================
      NOTES SECTION
@@ -447,6 +508,52 @@
       ? '☀️ Light'
       : '🌙 Dark';
   };
+
+  /* ---------- POMODORO LOGIC ---------- */
+  const pomoBtn = document.getElementById('pomoBtn');
+  const pomoTime = document.getElementById('pomoTime');
+  const pomoProgress = document.getElementById('pomoProgress');
+
+  const TOTAL_SECONDS = 60 * 60; // 1 hour
+  let remaining = TOTAL_SECONDS;
+  let pomoInterval = null;
+
+  function updatePomodoro() {
+    const min = Math.floor(remaining / 60);
+    const sec = remaining % 60;
+    pomoTime.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+
+    const progress = remaining / TOTAL_SECONDS;
+    pomoProgress.style.strokeDashoffset = 163 * (1 - progress);
+
+    if (remaining <= 0) {
+      clearInterval(pomoInterval);
+      pomoInterval = null;
+      pomoBtn.textContent = '▶';
+      alert('Pomodoro completed! Take a break 🙂');
+    }
+  }
+
+  pomoBtn.onclick = () => {
+    if (pomoInterval) {
+      clearInterval(pomoInterval);
+      pomoInterval = null;
+      pomoBtn.textContent = '▶';
+    } else {
+      pomoBtn.textContent = '⏸';
+      pomoInterval = setInterval(() => {
+        remaining--;
+        updatePomodoro();
+      }, 1000);
+    }
+  };
+
+  updatePomodoro();
+      }, 1000);
+    }
+  };
+
+  updatePomodoro();
 </script>
 
 </body>
