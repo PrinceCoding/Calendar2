@@ -17,7 +17,7 @@
       --card: #ffffff;     /* Card background */
       --text: #0f172a;     /* Primary text */
       --muted: #64748b;    /* Secondary text */
-    }
+    
 
     /* Dark mode overrides */
     body.dark {
@@ -420,7 +420,8 @@
     const d = new Date();
     document.getElementById('dtText').textContent = d.toLocaleDateString(undefined, {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    }({ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' • ' + d.toLocaleTimeString();
+    
+  }) + ' • ' + d.toLocaleTimeString();
   }
 
   /* ---------- NOTES FORMATTING ---------- */
@@ -456,17 +457,28 @@
   updateTime();
   setInterval(updateTime, 1000);
 
-  /* ---------- POMODORO (ADDED, NO EXISTING LOGIC TOUCHED) ---------- */
+  /* ---------- POMODORO (ADDED, ALL EXISTING LOGIC INTACT) ---------- */
   let pomoSeconds = 3600;
   let pomoTimer = null;
   const pomoTimeEl = document.getElementById('pomoTime');
 
-  document.getElementById('pomoStart').onclick = () => {
-    if (pomoTimer) return;
+  const pomoStartBtn = document.getElementById('pomoStart');
+
+  pomoStartBtn.onclick = () => {
+    if (pomoTimer) {
+      // pause
+      clearInterval(pomoTimer);
+      pomoTimer = null;
+      pomoStartBtn.textContent = '▶';
+      return;
+    }
+    // start
+    pomoStartBtn.textContent = '⏸';
     pomoTimer = setInterval(() => {
       if (pomoSeconds <= 0) {
         clearInterval(pomoTimer);
         pomoTimer = null;
+        pomoStartBtn.textContent = '▶';
         return;
       }
       pomoSeconds--;
