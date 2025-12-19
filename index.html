@@ -1009,8 +1009,15 @@
   } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-  // Firebase configuration
-  const firebaseConfig = JSON.parse(__firebase_config);
+  // Firebase environment configuration
+  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
+    authDomain: "calendar-599ac.firebaseapp.com",
+    projectId: "calendar-599ac",
+    storageBucket: "calendar-599ac.firebasestorage.app",
+    messagingSenderId: "89812638572",
+    appId: "1:89812638572:web:f02d7309367576a619b149"
+  };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -1174,7 +1181,6 @@
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
       } else if (!auth.currentUser) {
-        // Only trigger anonymous sign-in if no active session exists
         await signInAnonymously(auth);
       }
     } catch (err) { console.error("Init Auth error", err); }
@@ -1202,7 +1208,6 @@
           }
           setSyncStatus('Cloud Synced');
         } else {
-          // Reverting to basic seeding method: Use local data if cloud is empty
           const local = localStorage.getItem(NOTES_KEY) || '';
           setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
             .then(() => setSyncStatus('Cloud Initialized'));
