@@ -317,6 +317,28 @@
       color: var(--muted);
       padding-bottom: 0.6rem;
     }
+
+    /* Auth Input Styles */
+    .auth-input {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.4);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .auth-input:focus {
+      border-color: var(--primary);
+    }
+    body.dark .auth-input {
+      background: rgba(0,0,0,0.2);
+    }
+
   /* =========================
    iPHONE / MOBILE ADJUSTMENTS
    ========================= */
@@ -470,7 +492,7 @@
      SETTINGS PAGE (OVERLAY)
      ========================= -->
 <div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
-    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 85vh; overflow-y: auto;">
+    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 90vh; overflow-y: auto;">
     <h2 style="margin-top:0">Settings</h2>
 
     <!-- Appearance -->
@@ -496,26 +518,26 @@
     <div class="month" style="margin-bottom:1rem;">
       <h3>Account</h3>
       
-      <div id="authForms" style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
-        <div id="emailPassFields" style="display: flex; flex-direction: column; gap: 0.5rem;">
-          <input id="emailInput" type="email" placeholder="Email" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem; background: rgba(255,255,255,0.5); color: var(--text);">
-          <input id="passwordInput" type="password" placeholder="Password" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem; background: rgba(255,255,255,0.5); color: var(--text);">
-          <div style="display: flex; gap: 0.5rem;">
-            <button id="emailLoginBtn" class="nav-btn" style="flex: 1; width: auto; font-size: 0.75rem;">Login</button>
-            <button id="emailSignupBtn" class="nav-btn" style="flex: 1; width: auto; font-size: 0.75rem;">Sign Up</button>
-          </div>
+      <!-- Logged Out View -->
+      <div id="loggedOutUI">
+        <input type="email" id="emailInput" class="auth-input" placeholder="Email address">
+        <input type="password" id="passwordInput" class="auth-input" placeholder="Password">
+        
+        <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+          <button id="loginBtn" class="today-btn" style="position:static; flex:1; justify-content:center;">Login</button>
+          <button id="signupBtn" class="theme-btn" style="position:static; flex:1; justify-content:center;">Sign Up</button>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <hr style="flex: 1; border: 0; border-top: 1px solid var(--border);">
-          <span style="font-size: 0.65rem; color: var(--muted);">OR</span>
-          <hr style="flex: 1; border: 0; border-top: 1px solid var(--border);">
-        </div>
-
-        <button id="googleLoginBtn" class="today-btn" style="position:static; width: 100%; display: flex; justify-content: center;">🔐 Google Login</button>
+        <button id="resetPasswordBtn" style="font-size: 0.7rem; color: var(--primary); text-decoration: underline; background: none; border: none; padding: 0; cursor: pointer;">Forgot Password?</button>
       </div>
 
-      <p style="font-size:0.75rem;color:var(--muted)">Sync notes across devices</p>
+      <!-- Logged In View -->
+      <div id="loggedInUI" style="display:none;">
+        <p id="userEmailDisplay" style="font-size: 0.8rem; margin-bottom: 12px;"></p>
+        <button id="logoutBtn" class="today-btn" style="position:static; background: linear-gradient(180deg, #ff3b30, #d70015); width: 100%; justify-content: center;">Sign Out</button>
+      </div>
+
+      <p style="font-size:0.75rem;color:var(--muted); margin-top: 12px;">Sync notes across devices</p>
     </div>
 
     <!-- About -->
@@ -524,31 +546,35 @@
       <p style="font-size:0.75rem;color:var(--muted)">Year Calendar with Notes</p>
     </div>
 
-    <button id="closeSettings" class="theme-btn" style="margin-top:1rem; width: 100%; display: flex; justify-content: center;">Close</button>
+    <button id="closeSettings" class="theme-btn" style="margin-top:1rem; width: 100%; justify-content: center;">Close</button>
   </div>
 </div>
 
 <main id="mainLayout">
-  <div id="calendar" class="calendar"></div>
+
+<div id="calendar" class="calendar"></div>
+
   <div id="resizeHandle" class="resize-handle"></div>
-  <section class="notes">
-    <div class="notes-header">
-      <div style="display:flex;align-items:center;gap:0.6rem;">
-        <h2 style="margin:0">Notes</h2>
-        <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
-      </div>
-      <div class="notes-tools">
-        <button data-cmd="bold"><b>B</b></button>
-        <button data-cmd="italic"><i>I</i></button>
-        <button data-cmd="underline"><u>U</u></button>
-        <button data-cmd="insertUnorderedList">• List</button>
-      </div>
+
+<section class="notes">
+  <div class="notes-header">
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <h2 style="margin:0">Notes</h2>
+      <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
     </div>
-    <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
-  </section>
-</main>
+    <div class="notes-tools">
+      <button data-cmd="bold"><b>B</b></button>
+      <button data-cmd="italic"><i>I</i></button>
+      <button data-cmd="underline"><u>U</u></button>
+      <button data-cmd="insertUnorderedList">• List</button>
+    </div>
+  </div>
+  <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
+</section>
 
 <footer>Highlighted date = Today</footer>
+
+</main>
 
 <script>
   const calEl = document.getElementById('calendar');
@@ -602,7 +628,10 @@
 
   function updateTime() {
     const d = new Date();
-    dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
+    const dtText = document.getElementById('dtText');
+    if(dtText) {
+      dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
+    }
   }
 
   toolButtons.forEach(b => b.onclick = () => document.execCommand(b.dataset.cmd));
@@ -622,6 +651,7 @@
       localStorage.setItem('fontSize', size);
     };
   });
+
   const savedFontSize = localStorage.getItem('fontSize');
   if (savedFontSize) {
     document.documentElement.style.fontSize = savedFontSize + '%';
@@ -629,8 +659,18 @@
 
   settingsBtn.onclick = () => { settingsPage.style.display = 'block'; };
   closeSettings.onclick = () => { settingsPage.style.display = 'none'; };
-  settingsPage.addEventListener('click', (e) => { if (e.target === settingsPage) settingsPage.style.display = 'none'; });
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && settingsPage.style.display === 'block') settingsPage.style.display = 'none'; });
+
+  settingsPage.addEventListener('click', (e) => {
+    if (e.target === settingsPage) {
+      settingsPage.style.display = 'none';
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && settingsPage.style.display === 'block') {
+      settingsPage.style.display = 'none';
+    }
+  });
 
   monthToggleBtn.onclick = () => {
     if (monthViewIndex === null) {
@@ -662,33 +702,43 @@
 
   const pomoDurationInput = document.getElementById('pomoDurationInput');
   pomoDurationInput.value = defaultPomoMinutes;
+
   pomoDurationInput.onchange = () => {
     const val = Math.max(1, Number(pomoDurationInput.value) || 60);
     defaultPomoMinutes = val;
     localStorage.setItem(POMO_KEY, val);
     secs = val * 60;
-    pomoTime.textContent = String(val).padStart(2,'0') + ':00';
+    const pt = document.getElementById('pomoTime');
+    if(pt) pt.textContent = String(val).padStart(2,'0') + ':00';
     clearInterval(timer);
     timer = null;
-    pomoStart.textContent = '▶';
+    const ps = document.getElementById('pomoStart');
+    if(ps) ps.textContent = '▶';
   };
-  pomoStart.onclick = () => {
-    if (timer) { clearInterval(timer); timer = null; pomoStart.textContent = '▶'; return; }
-    pomoStart.textContent = '⏸';
+  
+  document.getElementById('pomoStart').onclick = () => {
+    const ps = document.getElementById('pomoStart');
+    const pt = document.getElementById('pomoTime');
+    if (timer) { clearInterval(timer); timer = null; ps.textContent = '▶'; return; }
+    ps.textContent = '⏸';
     timer = setInterval(() => {
       if (!secs) return clearInterval(timer);
-      secs--; pomoTime.textContent = String(Math.floor(secs/60)).padStart(2,'0')+":"+String(secs%60).padStart(2,'0');
+      secs--; 
+      if(pt) pt.textContent = String(Math.floor(secs/60)).padStart(2,'0')+":"+String(secs%60).padStart(2,'0');
     },1000);
   };
-  pomoReset.onclick = () => {
+
+  document.getElementById('pomoReset').onclick = () => {
+    const ps = document.getElementById('pomoStart');
+    const pt = document.getElementById('pomoTime');
     clearInterval(timer);
     timer = null;
     secs = defaultPomoMinutes * 60;
-    pomoTime.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00';
-    pomoStart.textContent = '▶';
+    if(pt) pt.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00';
+    if(ps) ps.textContent = '▶';
   };
 
-  prev.onclick = () => {
+  document.getElementById('prev').onclick = () => {
     if (monthViewIndex !== null) {
       monthViewIndex = (monthViewIndex + 11) % 12;
       yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
@@ -697,7 +747,7 @@
       renderCalendar(--shownYear);
     }
   };
-  next.onclick = () => {
+  document.getElementById('next').onclick = () => {
     if (monthViewIndex !== null) {
       monthViewIndex = (monthViewIndex + 1) % 12;
       yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
@@ -707,12 +757,15 @@
     }
   };
   todayBtn.onclick = () => {
-    shownYear = CURRENT_YEAR;
-    if (monthViewIndex !== null) {
-      monthViewIndex = TODAY_MONTH;
-      monthToggleBtn.textContent = '🗓 Year';
-      yearEl.textContent = `${MONTHS[TODAY_MONTH]} ${shownYear}`;
+    if (monthViewIndex === null) {
+      shownYear = CURRENT_YEAR;
+      renderCalendar(shownYear);
+      return;
     }
+    shownYear = CURRENT_YEAR;
+    monthViewIndex = TODAY_MONTH;
+    monthToggleBtn.textContent = '🗓 Year';
+    yearEl.textContent = `${MONTHS[TODAY_MONTH]} ${shownYear}`;
     renderCalendar(shownYear);
   };
 
@@ -771,180 +824,151 @@
       localStorage.setItem('layout2_split_sizes', main.style.gridTemplateColumns);
     }
   });
-  handle.addEventListener('dblclick', () => {
-    if (!document.body.classList.contains('layout-2')) return;
-    const main = document.getElementById('mainLayout');
-    main.style.gridTemplateColumns = '2.2fr 8px 1fr';
-  });
 </script>
 
-<!-- Firebase: Auth + Firestore notes -->
+<!-- Firebase Module -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
   import { 
-    getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, 
-    getRedirectResult, setPersistence, browserLocalPersistence, signOut, 
-    onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword 
+    getAuth, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged,
+    signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail,
+    signInAnonymously, signInWithCustomToken
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
-    authDomain: "calendar-599ac.firebaseapp.com",
-    projectId: "calendar-599ac",
-    storageBucket: "calendar-599ac.firebasestorage.app",
-    messagingSenderId: "89812638572",
-    appId: "1:89812638572:web:f02d7309367576a619b149"
-  };
-
+  // Firebase environment config
+  const firebaseConfig = JSON.parse(__firebase_config);
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-notes-v1';
 
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const emailLoginBtn = document.getElementById('emailLoginBtn');
-  const emailSignupBtn = document.getElementById('emailSignupBtn');
+  const loginBtn = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
+  const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
   const emailInput = document.getElementById('emailInput');
   const passwordInput = document.getElementById('passwordInput');
-  const emailPassFields = document.getElementById('emailPassFields');
+  const loggedOutUI = document.getElementById('loggedOutUI');
+  const loggedInUI = document.getElementById('loggedInUI');
+  const userEmailDisplay = document.getElementById('userEmailDisplay');
   const syncStatus = document.getElementById('syncStatus');
-  
+  const notesEditor = document.getElementById('notesEditor');
+  const NOTES_KEY = 'calendar_notes_rich';
+
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
-  const retrySignInBtn = document.createElement('button');
-  retrySignInBtn.id = 'retrySignInBtn';
-  retrySignInBtn.className = 'theme-btn';
-  retrySignInBtn.style.display = 'none';
-  retrySignInBtn.style.marginLeft = '0.5rem';
-  retrySignInBtn.textContent = 'Retry';
-  googleLoginBtn.parentNode.insertBefore(retrySignInBtn, googleLoginBtn.nextSibling);
-  retrySignInBtn.onclick = () => googleLoginBtn.click();
+  // --- Auth Handlers ---
+  const handleAuthError = (err) => {
+    console.error(err);
+    let msg = 'Authentication failed';
+    if(err.code === 'auth/wrong-password') msg = 'Wrong password';
+    if(err.code === 'auth/user-not-found') msg = 'User not found';
+    if(err.code === 'auth/email-already-in-use') msg = 'Email already registered';
+    if(err.code === 'auth/invalid-email') msg = 'Invalid email address';
+    if(err.code === 'auth/weak-password') msg = 'Password is too weak';
+    setSyncStatus('Error: ' + msg);
+  };
 
-  let isSigningIn = false;
-
-  function isIOS() {
-    return /iPad|iPhone/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
-
-  // --- Email/Password Handlers ---
-  emailLoginBtn.onclick = async () => {
-    const email = emailInput.value;
+  loginBtn.onclick = async () => {
+    const email = emailInput.value.trim();
     const password = passwordInput.value;
-    if (!email || !password) return setSyncStatus('Enter email & password');
+    if(!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Logging in...');
-      await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      setSyncStatus('Error: ' + err.code);
-    }
+    } catch (err) { handleAuthError(err); }
   };
 
-  emailSignupBtn.onclick = async () => {
-    const email = emailInput.value;
+  signupBtn.onclick = async () => {
+    const email = emailInput.value.trim();
     const password = passwordInput.value;
-    if (!email || !password) return setSyncStatus('Enter email & password');
+    if(!email || !password) return setSyncStatus('Enter email & password');
     try {
-      setSyncStatus('Signing up...');
-      await setPersistence(auth, browserLocalPersistence);
+      setSyncStatus('Creating account...');
       await createUserWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      setSyncStatus('Error: ' + err.code);
-    }
+    } catch (err) { handleAuthError(err); }
   };
 
-  // --- Google Auth Handler ---
-  googleLoginBtn.onclick = async () => {
-    if (isSigningIn) return;
+  resetPasswordBtn.onclick = async () => {
+    const email = emailInput.value.trim();
+    if(!email) return setSyncStatus('Enter your email first');
     try {
-      if (!auth.currentUser) {
-        isSigningIn = true;
-        retrySignInBtn.style.display = 'none';
-        googleLoginBtn.disabled = true;
-        setSyncStatus('Signing in...');
+      setSyncStatus('Sending reset link...');
+      await sendPasswordResetEmail(auth, email);
+      setSyncStatus('Check your inbox for reset link');
+    } catch (err) { handleAuthError(err); }
+  };
 
-        try { await setPersistence(auth, browserLocalPersistence); } catch (e) {}
+  logoutBtn.onclick = () => signOut(auth);
 
-        if (isIOS()) {
-          await signInWithRedirect(auth, provider);
-        } else {
-          try {
-            await signInWithPopup(auth, provider);
-          } catch (err) {
-            if (err && (err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-blocked')) {
-              setSyncStatus('Popup blocked — redirecting...');
-              await signInWithRedirect(auth, provider);
-            } else { throw err; }
-          }
-        }
-      } else {
-        await signOut(auth);
+  // --- Initial Startup ---
+  const initAuth = async () => {
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        await signInWithCustomToken(auth, __initial_auth_token);
       }
-    } catch (err) {
-      setSyncStatus('Login failed: ' + (err.code || 'error'));
-      retrySignInBtn.style.display = 'inline-block';
-    } finally {
-      isSigningIn = false;
-      googleLoginBtn.disabled = false;
-    }
+    } catch (err) { console.error("Init Auth error", err); }
   };
+  initAuth();
 
-  (async () => {
-    try {
-      const redirectResult = await getRedirectResult(auth);
-      if (redirectResult && redirectResult.user) setSyncStatus('Signed in — syncing');
-    } catch (err) {}
-  })();
-
-  // Listen for auth changes
+  // --- Sync Logic ---
   let unsubscribeNote = null;
   onAuthStateChanged(auth, user => {
     if (user) {
-      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.email || 'you') + ')';
-      emailPassFields.style.display = 'none';
-      setSyncStatus('Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
-      retrySignInBtn.style.display = 'none';
+      loggedOutUI.style.display = 'none';
+      loggedInUI.style.display = 'block';
+      userEmailDisplay.textContent = `Logged in as: ${user.email}`;
+      setSyncStatus('Signed in — syncing');
 
-      const noteRef = doc(db, 'user_notes', user.uid);
+      // RULE 1: Strict path structure
+      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'main_note');
+
       if (unsubscribeNote) unsubscribeNote();
       unsubscribeNote = onSnapshot(noteRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
-          if (notesEditor.innerHTML !== data.content) {
+          // Avoid overwriting if user is typing
+          if (document.activeElement !== notesEditor) {
             notesEditor.innerHTML = data.content || '';
           }
-          setSyncStatus('Synced');
+          setSyncStatus('Cloud Synced');
         } else {
-          const local = localStorage.getItem('calendar_notes_rich') || '';
-          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-            .then(()=> setSyncStatus('Synced (seeded)'));
+          // New user, seed with local content
+          const local = localStorage.getItem(NOTES_KEY) || '';
+          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
+            .then(() => setSyncStatus('Synced (Started Cloud)'));
         }
-      }, err => setSyncStatus('Sync error: ' + err.code));
+      }, err => {
+        console.error('Firestore Error:', err);
+        setSyncStatus('Sync Error: Permission Denied');
+      });
     } else {
-      googleLoginBtn.textContent = '🔐 Google Login';
-      emailPassFields.style.display = 'flex';
-      setSyncStatus('Not signed in (local only)');
-      retrySignInBtn.style.display = 'none';
+      loggedOutUI.style.display = 'block';
+      loggedInUI.style.display = 'none';
+      setSyncStatus('Not signed in (Local mode)');
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
-      notesEditor.innerHTML = localStorage.getItem('calendar_notes_rich') || ''; 
+      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
     }
   });
 
-  // Debounced auto-save
+  // --- Debounced Save ---
   let saveTimer = null;
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
-    localStorage.setItem('calendar_notes_rich', html);
+    localStorage.setItem(NOTES_KEY, html);
     if (auth.currentUser) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         try {
-          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-          await setDoc(noteRef, { userId: auth.currentUser.uid, content: html, updatedAt: serverTimestamp() }, { merge: true });
-          setSyncStatus('Saved at ' + new Date().toLocaleTimeString());
-        } catch (err) { setSyncStatus('Failed to save'); }
-      }, 700);
+          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'data', 'main_note');
+          await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
+          setSyncStatus('All changes saved');
+        } catch (err) {
+          setSyncStatus('Cloud save failed');
+        }
+      }, 800);
     }
   });
 
