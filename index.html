@@ -1131,10 +1131,12 @@
       AUTH & DATA SYNC
       ========================= */
   const handleAuthError = (err) => {
-    console.error(err);
+    console.error("Auth error detail:", err);
     let msg = 'Authentication failed';
-    if(err.code === 'auth/wrong-password') msg = 'Wrong password';
+    if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Wrong email/password';
     if(err.code === 'auth/user-not-found') msg = 'User not found';
+    if(err.code === 'auth/email-already-in-use') msg = 'Email already in use';
+    if(err.code === 'auth/invalid-email') msg = 'Invalid email';
     setSyncStatus('Error: ' + msg);
   };
 
@@ -1142,14 +1144,20 @@
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if(!email || !password) return setSyncStatus('Enter email & password');
-    try { await signInWithEmailAndPassword(auth, email, password); } catch (err) { handleAuthError(err); }
+    try { 
+      setSyncStatus('Attempting login...');
+      await signInWithEmailAndPassword(auth, email, password); 
+    } catch (err) { handleAuthError(err); }
   };
 
   signupBtn.onclick = async () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if(!email || !password) return setSyncStatus('Enter email & password');
-    try { await createUserWithEmailAndPassword(auth, email, password); } catch (err) { handleAuthError(err); }
+    try { 
+      setSyncStatus('Creating account...');
+      await createUserWithEmailAndPassword(auth, email, password); 
+    } catch (err) { handleAuthError(err); }
   };
 
   resetPasswordBtn.onclick = async () => {
@@ -1165,7 +1173,8 @@
       await setPersistence(auth, browserLocalPersistence);
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
-      } else {
+      } else if (!auth.currentUser) {
+        // Only trigger anonymous sign-in if no active session exists
         await signInAnonymously(auth);
       }
     } catch (err) { console.error("Init Auth error", err); }
@@ -1179,7 +1188,7 @@
     if (user) {
       loggedOutUI.style.display = 'none';
       loggedInUI.style.display = 'block';
-      userEmailDisplay.textContent = `Logged in as: ${user.email || 'Anonymous'}`;
+      userEmailDisplay.textContent = `Logged in as: ${user.email || 'Guest'}`;
       setSyncStatus('Cloud Synced');
 
       // Notes Basic Sync Logic (Restored)
@@ -1193,14 +1202,14 @@
           }
           setSyncStatus('Cloud Synced');
         } else {
-          // Reverting to basic seeding method
+          // Reverting to basic seeding method: Use local data if cloud is empty
           const local = localStorage.getItem(NOTES_KEY) || '';
           setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
             .then(() => setSyncStatus('Cloud Initialized'));
         }
       }, err => {
-        console.error(err);
-        setSyncStatus('Sync Error: Check Permissions');
+        console.error("Firestore note sync error:", err);
+        setSyncStatus('Sync Error: Access Denied');
       });
 
       // Pomodoro Sync
