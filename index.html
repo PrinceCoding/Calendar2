@@ -929,14 +929,17 @@
     if(fpt) fpt.textContent = timeText;
   }
 
+  let syncPomoInterval = null;
   function togglePomo() {
     const ps = document.getElementById('pomoStart');
     const fps = document.getElementById('floatingPomoStart');
     if (timer) { 
       clearInterval(timer); 
+      clearInterval(syncPomoInterval);
       timer = null; 
       ps.textContent = '▶'; 
       fps.textContent = '▶';
+      savePomoToCloudDebounced();
       return; 
     }
     ps.textContent = '⏸';
@@ -946,17 +949,28 @@
       secs--; 
       updatePomoDisplay();
     }, 1000);
+    
+    // Save running state and sync seconds every 2 seconds while timer is active
+    if (syncPomoInterval) clearInterval(syncPomoInterval);
+    syncPomoInterval = setInterval(() => {
+      if (timer && auth.currentUser) {
+        const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
+        setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Real-time sync error:', err));
+      }
+    }, 2000);
   }
 
   function resetPomo() {
     const ps = document.getElementById('pomoStart');
     const fps = document.getElementById('floatingPomoStart');
     clearInterval(timer);
+    clearInterval(syncPomoInterval);
     timer = null;
     secs = defaultPomoMinutes * 60;
     updatePomoDisplay();
     ps.textContent = '▶';
     fps.textContent = '▶';
+    savePomoToCloudDebounced();
   }
 
   pomoDurationInput.onchange = () => {
