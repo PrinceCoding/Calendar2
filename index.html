@@ -3078,27 +3078,13 @@
   
   // Get user display name (email or name)
   function getUserDisplayName() {
-    // Try to get from localStorage first
-    let displayName = localStorage.getItem('studyDisplayName');
-    
-    if (!displayName) {
-      // Try to get from Firebase auth if logged in
-      if (auth && auth.currentUser && auth.currentUser.email) {
-        displayName = auth.currentUser.email;
-        localStorage.setItem('studyDisplayName', displayName);
-      } else {
-        // Prompt user to enter their email/name
-        displayName = prompt('Enter your email or name for chat:', '');
-        if (displayName && displayName.trim()) {
-          displayName = displayName.trim();
-          localStorage.setItem('studyDisplayName', displayName);
-        } else {
-          displayName = 'Anonymous' + Math.floor(Math.random() * 1000);
-        }
-      }
+    // Try to get from Firebase auth if logged in
+    if (auth && auth.currentUser && auth.currentUser.email) {
+      return auth.currentUser.email;
     }
     
-    return displayName;
+    // Otherwise use random anonymous name
+    return 'User' + Math.floor(Math.random() * 10000);
   }
   
   let myUserId = getUserDisplayName();
