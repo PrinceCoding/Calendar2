@@ -3071,8 +3071,11 @@
   const sendChatBtn = document.getElementById('sendChatBtn');
   const chatMessageInput = document.getElementById('chatMessageInput');
   
-  let currentStudyMode = 'solo'; // 'solo' or 'group'
+  let currentStudyMode = 'solo';
   let currentSessionCode = null;
+  let peer = null;
+  let connections = [];
+  let myUserId = 'user' + Math.floor(Math.random() * 1000000);
   
   // Generate random session code
   function generateSessionCode() {
@@ -3082,6 +3085,114 @@
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return code;
+  }
+  
+  // Initialize PeerJS
+  function initPeer(sessionCode, isHost) {
+    const peerId = `study-${sessionCode.toLowerCase()}-${isHost ? 'host' : myUserId}`;
+    
+    peer = new Peer(peerId, {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    });
+    
+    peer.on('open', (id) => {
+      console.log('Connected with ID:', id);
+      addChatSystemMessage('✓ Connected to chat');
+      
+      // If not host, connect to host
+      if (!isHost) {
+        const hostId = `study-${sessionCode.toLowerCase()}-host`;
+        setTimeout(() => {
+          const conn = peer.connect(hostId);
+          setupConnection(conn);
+        }, 1000);
+      }
+    });
+    
+    peer.on('connection', (conn) => {
+      console.log('New peer connected');
+      setupConnection(conn);
+      addChatSystemMessage('Someone joined the session');
+    });
+    
+    peer.on('error', (err) => {
+      console.error('Peer error:', err);
+      addChatSystemMessage('⚠️ Running in offline mode');
+    });
+  }
+  
+  function setupConnection(conn) {
+    connections.push(conn);
+    
+    conn.on('open', () => {
+      console.log('Connection established');
+      updateParticipantCount();
+    });
+    
+    conn.on('data', (data) => {
+      if (data.type === 'message') {
+        displayReceivedMessage(data.userId, data.text);
+      }
+    });
+    
+    conn.on('close', () => {
+      connections = connections.filter(c => c !== conn);
+      updateParticipantCount();
+      addChatSystemMessage('Someone left the session');
+    });
+  }
+  
+  function broadcastMessage(text) {
+    const message = {
+      type: 'message',
+      userId: myUserId,
+      text: text
+    };
+    
+    connections.forEach(conn => {
+      if (conn.open) {
+        conn.send(message);
+      }
+    });
+  }
+  
+  function displayReceivedMessage(userId, text) {
+    const chatContainer = document.getElementById('matrixChatMessages');
+    if (!chatContainer) return;
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.style.cssText = 'padding:0.5rem;margin:0.3rem 0;background:rgba(0,0,0,0.05);border-radius:8px;';
+    msgDiv.innerHTML = `<strong style="color:var(--primary);">${userId}:</strong> ${escapeHtml(text)}`;
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+  
+  function addChatSystemMessage(text) {
+    const chatContainer = document.getElementById('matrixChatMessages');
+    if (!chatContainer) return;
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.style.cssText = 'text-align:center;color:var(--muted);font-size:0.75rem;padding:0.3rem;';
+    msgDiv.textContent = text;
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+  
+  function updateParticipantCount() {
+    const count = connections.filter(c => c.open).length + 1;
+    const countEl = document.getElementById('participantCount');
+    if (countEl) countEl.textContent = count;
+  }
+  
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
   
   // Toggle study mode
@@ -3107,23 +3218,18 @@
   });
   
   // Create session
-  createSessionBtn.onclick = async () => {
+  createSessionBtn.onclick = () => {
     currentSessionCode = generateSessionCode();
     document.getElementById('generatedCode').textContent = currentSessionCode;
     copySessionCodeBtn.style.display = 'block';
     document.getElementById('createInfo').textContent = '✓ Session created! Share the code.';
     document.getElementById('createInfo').style.color = 'var(--today)';
     
-    // Show chat immediately
     enterGroupMode();
     studyModal.style.display = 'none';
     
-    // Join Matrix room in background
-    if (window.createOrJoinStudyRoom) {
-      window.createOrJoinStudyRoom(currentSessionCode).catch(err => {
-        console.log('Matrix connection failed, running offline:', err);
-      });
-    }
+    // Start as host
+    initPeer(currentSessionCode, true);
   };
   
   // Copy code
@@ -3136,7 +3242,7 @@
   };
   
   // Join session
-  joinSessionBtn.onclick = async () => {
+  joinSessionBtn.onclick = () => {
     const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
     if (code.length !== 6) {
       document.getElementById('joinInfo').textContent = '⚠️ Enter a valid 6-character code';
@@ -3148,16 +3254,11 @@
     document.getElementById('joinInfo').textContent = '✓ Joining...';
     document.getElementById('joinInfo').style.color = 'var(--today)';
     
-    // Show chat immediately
     enterGroupMode();
     studyModal.style.display = 'none';
     
-    // Join Matrix room in background
-    if (window.createOrJoinStudyRoom) {
-      window.createOrJoinStudyRoom(currentSessionCode).catch(err => {
-        console.log('Matrix connection failed, running offline:', err);
-      });
-    }
+    // Join as participant
+    initPeer(currentSessionCode, false);
   };
   
   // Enter group mode
@@ -3172,13 +3273,16 @@
   // Exit group mode
   function exitGroupMode() {
     currentStudyMode = 'solo';
+    
+    // Clean up peer connections
+    if (peer) {
+      peer.destroy();
+      peer = null;
+    }
+    connections = [];
     studyToggleBtn.textContent = '👤 Solo Study';
     studyToggleBtn.classList.remove('active');
     chatWidget.style.display = 'none';
-    
-    if (window.leaveMatrixRoom) {
-      window.leaveMatrixRoom();
-    }
     
     currentSessionCode = null;
     document.getElementById('matrixChatMessages').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.75rem;margin-top:2rem;">Welcome! 🎉<br>Start chatting with your study partners.</div>';
@@ -3197,10 +3301,8 @@
     chatContainer.appendChild(msgDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
     
-    // Send to Matrix
-    if (window.sendMatrixMessage) {
-      window.sendMatrixMessage(text);
-    }
+    // Broadcast to peers
+    broadcastMessage(text);
     
     chatMessageInput.value = '';
   }
@@ -3229,180 +3331,8 @@
   
 </script>
 
-<!-- Matrix SDK for Free Chat -->
-<script src="https://cdn.jsdelivr.net/npm/matrix-js-sdk@29.1.0/dist/browser-matrix.min.js"></script>
-
-<!-- Group Study Chat Integration (100% FREE with Matrix) -->
-<script>
-  // =========================
-  // MATRIX CHAT - COMPLETELY FREE
-  // =========================
-  
-  let matrixClient = null;
-  let currentRoom = null;
-  let isGroupStudyMode = false;
-  let studySessionCode = null;
-  
-  // Matrix Configuration (uses free public homeserver)
-  const MATRIX_HOMESERVER = 'https://matrix.org'; // Free public server
-  const ROOM_ALIAS_PREFIX = '#study-';
-  
-  async function initMatrixChat() {
-    try {
-      const sdk = window.matrixcs;
-      const userId = `@study_user_${Math.floor(Math.random() * 100000)}:matrix.org`;
-      
-      matrixClient = sdk.createClient({
-        baseUrl: MATRIX_HOMESERVER
-      });
-      
-      // Register as guest (completely free, no signup needed!)
-      try {
-        const response = await matrixClient.registerGuest();
-        await matrixClient.startClient({ initialSyncLimit: 10 });
-        
-        console.log('Connected to Matrix chat (FREE)');
-        return true;
-      } catch (error) {
-        console.error('Matrix registration error:', error);
-        showChatMessage('⚠️ Running in offline mode');
-        return false;
-      }
-    } catch (error) {
-      console.error('Matrix init error:', error);
-      return false;
-    }
-  }
-  
-  async function createOrJoinStudyRoom(sessionCode) {
-    if (!matrixClient) {
-      const initialized = await initMatrixChat();
-      if (!initialized) return false;
-    }
-    
-    try {
-      const roomAlias = `${ROOM_ALIAS_PREFIX}${sessionCode.toLowerCase()}:matrix.org`;
-      
-      // Try to join existing room
-      try {
-        const roomId = await matrixClient.getRoomIdForAlias(roomAlias);
-        currentRoom = await matrixClient.joinRoom(roomId.room_id);
-        showChatMessage(`✓ Joined study session ${sessionCode}`);
-      } catch (e) {
-        // Room doesn't exist, create it
-        const room = await matrixClient.createRoom({
-          room_alias_name: `study-${sessionCode.toLowerCase()}`,
-          visibility: 'public',
-          name: `Study Session ${sessionCode}`,
-          topic: 'Group Study Chat'
-        });
-        currentRoom = room.room_id;
-        showChatMessage(`✓ Created study session ${sessionCode}`);
-      }
-      
-      // Listen for messages
-      matrixClient.on('Room.timeline', (event, room) => {
-        if (room.roomId === currentRoom && event.getType() === 'm.room.message') {
-          const sender = event.getSender();
-          const content = event.getContent();
-          
-          if (sender !== matrixClient.getUserId()) {
-            displayReceivedChatMessage(sender.split(':')[0].substring(1), content.body);
-          }
-        }
-      });
-      
-      // Listen for member changes
-      matrixClient.on('RoomMember.membership', () => {
-        updateChatParticipants();
-      });
-      
-      updateChatParticipants();
-      return true;
-      
-    } catch (error) {
-      console.error('Error joining/creating room:', error);
-      showChatMessage('⚠️ Could not connect to chat');
-      return false;
-    }
-  }
-  
-  async function sendMatrixMessage(text) {
-    if (!matrixClient || !currentRoom) {
-      console.error('Not connected to chat');
-      return;
-    }
-    
-    try {
-      await matrixClient.sendTextMessage(currentRoom, text);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      showChatMessage('⚠️ Message not sent');
-    }
-  }
-  
-  function displayReceivedChatMessage(sender, message) {
-    const chatContainer = document.getElementById('matrixChatMessages');
-    if (!chatContainer) return;
-    
-    const msgDiv = document.createElement('div');
-    msgDiv.style.cssText = 'padding:0.5rem;margin:0.3rem 0;background:rgba(0,0,0,0.05);border-radius:8px;';
-    msgDiv.innerHTML = `<strong style="color:var(--primary);">${sender}:</strong> ${escapeHtml(message)}`;
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-  
-  function showChatMessage(text) {
-    const chatContainer = document.getElementById('matrixChatMessages');
-    if (!chatContainer) return;
-    
-    const msgDiv = document.createElement('div');
-    msgDiv.style.cssText = 'text-align:center;color:var(--muted);font-size:0.75rem;padding:0.3rem;';
-    msgDiv.textContent = text;
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-  
-  function updateChatParticipants() {
-    if (!matrixClient || !currentRoom) return;
-    
-    const room = matrixClient.getRoom(currentRoom);
-    if (!room) return;
-    
-    const members = room.getJoinedMembers();
-    const count = document.getElementById('participantCount');
-    const list = document.getElementById('participantNames');
-    
-    if (count) count.textContent = members.length;
-    if (list) {
-      const names = members.map(m => m.userId.split(':')[0].substring(1)).join(', ');
-      list.textContent = names || 'Just you';
-    }
-  }
-  
-  async function leaveMatrixRoom() {
-    if (matrixClient && currentRoom) {
-      try {
-        await matrixClient.leave(currentRoom);
-        currentRoom = null;
-      } catch (error) {
-        console.error('Error leaving room:', error);
-      }
-    }
-  }
-  
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  
-  // Expose functions globally
-  window.createOrJoinStudyRoom = createOrJoinStudyRoom;
-  window.sendMatrixMessage = sendMatrixMessage;
-  window.leaveMatrixRoom = leaveMatrixRoom;
-  
-</script>
+<!-- PeerJS for P2P Chat (100% FREE) -->
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
 </body>
 </html>
