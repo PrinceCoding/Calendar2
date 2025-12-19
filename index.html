@@ -439,39 +439,6 @@
         display: none;
       }
     }
-
-    /* Account Section Styling */
-    .account-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 5px;
-    }
-    .phone-login-box {
-      border-top: 1px solid var(--border);
-      padding-top: 10px;
-    }
-    .phone-input-row {
-      display: flex;
-      gap: 5px;
-      margin-top: 5px;
-    }
-    .phone-input-row select, .phone-input-row input {
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 0.8rem;
-      background: rgba(255,255,255,0.5);
-      color: var(--text);
-      outline: none;
-    }
-    body.dark .phone-input-row select, body.dark .phone-input-row input {
-      background: rgba(0,0,0,0.2);
-    }
-    .phone-input-row select { width: 85px; }
-    .phone-input-row input { flex: 1; }
-    #recaptcha-container { margin: 5px 0; min-height: 78px; display: flex; align-items: center; }
-
 </style>
 </head>
 <body>
@@ -502,7 +469,7 @@
      SETTINGS PAGE (OVERLAY)
      ========================= -->
 <div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
-    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);max-height: 90vh; overflow-y: auto;">
+    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);">
     <h2 style="margin-top:0">Settings</h2>
 
     <!-- Appearance -->
@@ -527,34 +494,8 @@
     <!-- Account -->
     <div class="month" style="margin-bottom:1rem;">
       <h3>Account</h3>
-      <div class="account-actions">
-        <button id="googleLoginBtn" class="today-btn" style="position:static; width: 100%; display: flex; justify-content: center;">🔐 Google Login</button>
-        
-        <div id="phoneLoginArea" class="phone-login-box">
-          <p style="font-size:0.75rem;color:var(--muted);">Login with Phone Number</p>
-          <div class="phone-input-row" id="phoneInputGroup">
-            <select id="countryCode">
-              <option value="+1">🇺🇸 +1</option>
-              <option value="+44">🇬🇧 +44</option>
-              <option value="+91">🇮🇳 +91</option>
-              <option value="+61">🇦🇺 +61</option>
-              <option value="+81">🇯🇵 +81</option>
-              <option value="+33">🇫🇷 +33</option>
-              <option value="+49">🇩🇪 +49</option>
-            </select>
-            <input type="tel" id="phoneNumber" placeholder="Phone number">
-            <button id="sendSmsBtn" class="theme-btn" style="position:static; font-size:0.7rem; white-space:nowrap;">Send Code</button>
-          </div>
-          
-          <div id="recaptcha-container"></div>
-          
-          <div class="phone-input-row" id="otpInputGroup" style="display:none;">
-            <input type="text" id="otpCode" placeholder="Verification code">
-            <button id="verifyOtpBtn" class="today-btn" style="position:static; font-size:0.7rem; white-space:nowrap;">Verify</button>
-          </div>
-        </div>
-      </div>
-      <p style="font-size:0.75rem;color:var(--muted); margin-top:10px;">Sync notes across devices</p>
+      <button id="googleLoginBtn" class="today-btn" style="position:static; width: 100%; display: flex; justify-content: center;">🔐 Google Login</button>
+      <p style="font-size:0.75rem;color:var(--muted); margin-top: 10px;">Sync notes across devices</p>
     </div>
 
     <!-- About -->
@@ -563,35 +504,31 @@
       <p style="font-size:0.75rem;color:var(--muted)">Year Calendar with Notes</p>
     </div>
 
-    <button id="closeSettings" class="theme-btn" style="margin-top:1rem; width:100%; display:flex; justify-content:center;">Close</button>
+    <button id="closeSettings" class="theme-btn" style="margin-top:1rem; width: 100%; display: flex; justify-content: center;">Close</button>
   </div>
 </div>
 
 <main id="mainLayout">
-
-<div id="calendar" class="calendar"></div>
-
+  <div id="calendar" class="calendar"></div>
   <div id="resizeHandle" class="resize-handle"></div>
-
-<section class="notes">
-  <div class="notes-header">
-    <div style="display:flex;align-items:center;gap:0.6rem;">
-      <h2 style="margin:0">Notes</h2>
-      <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
+  <section class="notes">
+    <div class="notes-header">
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <h2 style="margin:0">Notes</h2>
+        <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
+      </div>
+      <div class="notes-tools">
+        <button data-cmd="bold"><b>B</b></button>
+        <button data-cmd="italic"><i>I</i></button>
+        <button data-cmd="underline"><u>U</u></button>
+        <button data-cmd="insertUnorderedList">• List</button>
+      </div>
     </div>
-    <div class="notes-tools">
-      <button data-cmd="bold"><b>B</b></button>
-      <button data-cmd="italic"><i>I</i></button>
-      <button data-cmd="underline"><u>U</u></button>
-      <button data-cmd="insertUnorderedList">• List</button>
-    </div>
-  </div>
-  <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
-</section>
+    <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
+  </section>
+</main>
 
 <footer>Highlighted date = Today</footer>
-
-</main>
 
 <script>
   const calEl = document.getElementById('calendar');
@@ -736,8 +673,7 @@
     const pomoStart = document.getElementById('pomoStart');
     if (pomoStart) pomoStart.textContent = '▶';
   };
-  
-  document.getElementById('pomoStart').onclick = () => {
+  pomoStart.onclick = () => {
     const pomoStart = document.getElementById('pomoStart');
     const pomoTime = document.getElementById('pomoTime');
     if (timer) { clearInterval(timer); timer = null; pomoStart.textContent = '▶'; return; }
@@ -749,7 +685,7 @@
     },1000);
   };
 
-  document.getElementById('pomoReset').onclick = () => {
+  pomoReset.onclick = () => {
     const pomoStart = document.getElementById('pomoStart');
     const pomoTime = document.getElementById('pomoTime');
     clearInterval(timer);
@@ -758,8 +694,7 @@
     if (pomoTime) pomoTime.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00';
     if (pomoStart) pomoStart.textContent = '▶';
   };
-
-  document.getElementById('prev').onclick = () => {
+  prev.onclick = () => {
     if (monthViewIndex !== null) {
       monthViewIndex = (monthViewIndex + 11) % 12;
       yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
@@ -768,7 +703,7 @@
       renderCalendar(--shownYear);
     }
   };
-  document.getElementById('next').onclick = () => {
+  next.onclick = () => {
     if (monthViewIndex !== null) {
       monthViewIndex = (monthViewIndex + 1) % 12;
       yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
@@ -777,7 +712,7 @@
       renderCalendar(++shownYear);
     }
   };
-  document.getElementById('todayBtn').onclick = () => {
+  todayBtn.onclick = () => {
     if (monthViewIndex === null) {
       shownYear = CURRENT_YEAR;
       renderCalendar(shownYear);
@@ -789,7 +724,6 @@
     yearEl.textContent = `${MONTHS[TODAY_MONTH]} ${shownYear}`;
     renderCalendar(shownYear);
   };
-  
   const themes = [
     { name: '🍎 macOS', class: '' },
     { name: '🌙 Dark', class: 'dark' },
@@ -797,17 +731,19 @@
     { name: '🌲 Forest', class: 'theme-forest' },
     { name: '🌅 Solar', class: 'theme-solar' }
   ];
-  let themeIdx = 0;
-  document.getElementById('themeBtn').onclick = () => {
+  let themeIndex = 0;
+
+  themeBtn.onclick = () => {
     document.body.classList.remove('dark','theme-ocean','theme-forest','theme-solar');
-    themeIdx = (themeIdx + 1) % themes.length;
-    const t = themes[themeIdx];
+    themeIndex = (themeIndex + 1) % themes.length;
+    const t = themes[themeIndex];
     if (t.class) document.body.classList.add(t.class);
-    document.getElementById('themeBtn').textContent = t.name;
+    themeBtn.textContent = t.name;
   };
 
   const layoutBtn = document.getElementById('layoutBtn');
   let currentLayout = 1;
+
   layoutBtn.onclick = () => {
     const main = document.getElementById('mainLayout');
     if (currentLayout === 1) {
@@ -826,10 +762,12 @@
 
   const handle = document.getElementById('resizeHandle');
   let isResizing = false;
+
   handle.addEventListener('mousedown', () => {
     isResizing = true;
     document.body.style.cursor = 'col-resize';
   });
+
   window.addEventListener('mousemove', (e) => {
     if (!isResizing || !document.body.classList.contains('layout-2')) return;
     const main = document.getElementById('mainLayout');
@@ -839,6 +777,7 @@
     const leftFr = Math.max(1, Math.min(4, (leftWidth / total) * 3));
     main.style.gridTemplateColumns = `${leftFr}fr 8px ${4 - leftFr}fr`;
   });
+
   window.addEventListener('mouseup', () => {
     if (!isResizing) return;
     isResizing = false;
@@ -848,6 +787,7 @@
       localStorage.setItem('layout2_split_sizes', main.style.gridTemplateColumns);
     }
   });
+
   handle.addEventListener('dblclick', () => {
     if (!document.body.classList.contains('layout-2')) return;
     const main = document.getElementById('mainLayout');
@@ -857,7 +797,7 @@
 
 <!-- Firebase: Auth + Firestore notes -->
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
   import { 
     getAuth, 
     GoogleAuthProvider, 
@@ -867,113 +807,64 @@
     setPersistence, 
     browserLocalPersistence, 
     signOut, 
-    onAuthStateChanged, 
-    signInWithPhoneNumber, 
-    RecaptchaVerifier, 
-    signInAnonymously, 
-    signInWithCustomToken 
-  } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+    onAuthStateChanged,
+    signInAnonymously,
+    signInWithCustomToken
+  } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  const firebaseConfig = JSON.parse(__firebase_config);
+  // Environment variables
+  const firebaseConfig = {
+    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
+    authDomain: "calendar-599ac.firebaseapp.com",
+    projectId: "calendar-599ac",
+    storageBucket: "calendar-599ac.firebasestorage.app",
+    messagingSenderId: "89812638572",
+    appId: "1:89812638572:web:f02d7309367576a619b149"
+  };
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-app-v1';
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-notes-v2';
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
-  const phoneLoginArea = document.getElementById('phoneLoginArea');
-  const sendSmsBtn = document.getElementById('sendSmsBtn');
-  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-  const otpSection = document.getElementById('otpSection');
-  const otpInputGroup = document.getElementById('otpInputGroup');
-  const phoneInputGroup = document.getElementById('phoneInputGroup');
+  const notesEditor = document.getElementById('notesEditor');
+  const NOTES_KEY = 'calendar_notes_rich';
 
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
   let isSigningIn = false;
-  let confirmationResult = null;
 
   function isIOS() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
-  // --- Initial Auth Startup ---
+  // --- Auth Initialization (Move Persistence Here) ---
   const initAuth = async () => {
     try {
-      // Set persistence first globally
+      // Set persistence once at startup so it doesn't block the popup later
       await setPersistence(auth, browserLocalPersistence);
       
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
       } else if (!auth.currentUser) {
-        await signInAnonymously(auth);
+        // Optional: sign in anonymously to allow for initial data structure
+        // await signInAnonymously(auth); 
       }
-    } catch (err) { console.error("Init Auth error", err); }
+    } catch (err) {
+      console.error('Initialization error:', err);
+    }
   };
   initAuth();
 
-  // --- Phone Login Reset Helper ---
-  const clearRecaptcha = () => {
-    if (window.recaptchaVerifier) {
-      try { window.recaptchaVerifier.clear(); } catch (e) {}
-      window.recaptchaVerifier = null;
-    }
-    const container = document.getElementById('recaptcha-container');
-    if (container) container.innerHTML = '';
-  };
-
-  sendSmsBtn.onclick = async () => {
-    const rawNumber = document.getElementById('phoneNumber').value.trim();
-    const codePrefix = document.getElementById('countryCode').value;
-    if (!rawNumber) return alert('Please enter a phone number');
-    
-    try {
-      sendSmsBtn.disabled = true;
-      clearRecaptcha();
-      
-      // Standard reCAPTCHA construction for Firebase v9+
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'normal'
-      });
-      
-      await window.recaptchaVerifier.render();
-      
-      setSyncStatus('Sending SMS...');
-      confirmationResult = await signInWithPhoneNumber(auth, codePrefix + rawNumber, window.recaptchaVerifier);
-      setSyncStatus('SMS Sent');
-      otpInputGroup.style.display = 'flex';
-      phoneInputGroup.style.display = 'none';
-      document.getElementById('recaptcha-container').style.display = 'none';
-    } catch (err) {
-      console.error('SMS Error:', err);
-      setSyncStatus('SMS failed');
-      alert('Error: ' + err.message);
-      clearRecaptcha();
-      sendSmsBtn.disabled = false;
-    }
-  };
-
-  verifyOtpBtn.onclick = async () => {
-    const code = document.getElementById('otpCode').value.trim();
-    if (!code) return alert('Enter verification code');
-    try {
-      setSyncStatus('Verifying...');
-      await confirmationResult.confirm(code);
-      setSyncStatus('Verified');
-      otpInputGroup.style.display = 'none';
-    } catch (err) {
-      alert('Invalid code. Try again.');
-      setSyncStatus('Verification failed');
-    }
-  };
-
-  // --- Google Login Handler (Optimized for Safari) ---
+  // --- Google Login Handler (Immediate Action for Safari) ---
   googleLoginBtn.onclick = () => {
     if (isSigningIn) return;
     
+    // If logged in, sign out
     if (auth.currentUser && !auth.currentUser.isAnonymous) {
       signOut(auth);
       return;
@@ -981,24 +872,25 @@
 
     isSigningIn = true;
     googleLoginBtn.disabled = true;
-    setSyncStatus('Connecting...');
+    setSyncStatus('Connecting to Google...');
 
-    // CRITICAL: Safari blocks popups/redirects if we await anything before calling them.
-    // For iOS/iPadOS iframes, signInWithRedirect is the most reliable path.
+    // CRITICAL: Call the auth method IMMEDIATELY to satisfy Safari's popup block detection.
+    // For iOS/iPadOS iframes, redirect is the most reliable path.
     if (isIOS()) {
       signInWithRedirect(auth, provider);
     } else {
+      // signInWithPopup opens in a new tab/window
       signInWithPopup(auth, provider)
         .then(() => {
           isSigningIn = false;
           googleLoginBtn.disabled = false;
         })
         .catch(err => {
-          console.warn('Popup blocked or failed, falling back to redirect', err);
+          console.warn('Popup blocked or failed, falling back to redirect...', err);
           if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
             signInWithRedirect(auth, provider);
           } else {
-            setSyncStatus('Login error');
+            setSyncStatus('Login failed.');
             isSigningIn = false;
             googleLoginBtn.disabled = false;
           }
@@ -1011,26 +903,27 @@
     try {
       const result = await getRedirectResult(auth);
       if (result?.user) setSyncStatus('Welcome back!');
-    } catch (err) { console.error('Redirect result error', err); }
+    } catch (err) {
+      console.error('Redirect result error', err);
+    }
   })();
 
   let unsubscribeNote = null;
-  const NOTES_KEY = 'calendar_notes_rich';
   
   onAuthStateChanged(auth, user => {
     if (user && !user.isAnonymous) {
-      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.phoneNumber || 'User') + ')';
+      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.email?.split('@')[0] || 'User') + ')';
       setSyncStatus('Signed in — syncing');
-      phoneLoginArea.style.display = 'none';
 
       // RULE 1: Strict Paths
-      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'main');
+      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'notes');
 
       if (unsubscribeNote) unsubscribeNote();
       unsubscribeNote = onSnapshot(noteRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
-          if (notesEditor.innerHTML !== data.content && document.activeElement !== notesEditor) {
+          // Only update if editor is not being actively typed in to prevent cursor jumping
+          if (document.activeElement !== notesEditor) {
             notesEditor.innerHTML = data.content || '';
           }
           setSyncStatus('Cloud Synced');
@@ -1041,17 +934,13 @@
         }
       }, err => { 
         console.error('Sync error', err); 
-        setSyncStatus('Sync Error: Permission Denied');
+        setSyncStatus('Sync error: Permission Denied');
       });
     } else {
       googleLoginBtn.textContent = '🔐 Google Login';
       googleLoginBtn.disabled = false;
       isSigningIn = false;
-      setSyncStatus(user?.isAnonymous ? 'Guest Mode (local only)' : 'Not signed in');
-      phoneLoginArea.style.display = 'block';
-      phoneInputGroup.style.display = 'flex';
-      sendSmsBtn.disabled = false;
-      otpInputGroup.style.display = 'none';
+      setSyncStatus('Local mode (Not signed in)');
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
     }
@@ -1065,10 +954,12 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         try {
-          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'main');
+          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'settings', 'notes');
           await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
           setSyncStatus('All changes saved');
-        } catch (err) { setSyncStatus('Auto-save failed'); }
+        } catch (err) {
+          setSyncStatus('Auto-save failed');
+        }
       }, 1000);
     }
   });
