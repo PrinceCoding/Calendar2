@@ -3114,14 +3114,15 @@
     document.getElementById('createInfo').textContent = '✓ Session created! Share the code.';
     document.getElementById('createInfo').style.color = 'var(--today)';
     
-    // Join Matrix room
-    const success = await window.createOrJoinStudyRoom(currentSessionCode);
+    // Show chat immediately
+    enterGroupMode();
+    studyModal.style.display = 'none';
     
-    if (success) {
-      setTimeout(() => {
-        enterGroupMode();
-        studyModal.style.display = 'none';
-      }, 1500);
+    // Join Matrix room in background
+    if (window.createOrJoinStudyRoom) {
+      window.createOrJoinStudyRoom(currentSessionCode).catch(err => {
+        console.log('Matrix connection failed, running offline:', err);
+      });
     }
   };
   
@@ -3147,14 +3148,15 @@
     document.getElementById('joinInfo').textContent = '✓ Joining...';
     document.getElementById('joinInfo').style.color = 'var(--today)';
     
-    // Join Matrix room
-    const success = await window.createOrJoinStudyRoom(currentSessionCode);
+    // Show chat immediately
+    enterGroupMode();
+    studyModal.style.display = 'none';
     
-    if (success) {
-      setTimeout(() => {
-        enterGroupMode();
-        studyModal.style.display = 'none';
-      }, 1000);
+    // Join Matrix room in background
+    if (window.createOrJoinStudyRoom) {
+      window.createOrJoinStudyRoom(currentSessionCode).catch(err => {
+        console.log('Matrix connection failed, running offline:', err);
+      });
     }
   };
   
