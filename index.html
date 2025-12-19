@@ -5,13 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Year Calendar with Notes</title>
 
-  <!-- PWA / iOS meta -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Calendar Notes">
-  <link rel="apple-touch-icon" href="icon-192.png">
-
   <!-- =========================
        STYLES (CSS)
        ========================= -->
@@ -452,15 +445,6 @@
 </head>
 <body>
 
-<!-- iOS PWA Install Banner -->
-<div id="iosInstall" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--card);border-top:1px solid var(--border);padding:0.7rem 0.9rem;box-shadow:0 -6px 18px rgba(0,0,0,0.15);">
-  <div style="display:flex;align-items:center;gap:0.6rem;">
-    <span style="font-size:0.9rem">📲 Install this app</span>
-    <span style="font-size:0.75rem;color:var(--muted)">Tap <b>Share</b> → <b>Add to Home Screen</b></span>
-    <button id="dismissInstall" class="theme-btn" style="margin-left:auto">✕</button>
-  </div>
-</div>
-
 <header>
   <div style="display:inline-flex;align-items:center;gap:0.4rem;">
     <div class="date-time"><span id="dtText"></span></div>
@@ -842,7 +826,16 @@
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  setPersistence,
+  browserLocalPersistence,
+  signOut,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Your Firebase config (from project settings)
@@ -859,9 +852,6 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
-
-// 🔐 Auto anonymous login (works on iOS, no popup, instant sync)
-signInAnonymously(auth).catch(() => {});
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
@@ -891,83 +881,54 @@ signInAnonymously(auth).catch(() => {});
   }
 
   googleLoginBtn.onclick = async () => {
-    if (isSigningIn) return;
-    try {
-      if (!auth.currentUser) {
-        isSigningIn = true;
-        retrySignInBtn.style.display = 'none';
-        googleLoginBtn.disabled = true;
-        setSyncStatus('Signing in…');
+  if (isSigningIn) return;
+  try {
+    if (!auth.currentUser) {
+      isSigningIn = true;
+      googleLoginBtn.disabled = true;
+      retrySignInBtn.style.display = 'none';
+      setSyncStatus('Redirecting to Google…');
 
-        // Always try to persist session
-        try {
-          await setPersistence(auth, browserLocalPersistence);
-        } catch (e) {
-          console.warn('Persistence not available', e);
-        }
+      // REQUIRED for iOS / iPadOS Safari
+      await setPersistence(auth, browserLocalPersistence);
 
-        // iOS / iPadOS / Safari: POPUPS DO NOT WORK → FORCE REDIRECT
-        if (isIOS() || isSafari()) {
-          await signInWithRedirect(auth, provider);
-          return; // stop here, result handled after redirect
-        }
-
-        // Desktop browsers: try popup, fallback to redirect
-        try {
-          await signInWithPopup(auth, provider);
-        } catch (err) {
-          if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/cancelled-popup-request') {
-            setSyncStatus('Popup blocked — redirecting…');
-            await signInWithRedirect(auth, provider);
-          } else {
-            throw err;
-          }
-        }
-      } else {
-        await signOut(auth);
-      }
-    } catch (err) {
-      console.error('Auth error', err);
-      setSyncStatus('Sign-in failed');
-      retrySignInBtn.style.display = 'inline-block';
-    } finally {
-      isSigningIn = false;
-      googleLoginBtn.disabled = false;
+      // Safari blocks popups → ALWAYS use redirect
+      await signInWithRedirect(auth, provider);
+    } else {
+      await signOut(auth);
     }
-  };
+  } catch (err) {
+    console.error('iOS/Safari sign-in error', err);
+    setSyncStatus('Login failed. Open this page directly in Safari and try again.');
+    retrySignInBtn.style.display = 'inline-block';
+  } finally {
+    isSigningIn = false;
+    googleLoginBtn.disabled = false;
+  }
+};
 
   // Process redirect sign-in result (used on iOS where popups may not work)
-  (async () => {
-    try {
-      const redirectResult = await getRedirectResult(auth);
-      if (redirectResult && redirectResult.user) {
-        // onAuthStateChanged will also fire, but set a helpful status now
-        setSyncStatus('Signed in (via redirect) — syncing');
-        retrySignInBtn.style.display = 'none';
-      }
-    } catch (err) {
-      console.error('Redirect sign-in error', err);
-      const code = err && err.code ? err.code : 'unknown';
-      const msg = err && err.message ? err.message : '';
-      if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') {
-        let help = 'Sign-in cancelled';
-        if (isIOS() && isSafari()) help += ' — Safari may block third-party cookies or cross-site tracking. Open Settings → Safari and disable "Prevent Cross-Site Tracking", or open this page directly in Safari and try again.';
-        setSyncStatus(help);
-        retrySignInBtn.style.display = 'inline-block';
-      } else {
-        setSyncStatus(`Sign-in redirect failed: ${code} ${msg}`);
-        retrySignInBtn.style.display = 'inline-block';
-      }
+  // Handle redirect result (MANDATORY for iOS Safari)
+(async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result && result.user) {
+      setSyncStatus('Signed in — syncing notes');
+      retrySignInBtn.style.display = 'none';
     }
-  })();
+  } catch (err) {
+    console.error('Redirect result error', err);
+    setSyncStatus('Redirect login failed. Try again in Safari.');
+    retrySignInBtn.style.display = 'inline-block';
+  }
+})();
 
   // Listen for auth changes and sync notes
   let unsubscribeNote = null;
   onAuthStateChanged(auth, user => {
-    // Anonymous users ARE allowed to save & sync
     if (user) {
-      googleLoginBtn.textContent = user.isAnonymous ? '🔐 Upgrade account' : 'Sign out (' + (user.displayName || 'you') + ')';
-      setSyncStatus(user.isAnonymous ? 'Synced anonymously (cloud)' : 'Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
+      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || 'you') + ')';
+      setSyncStatus('Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
       retrySignInBtn.style.display = 'none';
 
       const noteRef = doc(db, 'user_notes', user.uid);
@@ -1001,29 +962,6 @@ signInAnonymously(auth).catch(() => {});
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
     localStorage.setItem(NOTES_KEY, html);
-
-    if (auth.currentUser) {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(async () => {
-        try {
-          setSyncStatus(auth.currentUser.isAnonymous ? 'Saving anonymously…' : 'Saving…');
-          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-          await setDoc(noteRef, {
-            userId: auth.currentUser.uid,
-            anonymous: auth.currentUser.isAnonymous,
-            content: html,
-            updatedAt: serverTimestamp()
-          }, { merge: true });
-          setSyncStatus(auth.currentUser.isAnonymous ? 'Anonymous save synced' : 'All changes saved at ' + new Date().toLocaleTimeString());
-        } catch (err) {
-          console.error('Save failed', err);
-          setSyncStatus('Save failed: ' + (err.message || err.code || ''));
-        }
-      }, 700);
-    } else {
-      setSyncStatus('Local only');
-    }
-  });
     if (auth.currentUser) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
@@ -1045,26 +983,6 @@ signInAnonymously(auth).catch(() => {});
   // Update sync status when network changes
   window.addEventListener('offline', () => setSyncStatus('Offline — changes saved locally'));
   window.addEventListener('online', () => setSyncStatus('Online'));
-</script>
-
-<script>
-  // iOS PWA install detection
-  (function () {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-
-    if (isIOS && !isStandalone) {
-      const banner = document.getElementById('iosInstall');
-      const dismissed = localStorage.getItem('iosInstallDismissed');
-      if (!dismissed && banner) banner.style.display = 'block';
-
-      const btn = document.getElementById('dismissInstall');
-      if (btn) btn.onclick = () => {
-        banner.style.display = 'none';
-        localStorage.setItem('iosInstallDismissed', '1');
-      };
-    }
-  })();
 </script>
 </body>
 </html>
