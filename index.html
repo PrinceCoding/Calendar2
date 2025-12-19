@@ -462,18 +462,6 @@
       }
     }
 
-    /* Settings Page Overlay Fix */
-    #settingsPage {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(8px);
-      align-items: center;
-      justify-content: center;
-    }
-
 </style>
 </head>
 <body>
@@ -503,35 +491,31 @@
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
-<div id="settingsPage">
-    <div style="position: relative; width: 90%; max-width:420px; padding:1.2rem; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow-float); max-height: 90vh; overflow-y: auto;">
-    
-    <!-- Top Right Close Button -->
-    <button id="closeSettings" style="position: absolute; top: 1rem; right: 1rem; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.05); color: var(--text); font-size: 0.8rem; font-weight: 600; display: grid; place-items: center; z-index: 101;">✕</button>
-
+<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
+    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 90vh; overflow-y: auto;">
     <h2 style="margin-top:0">Settings</h2>
 
     <!-- Appearance -->
-    <div class="month" style="margin-bottom:1rem; padding: 0.8rem;">
+    <div class="month" style="margin-bottom:1rem;">
       <h3>Appearance</h3>
       <p style="font-size:0.8rem;color:var(--muted)">Theme</p>
       <div id="settingsThemes" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
 
       <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem">Font Size</p>
-      <button class="font-btn" data-size="90" style="padding: 4px 10px; background: rgba(0,0,0,0.05); border-radius: 6px;">A−</button>
-      <button class="font-btn" data-size="100" style="padding: 4px 10px; background: rgba(0,0,0,0.05); border-radius: 6px;">A</button>
-      <button class="font-btn" data-size="110" style="padding: 4px 10px; background: rgba(0,0,0,0.05); border-radius: 6px;">A+</button>
+      <button class="font-btn" data-size="90">A−</button>
+      <button class="font-btn" data-size="100">A</button>
+      <button class="font-btn" data-size="110">A+</button>
     </div>
 
     <!-- Pomodoro -->
-    <div class="month" style="margin-bottom:1rem; padding: 0.8rem;">
+    <div class="month" style="margin-bottom:1rem;">
       <h3>Pomodoro</h3>
       <p style="font-size:0.75rem;color:var(--muted)">Session length (minutes)</p>
-      <input id="pomoDurationInput" type="number" min="1" style="width:80px;padding:4px 6px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem; background: rgba(255,255,255,0.4);" />
+      <input id="pomoDurationInput" type="number" min="1" style="width:80px;padding:4px 6px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem;" />
     </div>
 
     <!-- Account -->
-    <div class="month" style="margin-bottom:1rem; padding: 0.8rem;">
+    <div class="month" style="margin-bottom:1rem;">
       <h3>Account</h3>
       
       <!-- Logged Out View -->
@@ -549,7 +533,7 @@
 
       <!-- Logged In View -->
       <div id="loggedInUI" style="display:none;">
-        <p id="userEmailDisplay" style="font-size: 0.8rem; margin-bottom: 12px; font-weight: 500;"></p>
+        <p id="userEmailDisplay" style="font-size: 0.8rem; margin-bottom: 12px;"></p>
         <button id="logoutBtn" class="today-btn" style="position:static; background: linear-gradient(180deg, #ff3b30, #d70015); width: 100%; justify-content: center;">Sign Out</button>
       </div>
 
@@ -557,10 +541,12 @@
     </div>
 
     <!-- About -->
-    <div class="month" style="padding: 0.8rem;">
+    <div class="month">
       <h3>About</h3>
       <p style="font-size:0.75rem;color:var(--muted)">Year Calendar with Notes</p>
     </div>
+
+    <button id="closeSettings" class="theme-btn" style="position:absolute;top:0.8rem;right:0.8rem;">✕</button>
   </div>
 </div>
 
@@ -671,8 +657,8 @@
     document.documentElement.style.fontSize = savedFontSize + '%';
   }
 
-  settingsBtn.onclick = () => { settingsPage.style.display = 'flex'; };
-  closeSettings.onclick = () => { settingsPage.style.display = 'none'; };
+  settingsBtn.onclick = () => { settingsPage.style.display = 'block'; };
+  closeSettings.onclick = (e) => { e.stopPropagation(); settingsPage.style.display = 'none'; };
 
   settingsPage.addEventListener('click', (e) => {
     if (e.target === settingsPage) {
@@ -681,7 +667,7 @@
   });
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && settingsPage.style.display === 'flex') {
+    if (e.key === 'Escape' && settingsPage.style.display === 'block') {
       settingsPage.style.display = 'none';
     }
   });
@@ -850,8 +836,15 @@
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  // Environment variables
-  const firebaseConfig = JSON.parse(__firebase_config);
+  // Firebase environment config
+  const firebaseConfig = {
+    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
+    authDomain: "calendar-599ac.firebaseapp.com",
+    projectId: "calendar-599ac",
+    storageBucket: "calendar-599ac.firebasestorage.app",
+    messagingSenderId: "89812638572",
+    appId: "1:89812638572:web:f02d7309367576a619b149"
+  };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -890,7 +883,6 @@
     if(!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Logging in...');
-      await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) { handleAuthError(err); }
   };
@@ -901,7 +893,6 @@
     if(!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Creating account...');
-      await setPersistence(auth, browserLocalPersistence);
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (err) { handleAuthError(err); }
   };
@@ -921,6 +912,7 @@
   // --- Initial Startup ---
   const initAuth = async () => {
     try {
+      await setPersistence(auth, browserLocalPersistence);
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
       }
@@ -934,7 +926,7 @@
     if (user) {
       loggedOutUI.style.display = 'none';
       loggedInUI.style.display = 'block';
-      userEmailDisplay.textContent = `User: ${user.email}`;
+      userEmailDisplay.textContent = `Logged in as: ${user.email}`;
       setSyncStatus('Signed in — syncing');
 
       // RULE 1: Strict path structure
@@ -944,18 +936,20 @@
       unsubscribeNote = onSnapshot(noteRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
+          // Avoid overwriting if user is typing
           if (document.activeElement !== notesEditor) {
             notesEditor.innerHTML = data.content || '';
           }
           setSyncStatus('Cloud Synced');
         } else {
+          // New user, seed with local content
           const local = localStorage.getItem(NOTES_KEY) || '';
           setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
-            .then(() => setSyncStatus('Synced (Cloud Ready)'));
+            .then(() => setSyncStatus('Synced (Started Cloud)'));
         }
       }, err => {
         console.error('Firestore Error:', err);
-        setSyncStatus('Sync Error: Check Connection');
+        setSyncStatus('Sync Error: Permission Denied');
       });
     } else {
       loggedOutUI.style.display = 'block';
