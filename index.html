@@ -826,7 +826,7 @@
 <!-- Firebase: SIMPLE Google Auth + Firestore (Safari-safe) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { initializeAuth, indexedDBLocalPersistence, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { initializeAuth, indexedDBLocalPersistence, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   const firebaseConfig = {
@@ -850,13 +850,23 @@
 
   function setStatus(t){ syncStatus.textContent = t; }
 
-  // Always use redirect (works on Safari, iOS, PWA, Desktop)
+  // Google Login: popup first, fallback to redirect (Safari-safe)
   googleLoginBtn.onclick = async () => {
-    if (!auth.currentUser) {
-      setStatus('Signing in…');
-      await signInWithRedirect(auth, provider);
-    } else {
-      await signOut(auth);
+    try {
+      if (!auth.currentUser) {
+        setStatus('Opening Google sign-in…');
+        try {
+          await signInWithPopup(auth, provider); // popup for desktop
+        } catch (e) {
+          // Safari / popup blocked → redirect
+          await signInWithRedirect(auth, provider);
+        }
+      } else {
+        await signOut(auth);
+      }
+    } catch (err) {
+      setStatus('Login failed');
+      console.error(err);
     }
   };
 
