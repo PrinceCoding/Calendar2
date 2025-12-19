@@ -147,7 +147,7 @@
     .today-btn {
       position: absolute;
       top: 0.9rem;
-      left: 1rem;
+      left: 9rem;
       background: linear-gradient(180deg, #34c759, #28b84e);
       color: #fff;
     }
@@ -912,6 +912,156 @@
       background: #d70015;
       transform: scale(1.1);
     }
+
+    /* =========================
+        APP LAUNCHER
+        ========================= */
+    .app-launcher-btn {
+      position: fixed;
+      top: 1.2rem;
+      left: 1.2rem;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #0051d5);
+      color: white;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-float), 0 4px 12px rgba(0,122,255,0.3);
+      cursor: pointer;
+      z-index: 1001;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+    }
+    .app-launcher-btn:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-float), 0 6px 16px rgba(0,122,255,0.4);
+    }
+    .app-launcher-btn:active {
+      transform: scale(0.95);
+    }
+    .app-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .app-drawer-content {
+      position: absolute;
+      top: 5rem;
+      left: 1.2rem;
+      width: 280px;
+      max-height: 400px;
+      background: var(--card);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-float), 0 12px 32px rgba(0,0,0,0.2);
+      padding: 0.8rem;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .app-drawer-header {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .app-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .app-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.04);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    body.dark .app-item {
+      background: rgba(255,255,255,0.06);
+    }
+    .app-item:hover {
+      background: rgba(0,0,0,0.08);
+    }
+    body.dark .app-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .app-icon {
+      font-size: 1.5rem;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), #0051d5);
+      flex-shrink: 0;
+    }
+    .app-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .app-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .app-desc {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .app-toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.1);
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    body.dark .app-toggle {
+      background: rgba(255,255,255,0.1);
+    }
+    .app-toggle.active {
+      background: var(--primary);
+    }
+    .app-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .app-toggle.active::after {
+      transform: translateX(20px);
+    }
 </style>
 </head>
 <body>
@@ -995,6 +1145,50 @@
   <div id="eventsList" class="events-list"></div>
 </div>
 
+<!-- App Launcher Button -->
+<button id="appLauncherBtn" class="app-launcher-btn" title="Apps">▦</button>
+
+<!-- App Drawer Overlay -->
+<div id="appDrawer" class="app-drawer">
+  <div class="app-drawer-content">
+    <div class="app-drawer-header">🚀 Apps</div>
+    <div class="app-list">
+      <div class="app-item" data-app="clock">
+        <div class="app-icon">🕐</div>
+        <div class="app-info">
+          <div class="app-name">Analog Clock</div>
+          <div class="app-desc">Live time display</div>
+        </div>
+        <div class="app-toggle" id="toggleClockApp"></div>
+      </div>
+      <div class="app-item" data-app="pomodoro">
+        <div class="app-icon">🍅</div>
+        <div class="app-info">
+          <div class="app-name">Pomodoro Timer</div>
+          <div class="app-desc">Focus timer</div>
+        </div>
+        <div class="app-toggle" id="togglePomoApp"></div>
+      </div>
+      <div class="app-item" data-app="todo">
+        <div class="app-icon">✅</div>
+        <div class="app-info">
+          <div class="app-name">To-Do List</div>
+          <div class="app-desc">Task management</div>
+        </div>
+        <div class="app-toggle" id="toggleTodoApp"></div>
+      </div>
+      <div class="app-item" data-app="events">
+        <div class="app-icon">📅</div>
+        <div class="app-info">
+          <div class="app-name">Events Calendar</div>
+          <div class="app-desc">Track events</div>
+        </div>
+        <div class="app-toggle" id="toggleEventsApp"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
@@ -1012,23 +1206,6 @@
       <button class="font-btn" data-size="90">A−</button>
       <button class="font-btn" data-size="100">A</button>
       <button class="font-btn" data-size="110">A+</button>
-    </div>
-
-    <!-- Widgets -->
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Widgets</h3>
-      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
-        <input type="checkbox" id="toggleClock" /> Show analog clock
-      </label>
-      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
-        <input type="checkbox" id="toggleFloatingPomo" /> Show floating Pomodoro
-      </label>
-      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
-        <input type="checkbox" id="toggleFloatingTodo" /> Show floating To-Do
-      </label>
-      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
-        <input type="checkbox" id="toggleFloatingEvents" /> Show floating Events
-      </label>
     </div>
 
     <!-- Pomodoro -->
@@ -1511,19 +1688,47 @@
   });
 
   // =========================
+  // APP LAUNCHER & DRAWER
+  // =========================
+  const appLauncherBtn = document.getElementById('appLauncherBtn');
+  const appDrawer = document.getElementById('appDrawer');
+  const toggleClockApp = document.getElementById('toggleClockApp');
+  const togglePomoApp = document.getElementById('togglePomoApp');
+  const toggleTodoApp = document.getElementById('toggleTodoApp');
+  const toggleEventsApp = document.getElementById('toggleEventsApp');
+
+  // Open/close app drawer
+  if (appLauncherBtn) {
+    appLauncherBtn.onclick = () => {
+      appDrawer.style.display = 'block';
+    };
+  }
+
+  if (appDrawer) {
+    appDrawer.onclick = (e) => {
+      if (e.target === appDrawer) {
+        appDrawer.style.display = 'none';
+      }
+    };
+  }
+
+  // Close drawer on Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && appDrawer.style.display === 'block') {
+      appDrawer.style.display = 'none';
+    }
+  });
+
+  // =========================
   // WIDGET VISIBILITY + DRAG
   // =========================
   const clock = document.getElementById('analogClock');
-  const toggleClock = document.getElementById('toggleClock');
   const closeClockBtn = document.getElementById('closeClockBtn');
   const floatingPomo = document.getElementById('floatingPomo');
-  const toggleFloatingPomo = document.getElementById('toggleFloatingPomo');
   const closePomoBtn = document.getElementById('closePomoBtn');
   const floatingTodo = document.getElementById('floatingTodo');
-  const toggleFloatingTodo = document.getElementById('toggleFloatingTodo');
   const closeTodoBtn = document.getElementById('closeTodoBtn');
   const floatingEvents = document.getElementById('floatingEvents');
-  const toggleFloatingEvents = document.getElementById('toggleFloatingEvents');
   const closeEventsBtn = document.getElementById('closeEventsBtn');
 
   const CLOCK_VIS_KEY = 'show_analog_clock';
@@ -1535,28 +1740,28 @@
     if (!clock) return;
     clock.style.display = visible ? 'block' : 'none';
     localStorage.setItem(CLOCK_VIS_KEY, String(visible));
-    if (toggleClock) toggleClock.checked = !!visible;
+    if (toggleClockApp) toggleClockApp.classList.toggle('active', !!visible);
   }
 
   function updatePomoVisibility(visible) {
     if (!floatingPomo) return;
     floatingPomo.style.display = visible ? 'flex' : 'none';
     localStorage.setItem(POMO_VIS_KEY, String(visible));
-    if (toggleFloatingPomo) toggleFloatingPomo.checked = !!visible;
+    if (togglePomoApp) togglePomoApp.classList.toggle('active', !!visible);
   }
 
   function updateTodoVisibility(visible) {
     if (!floatingTodo) return;
     floatingTodo.style.display = visible ? 'flex' : 'none';
     localStorage.setItem(TODO_VIS_KEY, String(visible));
-    if (toggleFloatingTodo) toggleFloatingTodo.checked = !!visible;
+    if (toggleTodoApp) toggleTodoApp.classList.toggle('active', !!visible);
   }
 
   function updateEventsVisibility(visible) {
     if (!floatingEvents) return;
     floatingEvents.style.display = visible ? 'flex' : 'none';
     localStorage.setItem(EVENTS_VIS_KEY, String(visible));
-    if (toggleFloatingEvents) toggleFloatingEvents.checked = !!visible;
+    if (toggleEventsApp) toggleEventsApp.classList.toggle('active', !!visible);
   }
   window.updateEventsVisibility = updateEventsVisibility;
 
@@ -1579,11 +1784,35 @@
     updateEventsVisibility(showEvents);
   })();
 
-  // Hook up checkboxes
-  if (toggleClock) toggleClock.onchange = () => updateClockVisibility(toggleClock.checked);
-  if (toggleFloatingPomo) toggleFloatingPomo.onchange = () => updatePomoVisibility(toggleFloatingPomo.checked);
-  if (toggleFloatingTodo) toggleFloatingTodo.onchange = () => updateTodoVisibility(toggleFloatingTodo.checked);
-  if (toggleFloatingEvents) toggleFloatingEvents.onchange = () => updateEventsVisibility(toggleFloatingEvents.checked);
+  // App toggle click handlers
+  if (toggleClockApp) {
+    toggleClockApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(CLOCK_VIS_KEY) !== 'false';
+      updateClockVisibility(!isVisible);
+    };
+  }
+  if (togglePomoApp) {
+    togglePomoApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(POMO_VIS_KEY) !== 'false';
+      updatePomoVisibility(!isVisible);
+    };
+  }
+  if (toggleTodoApp) {
+    toggleTodoApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(TODO_VIS_KEY) !== 'false';
+      updateTodoVisibility(!isVisible);
+    };
+  }
+  if (toggleEventsApp) {
+    toggleEventsApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(EVENTS_VIS_KEY) !== 'false';
+      updateEventsVisibility(!isVisible);
+    };
+  }
 
   // Close buttons
   if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
@@ -1603,8 +1832,8 @@
     };
 
     const startDrag = (e) => {
-      // prevent dragging when pressing inner buttons
-      if (e.target && e.target.tagName === 'BUTTON') return;
+      // prevent dragging when pressing inner buttons or input fields
+      if (e.target && (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
       isDragging = true;
       const p = getPoint(e);
       startX = p.x; startY = p.y;
@@ -1761,6 +1990,9 @@
     todoInput.onkeypress = (e) => {
       if (e.key === 'Enter') addTodo();
     };
+    // Prevent widget drag when interacting with input on touch devices
+    todoInput.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+    todoInput.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
   }
 
   renderTodos();
@@ -1901,6 +2133,14 @@
     eventTextInput.onkeypress = (e) => {
       if (e.key === 'Enter') addEvent();
     };
+    // Prevent widget drag when interacting with input on touch devices
+    eventTextInput.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+    eventTextInput.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
+  }
+  if (eventDateInput) {
+    // Prevent widget drag when interacting with date input on touch devices
+    eventDateInput.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+    eventDateInput.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
   }
 
   // Show all events initially (no filter)
