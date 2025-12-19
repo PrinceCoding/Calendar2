@@ -618,11 +618,19 @@
       margin-bottom: 0.6rem;
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
+      cursor: grab;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .todo-header:active {
+      cursor: grabbing;
     }
     .todo-input-container {
       display: flex;
       gap: 0.4rem;
       margin-bottom: 0.6rem;
+      touch-action: auto;
+      pointer-events: auto;
     }
     .todo-input {
       flex: 1;
@@ -634,6 +642,9 @@
       background: rgba(255,255,255,0.5);
       color: var(--text);
       outline: none;
+      touch-action: auto;
+      -webkit-user-select: text;
+      user-select: text;
     }
     body.dark .todo-input {
       background: rgba(0,0,0,0.25);
@@ -713,6 +724,118 @@
     }
 
     /* =========================
+        FLOATING CALCULATOR WIDGET
+        ========================= */
+    .floating-calculator {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 5rem;
+      width: 280px;
+      padding: 0.8rem;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft), var(--shadow-float);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      cursor: grab;
+      z-index: 997;
+      display: none;
+      flex-direction: column;
+      user-select: none;
+    }
+    .floating-calculator:active { cursor: grabbing; }
+    .calc-header {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      cursor: grab;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .calc-header:active { cursor: grabbing; }
+    .calc-display {
+      width: 100%;
+      height: 60px;
+      padding: 0.8rem;
+      margin-bottom: 0.6rem;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+      font-size: 1.5rem;
+      font-weight: 500;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+    }
+    body.dark .calc-display {
+      background: rgba(255,255,255,0.05);
+    }
+    .calc-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    .calc-btn {
+      height: 48px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    body.dark .calc-btn {
+      background: rgba(255,255,255,0.06);
+    }
+    .calc-btn:hover {
+      background: rgba(0,0,0,0.08);
+      transform: scale(1.02);
+    }
+    body.dark .calc-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .calc-btn:active {
+      transform: scale(0.98);
+    }
+    .calc-btn.operator {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .calc-btn.operator:hover {
+      opacity: 0.9;
+      background: var(--primary);
+    }
+    .calc-btn.equals {
+      grid-column: span 2;
+      background: var(--today);
+      color: white;
+      border-color: var(--today);
+    }
+    .calc-btn.equals:hover {
+      opacity: 0.9;
+      background: var(--today);
+    }
+    .calc-btn.clear {
+      background: rgba(255,59,48,0.1);
+      color: #ff3b30;
+      border-color: rgba(255,59,48,0.3);
+    }
+    .calc-btn.clear:hover {
+      background: rgba(255,59,48,0.2);
+    }
+
+    /* =========================
         FLOATING EVENTS WIDGET
         ========================= */
     .floating-events {
@@ -744,12 +867,20 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      cursor: grab;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .events-header:active {
+      cursor: grabbing;
     }
     .events-input-container {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
       margin-bottom: 0.6rem;
+      touch-action: auto;
+      pointer-events: auto;
     }
     .events-input-row {
       display: flex;
@@ -765,6 +896,9 @@
       background: rgba(255,255,255,0.5);
       color: var(--text);
       outline: none;
+      touch-action: auto;
+      -webkit-user-select: text;
+      user-select: text;
     }
     body.dark .event-date-input {
       background: rgba(0,0,0,0.25);
@@ -779,6 +913,9 @@
       background: rgba(255,255,255,0.5);
       color: var(--text);
       outline: none;
+      touch-action: auto;
+      -webkit-user-select: text;
+      user-select: text;
     }
     body.dark .event-text-input {
       background: rgba(0,0,0,0.25);
@@ -879,6 +1016,20 @@
       color: var(--muted);
       font-weight: 500;
     }
+    .show-all-btn {
+      display: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .show-all-btn:hover {
+      opacity: 0.8;
+    }
 
     /* =========================
         CLOSE BUTTON FOR WIDGETS
@@ -905,7 +1056,8 @@
     .analog-clock:hover .close-widget-btn,
     .floating-pomo:hover .close-widget-btn,
     .floating-todo:hover .close-widget-btn,
-    .floating-events:hover .close-widget-btn {
+    .floating-events:hover .close-widget-btn,
+    .floating-calculator:hover .close-widget-btn {
       opacity: 1;
     }
     .close-widget-btn:hover {
@@ -1062,11 +1214,285 @@
     .app-toggle.active::after {
       transform: translateX(20px);
     }
+
+    /* =========================
+        GROUP STUDY TOGGLE
+        ========================= */
+    .study-mode-btn {
+      position: absolute;
+      top: 3.5rem;
+      right: 1rem;
+      height: 42px;
+      padding: 0 1.5rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      background: var(--card);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .study-mode-btn.group-active {
+      background: linear-gradient(180deg, #007aff, #0066dd);
+      color: #fff;
+      border-color: #0066dd;
+    }
+
+    /* =========================
+        GROUP STUDY MODAL
+        ========================= */
+    .group-study-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1001;
+    }
+    .group-study-content {
+      background: var(--card);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: var(--shadow-float);
+    }
+    .group-study-header {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .group-study-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .group-tab {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: none;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .group-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .group-tab-content {
+      display: none;
+    }
+    .group-tab-content.active {
+      display: block;
+    }
+    .session-code-display {
+      background: rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .session-code {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.15rem;
+      color: var(--primary);
+      font-family: 'Courier New', monospace;
+    }
+    .code-input {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+    }
+    .group-study-btn {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .group-study-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .group-study-btn.secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 0.5rem;
+    }
+    .group-info {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    body.dark .session-code-display {
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* =========================
+        FLOATING CHAT WIDGET
+        ========================= */
+    .floating-chat {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      width: 320px;
+      height: 450px;
+      background: var(--card);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft), var(--shadow-float);
+      display: none;
+      flex-direction: column;
+      z-index: 999;
+    }
+    .chat-header {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+    }
+    .chat-header:active { cursor: grabbing; }
+    .chat-session-info {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 0.8rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .chat-message {
+      max-width: 80%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    .chat-message.sent {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-message.received {
+      align-self: flex-start;
+      background: rgba(0,0,0,0.05);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+    body.dark .chat-message.received {
+      background: rgba(255,255,255,0.1);
+    }
+    .chat-message-sender {
+      font-size: 0.65rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      opacity: 0.7;
+    }
+    .chat-input-container {
+      padding: 0.8rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-family: inherit;
+    }
+    .chat-send-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      display: grid;
+      place-items: center;
+      border: none;
+      cursor: pointer;
+    }
+    .chat-participants {
+      padding: 0.6rem 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .participant-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(0,0,0,0.05);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+    }
+    body.dark .participant-count {
+      background: rgba(255,255,255,0.08);
+    }
 </style>
 </head>
 <body>
 
 <header>
+  <button id="studyModeBtn" class="study-mode-btn">👤 Solo Study</button>
+  
   <div style="display:inline-flex;align-items:center;gap:0.4rem;">
     <div class="date-time"><span id="dtText"></span></div>
     <div class="date-time">🍅 <span id="pomoTime">60:00</span>
@@ -1128,12 +1554,45 @@
   <div id="todoList" class="todo-list"></div>
 </div>
 
+<!-- Floating Calculator Widget -->
+<div id="floatingCalculator" class="floating-calculator">
+  <button id="closeCalculatorBtn" class="close-widget-btn" title="Close Calculator">✕</button>
+  <div class="calc-header">🔢 Calculator</div>
+  <div id="calcDisplay" class="calc-display">0</div>
+  <div class="calc-buttons">
+    <button class="calc-btn clear" data-calc="C">C</button>
+    <button class="calc-btn" data-calc="(">(</button>
+    <button class="calc-btn" data-calc=")">)</button>
+    <button class="calc-btn operator" data-calc="/">÷</button>
+    
+    <button class="calc-btn" data-calc="7">7</button>
+    <button class="calc-btn" data-calc="8">8</button>
+    <button class="calc-btn" data-calc="9">9</button>
+    <button class="calc-btn operator" data-calc="*">×</button>
+    
+    <button class="calc-btn" data-calc="4">4</button>
+    <button class="calc-btn" data-calc="5">5</button>
+    <button class="calc-btn" data-calc="6">6</button>
+    <button class="calc-btn operator" data-calc="-">−</button>
+    
+    <button class="calc-btn" data-calc="1">1</button>
+    <button class="calc-btn" data-calc="2">2</button>
+    <button class="calc-btn" data-calc="3">3</button>
+    <button class="calc-btn operator" data-calc="+">+</button>
+    
+    <button class="calc-btn" data-calc="0">0</button>
+    <button class="calc-btn" data-calc=".">.</button>
+    <button class="calc-btn equals" data-calc="=">=</button>
+  </div>
+</div>
+
 <!-- Floating Events Widget -->
 <div id="floatingEvents" class="floating-events">
   <button id="closeEventsBtn" class="close-widget-btn" title="Close Events">✕</button>
   <div class="events-header">
     <span>📅 Events</span>
     <span id="selectedDateBadge" class="selected-date-badge" style="cursor:pointer" title="Click to show all events"></span>
+    <button id="showAllEventsBtn" class="show-all-btn">Show All</button>
   </div>
   <div class="events-input-container">
     <div class="events-input-row">
@@ -1143,6 +1602,62 @@
     <button id="eventAddBtn" class="event-add-btn">+ Add Event</button>
   </div>
   <div id="eventsList" class="events-list"></div>
+</div>
+
+<!-- Group Study Modal -->
+<div id="groupStudyModal" class="group-study-modal">
+  <div class="group-study-content">
+    <div class="group-study-header">👥 Group Study Session</div>
+    
+    <div class="group-study-tabs">
+      <button class="group-tab active" data-tab="create">Create</button>
+      <button class="group-tab" data-tab="join">Join</button>
+    </div>
+
+    <!-- Create Session Tab -->
+    <div class="group-tab-content active" data-content="create">
+      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 1rem 0;">Share this code with others to let them join your study session:</p>
+      <div class="session-code-display">
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.4rem;">Session Code</div>
+        <div class="session-code" id="sessionCode">----</div>
+      </div>
+      <button id="createSessionBtn" class="group-study-btn">🚀 Create New Session</button>
+      <button id="copyCodeBtn" class="group-study-btn secondary" style="display:none;">📋 Copy Code</button>
+      <div class="group-info" id="sessionInfo"></div>
+    </div>
+
+    <!-- Join Session Tab -->
+    <div class="group-tab-content" data-content="join">
+      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 1rem 0;">Enter the session code to join a group study:</p>
+      <input type="text" id="joinCodeInput" class="code-input" placeholder="Enter Code" maxlength="6" />
+      <button id="joinSessionBtn" class="group-study-btn">✓ Join Session</button>
+      <div class="group-info" id="joinInfo"></div>
+    </div>
+
+    <button id="closeGroupModal" class="group-study-btn secondary">Close</button>
+  </div>
+</div>
+
+<!-- Floating Chat Widget -->
+<div id="floatingChat" class="floating-chat">
+  <div class="chat-header" id="chatHeader">
+    <div>
+      <div>💬 Group Chat</div>
+      <div class="chat-session-info" id="chatSessionInfo">Session: ----</div>
+    </div>
+    <button id="closeChatBtn" class="close-widget-btn" title="Close Chat">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div style="text-align:center;color:var(--muted);font-size:0.75rem;margin-top:2rem;">Welcome to group study! 🎉<br>Start chatting with your study partners.</div>
+  </div>
+  <div class="chat-participants" id="chatParticipants">
+    <span class="participant-count">👥 <span id="participantCount">1</span></span>
+    <span id="participantList">You</span>
+  </div>
+  <div class="chat-input-container">
+    <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." />
+    <button id="chatSendBtn" class="chat-send-btn">➤</button>
+  </div>
 </div>
 
 <!-- App Launcher Button -->
@@ -1184,6 +1699,14 @@
           <div class="app-desc">Track events</div>
         </div>
         <div class="app-toggle" id="toggleEventsApp"></div>
+      </div>
+      <div class="app-item" data-app="calculator">
+        <div class="app-icon">🔢</div>
+        <div class="app-info">
+          <div class="app-name">Calculator</div>
+          <div class="app-desc">Quick calculations</div>
+        </div>
+        <div class="app-toggle" id="toggleCalculatorApp"></div>
       </div>
     </div>
   </div>
@@ -1688,6 +2211,319 @@
   });
 
   // =========================
+  // GROUP STUDY FUNCTIONALITY
+  // =========================
+  const studyModeBtn = document.getElementById('studyModeBtn');
+  const groupStudyModal = document.getElementById('groupStudyModal');
+  const floatingChat = document.getElementById('floatingChat');
+  const createSessionBtn = document.getElementById('createSessionBtn');
+  const joinSessionBtn = document.getElementById('joinSessionBtn');
+  const copyCodeBtn = document.getElementById('copyCodeBtn');
+  const closeGroupModal = document.getElementById('closeGroupModal');
+  const closeChatBtn = document.getElementById('closeChatBtn');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const chatMessages = document.getElementById('chatMessages');
+  const sessionCodeEl = document.getElementById('sessionCode');
+  const joinCodeInput = document.getElementById('joinCodeInput');
+  const sessionInfo = document.getElementById('sessionInfo');
+  const joinInfo = document.getElementById('joinInfo');
+  const chatSessionInfo = document.getElementById('chatSessionInfo');
+  const participantCount = document.getElementById('participantCount');
+  const participantList = document.getElementById('participantList');
+
+  let isGroupMode = false;
+  let currentSessionCode = null;
+  let participants = ['You'];
+  let chatHistory = [];
+  let ws = null;
+  let userName = 'User' + Math.floor(Math.random() * 1000);
+
+  // Backend Configuration
+  // Change this to your WebSocket server URL
+  const BACKEND_URL = 'ws://localhost:3000';
+  
+  // WebSocket Connection Manager
+  function connectToBackend(sessionCode) {
+    try {
+      ws = new WebSocket(BACKEND_URL);
+      
+      ws.onopen = () => {
+        console.log('Connected to backend');
+        // Join the session
+        ws.send(JSON.stringify({
+          type: 'join',
+          sessionCode: sessionCode,
+          userName: userName
+        }));
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleBackendMessage(data);
+        } catch (e) {
+          console.error('Error parsing message:', e);
+        }
+      };
+      
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        addSystemMessage('⚠️ Connection error. Running in offline mode.');
+      };
+      
+      ws.onclose = () => {
+        console.log('Disconnected from backend');
+        addSystemMessage('Disconnected from server');
+        ws = null;
+      };
+    } catch (error) {
+      console.error('Failed to connect:', error);
+      addSystemMessage('⚠️ Could not connect to server. Running in offline mode.');
+    }
+  }
+  
+  // Handle messages from backend
+  function handleBackendMessage(data) {
+    switch (data.type) {
+      case 'session_created':
+        currentSessionCode = data.sessionCode;
+        sessionCodeEl.textContent = currentSessionCode;
+        break;
+        
+      case 'joined':
+        addSystemMessage(`✓ Connected to session ${data.sessionCode}`);
+        if (data.participants) {
+          participants = data.participants;
+          updateParticipants();
+        }
+        break;
+        
+      case 'user_joined':
+        if (!participants.includes(data.userName)) {
+          participants.push(data.userName);
+          updateParticipants();
+          addSystemMessage(`${data.userName} joined the session`);
+        }
+        break;
+        
+      case 'user_left':
+        participants = participants.filter(p => p !== data.userName);
+        updateParticipants();
+        addSystemMessage(`${data.userName} left the session`);
+        break;
+        
+      case 'message':
+        receiveMessage(data.userName, data.message);
+        break;
+        
+      case 'participants_update':
+        participants = data.participants;
+        updateParticipants();
+        break;
+        
+      case 'error':
+        addSystemMessage(`⚠️ Error: ${data.message}`);
+        break;
+    }
+  }
+  
+  // Send message to backend
+  function sendToBackend(type, payload) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type, ...payload }));
+      return true;
+    }
+    return false;
+  }
+
+  // Generate random session code
+  function generateSessionCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  }
+
+  // Toggle study mode
+  studyModeBtn.onclick = () => {
+    if (!isGroupMode) {
+      groupStudyModal.style.display = 'flex';
+    } else {
+      // Exit group mode
+      if (confirm('Leave group study session?')) {
+        exitGroupMode();
+      }
+    }
+  };
+
+  // Group study tabs
+  document.querySelectorAll('.group-tab').forEach(tab => {
+    tab.onclick = () => {
+      const tabName = tab.dataset.tab;
+      document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.group-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+    };
+  });
+
+  // Create session
+  createSessionBtn.onclick = () => {
+    currentSessionCode = generateSessionCode();
+    sessionCodeEl.textContent = currentSessionCode;
+    copyCodeBtn.style.display = 'block';
+    sessionInfo.textContent = '✓ Session created! Share the code with others.';
+    sessionInfo.style.color = 'var(--today)';
+    
+    // Connect to backend
+    connectToBackend(currentSessionCode);
+    
+    setTimeout(() => {
+      enterGroupMode();
+      groupStudyModal.style.display = 'none';
+    }, 1500);
+  };
+
+  // Copy session code
+  copyCodeBtn.onclick = () => {
+    navigator.clipboard.writeText(currentSessionCode);
+    copyCodeBtn.textContent = '✓ Copied!';
+    setTimeout(() => {
+      copyCodeBtn.textContent = '📋 Copy Code';
+    }, 2000);
+  };
+
+  // Join session
+  joinSessionBtn.onclick = () => {
+    const code = joinCodeInput.value.trim().toUpperCase();
+    if (code.length !== 6) {
+      joinInfo.textContent = '⚠️ Please enter a valid 6-character code';
+      joinInfo.style.color = 'var(--primary)';
+      return;
+    }
+    
+    currentSessionCode = code;
+    joinInfo.textContent = '✓ Joining session...';
+    joinInfo.style.color = 'var(--today)';
+    
+    // Connect to backend
+    connectToBackend(currentSessionCode);
+    
+    setTimeout(() => {
+      enterGroupMode();
+      groupStudyModal.style.display = 'none';
+      addSystemMessage(`Joining session ${currentSessionCode}`);
+    }, 1000);
+  };
+
+  // Enter group mode
+  function enterGroupMode() {
+    isGroupMode = true;
+    studyModeBtn.textContent = '👥 Group Study';
+    studyModeBtn.classList.add('group-active');
+    floatingChat.style.display = 'flex';
+    chatSessionInfo.textContent = `Session: ${currentSessionCode}`;
+  }
+
+  // Exit group mode
+  function exitGroupMode() {
+    isGroupMode = false;
+    studyModeBtn.textContent = '👤 Solo Study';
+    studyModeBtn.classList.remove('group-active');
+    floatingChat.style.display = 'none';
+    
+    // Disconnect from backend
+    if (ws) {
+      sendToBackend('leave', { sessionCode: currentSessionCode, userName: userName });
+      ws.close();
+      ws = null;
+    }
+    
+    currentSessionCode = null;
+    participants = ['You'];
+    chatHistory = [];
+    chatMessages.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.75rem;margin-top:2rem;">Welcome to group study! 🎉<br>Start chatting with your study partners.</div>';
+    updateParticipants();
+  }
+
+  // Update participant list
+  function updateParticipants() {
+    participantCount.textContent = participants.length;
+    participantList.textContent = participants.join(', ');
+  }
+
+  // Add system message
+  function addSystemMessage(text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.style.cssText = 'text-align:center;color:var(--muted);font-size:0.7rem;padding:0.4rem;';
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Send chat message
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !isGroupMode) return;
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message sent';
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Send to backend
+    if (!sendToBackend('message', {
+      sessionCode: currentSessionCode,
+      userName: userName,
+      message: text
+    })) {
+      addSystemMessage('⚠️ Message not sent - not connected to server');
+    }
+  }
+
+  // Receive message from other participant
+  function receiveMessage(sender, text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message received';
+    msgDiv.innerHTML = `<div class="chat-message-sender">${sender}</div>${text}`;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Chat send button
+  chatSendBtn.onclick = sendMessage;
+  chatInput.onkeypress = (e) => {
+    if (e.key === 'Enter') sendMessage();
+  };
+
+  // Close chat
+  closeChatBtn.onclick = () => {
+    if (confirm('Close chat? (You\'ll stay in group mode)')) {
+      floatingChat.style.display = 'none';
+    }
+  };
+
+  // Close modal
+  closeGroupModal.onclick = () => {
+    groupStudyModal.style.display = 'none';
+  };
+
+  // Close modal on overlay click
+  groupStudyModal.onclick = (e) => {
+    if (e.target === groupStudyModal) {
+      groupStudyModal.style.display = 'none';
+    }
+  };
+
+  // Make chat draggable
+  makeDraggable(floatingChat, document.getElementById('chatHeader'));
+
+  // =========================
   // APP LAUNCHER & DRAWER
   // =========================
   const appLauncherBtn = document.getElementById('appLauncherBtn');
@@ -1700,7 +2536,11 @@
   // Open/close app drawer
   if (appLauncherBtn) {
     appLauncherBtn.onclick = () => {
-      appDrawer.style.display = 'block';
+      if (appDrawer.style.display === 'block') {
+        appDrawer.style.display = 'none';
+      } else {
+        appDrawer.style.display = 'block';
+      }
     };
   }
 
@@ -1820,8 +2660,192 @@
   if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
   if (closeEventsBtn) closeEventsBtn.onclick = (e) => { e.stopPropagation(); updateEventsVisibility(false); };
 
-  // Draggable (mouse + touch)
-  function makeDraggable(el) {
+  // =========================
+  // CALCULATOR WIDGET
+  // =========================
+  const floatingCalculator = document.getElementById('floatingCalculator');
+  const calcDisplay = document.getElementById('calcDisplay');
+  const calcButtons = document.querySelectorAll('.calc-btn');
+  const closeCalculatorBtn = document.getElementById('closeCalculatorBtn');
+  const toggleCalculatorApp = document.getElementById('toggleCalculatorApp');
+  const CALCULATOR_VIS_KEY = 'show_calculator';
+
+  let calcExpression = '';
+  let calcResult = '0';
+
+  function updateCalculatorVisibility(visible) {
+    if (!floatingCalculator) return;
+    floatingCalculator.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(CALCULATOR_VIS_KEY, String(visible));
+    if (toggleCalculatorApp) toggleCalculatorApp.classList.toggle('active', !!visible);
+  }
+
+  function updateCalcDisplay(value) {
+    if (calcDisplay) calcDisplay.textContent = value;
+  }
+
+  function handleCalculatorInput(input) {
+    if (input === 'C') {
+      calcExpression = '';
+      calcResult = '0';
+      updateCalcDisplay('0');
+    } else if (input === '=') {
+      try {
+        // Replace display symbols with JS operators
+        const expr = calcExpression.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+        const result = eval(expr);
+        calcResult = result.toString();
+        updateCalcDisplay(calcResult);
+        calcExpression = calcResult;
+      } catch (e) {
+        updateCalcDisplay('Error');
+        calcExpression = '';
+        calcResult = '0';
+      }
+    } else {
+      if (calcExpression === '0' || calcExpression === calcResult) {
+        calcExpression = input;
+      } else {
+        calcExpression += input;
+      }
+      updateCalcDisplay(calcExpression);
+    }
+  }
+
+  calcButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const value = btn.dataset.calc;
+      if (value) handleCalculatorInput(value);
+    });
+  });
+
+  // Keyboard support
+  document.addEventListener('keydown', (e) => {
+    if (floatingCalculator.style.display !== 'flex') return;
+    const key = e.key;
+    if (/[0-9\+\-\*\/\.\(\)]/.test(key)) {
+      e.preventDefault();
+      handleCalculatorInput(key);
+    } else if (key === 'Enter') {
+      e.preventDefault();
+      handleCalculatorInput('=');
+    } else if (key === 'Escape' || key === 'Backspace') {
+      e.preventDefault();
+      handleCalculatorInput('C');
+    }
+  });
+
+  if (toggleCalculatorApp) {
+    toggleCalculatorApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(CALCULATOR_VIS_KEY) !== 'false';
+      updateCalculatorVisibility(!isVisible);
+    };
+  }
+
+  if (closeCalculatorBtn) {
+    closeCalculatorBtn.onclick = (e) => {
+      e.stopPropagation();
+      updateCalculatorVisibility(false);
+    };
+  }
+
+  // Init calculator visibility
+  (function initCalculatorVisibility() {
+    if (toggleCalculatorApp) {
+      const savedCalc = localStorage.getItem(CALCULATOR_VIS_KEY);
+      const showCalc = savedCalc === null ? false : savedCalc !== 'false';
+      toggleCalculatorApp.classList.toggle('active', showCalc);
+      if (showCalc) floatingCalculator.style.display = 'flex';
+    }
+  })();
+
+  // =========================
+  // RESPONSIVE WIDGET POSITIONING
+  // =========================
+  const WIDGET_POSITIONS_KEY = 'widget_positions_responsive';
+  
+  function constrainWidgetToViewport(el) {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    
+    let left = parseFloat(el.style.left) || rect.left;
+    let top = parseFloat(el.style.top) || rect.top;
+    
+    // Ensure widget is at least partially visible
+    const minVisible = 50; // At least 50px must be visible
+    
+    if (left + minVisible > vw) left = vw - minVisible;
+    if (left + rect.width < minVisible) left = minVisible - rect.width;
+    if (top + minVisible > vh) top = vh - minVisible;
+    if (top < 0) top = 0;
+    
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+  }
+  
+  function saveWidgetPosition(el, id) {
+    if (!el) return;
+    const positions = JSON.parse(localStorage.getItem(WIDGET_POSITIONS_KEY) || '{}');
+    positions[id] = {
+      left: el.style.left,
+      top: el.style.top,
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+    localStorage.setItem(WIDGET_POSITIONS_KEY, JSON.stringify(positions));
+  }
+  
+  function restoreWidgetPosition(el, id) {
+    if (!el) return;
+    const positions = JSON.parse(localStorage.getItem(WIDGET_POSITIONS_KEY) || '{}');
+    const saved = positions[id];
+    
+    if (saved && saved.left && saved.top) {
+      // Scale position if viewport size changed
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const savedVw = saved.width || vw;
+      const savedVh = saved.height || vh;
+      
+      const scaleX = vw / savedVw;
+      const scaleY = vh / savedVh;
+      
+      const newLeft = parseFloat(saved.left) * scaleX;
+      const newTop = parseFloat(saved.top) * scaleY;
+      
+      el.style.left = newLeft + 'px';
+      el.style.top = newTop + 'px';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+      
+      // Ensure it's still visible after scaling
+      constrainWidgetToViewport(el);
+    }
+  }
+  
+  function adjustAllWidgetsToViewport() {
+    const widgets = [
+      { el: clock, id: 'analogClock' },
+      { el: floatingPomo, id: 'floatingPomo' },
+      { el: floatingTodo, id: 'floatingTodo' },
+      { el: floatingEvents, id: 'floatingEvents' },
+      { el: floatingCalculator, id: 'floatingCalculator' }
+    ];
+    
+    widgets.forEach(({ el, id }) => {
+      if (el && el.style.left && el.style.top) {
+        constrainWidgetToViewport(el);
+        saveWidgetPosition(el, id);
+      }
+    });
+  }
+
+  // Draggable (mouse + touch) - only from header
+  function makeDraggable(el, handleSelector = null, widgetId = null) {
     if (!el) return;
     let isDragging = false;
     let startX, startY, startLeft, startTop;
@@ -1832,15 +2856,22 @@
     };
 
     const startDrag = (e) => {
+      // If handleSelector is provided, only allow drag from that element
+      if (handleSelector) {
+        const handle = el.querySelector(handleSelector);
+        if (!handle || !handle.contains(e.target)) return;
+      }
+      
       // prevent dragging when pressing inner buttons or input fields
       if (e.target && (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      
       isDragging = true;
       const p = getPoint(e);
       startX = p.x; startY = p.y;
       startLeft = el.offsetLeft; startTop = el.offsetTop;
       el.style.right = 'auto';
       el.style.bottom = 'auto';
-      // Prevent scrolling on touch devices
+      // Prevent scrolling on touch devices only when actually dragging from valid area
       if (e.type === 'touchstart') {
         e.preventDefault();
       }
@@ -1857,7 +2888,12 @@
       el.style.top = startTop + (p.y - startY) + 'px';
     };
 
-    const endDrag = () => { isDragging = false; };
+    const endDrag = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      constrainWidgetToViewport(el);
+      if (widgetId) saveWidgetPosition(el, widgetId);
+    };
 
     el.addEventListener('mousedown', startDrag);
     el.addEventListener('touchstart', startDrag, { passive: false });
@@ -1867,10 +2903,29 @@
     window.addEventListener('touchend', endDrag);
   }
 
-  makeDraggable(clock);
-  makeDraggable(floatingPomo);
-  makeDraggable(floatingTodo);
-  makeDraggable(floatingEvents);
+  // Restore saved positions
+  restoreWidgetPosition(clock, 'analogClock');
+  restoreWidgetPosition(floatingPomo, 'floatingPomo');
+  restoreWidgetPosition(floatingTodo, 'floatingTodo');
+  restoreWidgetPosition(floatingEvents, 'floatingEvents');
+  restoreWidgetPosition(floatingCalculator, 'floatingCalculator');
+
+  makeDraggable(clock, null, 'analogClock');
+  makeDraggable(floatingPomo, null, 'floatingPomo');
+  makeDraggable(floatingTodo, '.todo-header', 'floatingTodo');
+  makeDraggable(floatingEvents, '.events-header', 'floatingEvents');
+  makeDraggable(floatingCalculator, '.calc-header', 'floatingCalculator');
+
+  // Handle viewport resize and orientation change
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(adjustAllWidgetsToViewport, 200);
+  });
+  
+  window.addEventListener('orientationchange', () => {
+    setTimeout(adjustAllWidgetsToViewport, 300);
+  });
 
   // =========================
   // ANALOG CLOCK TICK LOGIC
@@ -1990,9 +3045,6 @@
     todoInput.onkeypress = (e) => {
       if (e.key === 'Enter') addTodo();
     };
-    // Prevent widget drag when interacting with input on touch devices
-    todoInput.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-    todoInput.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
   }
 
   renderTodos();
@@ -2005,6 +3057,7 @@
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventsList = document.getElementById('eventsList');
   const selectedDateBadge = document.getElementById('selectedDateBadge');
+  const showAllEventsBtn = document.getElementById('showAllEventsBtn');
 
   // Set today as default date
   if (eventDateInput) {
@@ -2012,9 +3065,15 @@
     eventDateInput.value = today.toISOString().split('T')[0];
   }
 
-  // Click date badge to show all events
+  // Click date badge or button to show all events
   if (selectedDateBadge) {
     selectedDateBadge.onclick = () => {
+      selectedCalendarDate = null;
+      renderEvents(null);
+    };
+  }
+  if (showAllEventsBtn) {
+    showAllEventsBtn.onclick = () => {
       selectedCalendarDate = null;
       renderEvents(null);
     };
@@ -2063,7 +3122,7 @@
       };
     });
 
-    // Update selected date badge
+    // Update selected date badge and show all button
     if (selectedDateBadge) {
       if (filterDate) {
         const dateObj = new Date(filterDate + 'T00:00:00');
@@ -2072,9 +3131,11 @@
           day: 'numeric' 
         });
         selectedDateBadge.style.display = 'inline-block';
+        if (showAllEventsBtn) showAllEventsBtn.style.display = 'inline-block';
       } else {
         selectedDateBadge.textContent = '';
         selectedDateBadge.style.display = 'none';
+        if (showAllEventsBtn) showAllEventsBtn.style.display = 'none';
       }
     }
   }
@@ -2133,14 +3194,6 @@
     eventTextInput.onkeypress = (e) => {
       if (e.key === 'Enter') addEvent();
     };
-    // Prevent widget drag when interacting with input on touch devices
-    eventTextInput.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-    eventTextInput.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
-  }
-  if (eventDateInput) {
-    // Prevent widget drag when interacting with date input on touch devices
-    eventDateInput.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-    eventDateInput.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
   }
 
   // Show all events initially (no filter)
