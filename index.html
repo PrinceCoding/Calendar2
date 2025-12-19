@@ -2333,6 +2333,11 @@
     window.currentSessionCode = currentSessionCode;
     window.userName = userName;
     window.isGroupMode = true;
+    
+    // Initialize Firebase connection after UI is set
+    if (window.initFirebaseGroupStudy) {
+      setTimeout(() => window.initFirebaseGroupStudy(), 100);
+    }
   }
 
   // Exit group mode
@@ -3367,30 +3372,16 @@
     }
     
     window.groupStudyDB = window.firebaseRTDB;
-    window.enterGroupMode = enterGroupMode;
+    window.initFirebaseGroupStudy = setupFirebaseListeners;
   }
   
-  // Enter group mode with Firebase
-  function enterGroupMode() {
+  // Setup Firebase listeners for group study
+  function setupFirebaseListeners() {
     if (!window.currentSessionCode) return;
     
     const sessionCode = window.currentSessionCode;
     const userName = window.userName || 'User' + Math.floor(Math.random() * 1000);
     window.userName = userName;
-    
-    // Update UI
-    const studyModeBtn = document.getElementById('studyModeBtn');
-    const floatingChat = document.getElementById('floatingChat');
-    const chatSessionInfo = document.getElementById('chatSessionInfo');
-    
-    if (studyModeBtn) {
-      studyModeBtn.textContent = '👥 Group Study';
-      studyModeBtn.classList.add('group-active');
-    }
-    if (floatingChat) floatingChat.style.display = 'flex';
-    if (chatSessionInfo) chatSessionInfo.textContent = `Session: ${sessionCode}`;
-    
-    window.isGroupMode = true;
     
     // Setup Firebase references
     const messagesPath = `groupStudy/${sessionCode}/messages`;
