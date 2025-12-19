@@ -872,43 +872,44 @@
   }
 
   googleLoginBtn.onclick = async () => {
-    if (isSigningIn) return; // guard against duplicate clicks
+    if (isSigningIn) return;
     try {
       if (!auth.currentUser) {
         isSigningIn = true;
         retrySignInBtn.style.display = 'none';
         googleLoginBtn.disabled = true;
-        setSyncStatus('Signing in...');
+        setSyncStatus('Signing in…');
 
-        // Try to persist auth state in localStorage
+        // Always try to persist session
         try {
           await setPersistence(auth, browserLocalPersistence);
-        } catch (pErr) {
-          console.warn('Could not set local persistence', pErr);
+        } catch (e) {
+          console.warn('Persistence not available', e);
         }
 
-        // Use redirect on iOS, popup elsewhere
-        if (isIOS()) {
+        // iOS / iPadOS / Safari: POPUPS DO NOT WORK → FORCE REDIRECT
+        if (isIOS() || isSafari()) {
           await signInWithRedirect(auth, provider);
-        } else {
-          try {
-            await signInWithPopup(auth, provider);
-          } catch (err) {
-            if (err && (err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-blocked')) {
-              setSyncStatus('Popup blocked — redirecting to sign-in...');
-              await signInWithRedirect(auth, provider);
-            } else {
-              throw err;
-            }
+          return; // stop here, result handled after redirect
+        }
+
+        // Desktop browsers: try popup, fallback to redirect
+        try {
+          await signInWithPopup(auth, provider);
+        } catch (err) {
+          if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/cancelled-popup-request') {
+            setSyncStatus('Popup blocked — redirecting…');
+            await signInWithRedirect(auth, provider);
+          } else {
+            throw err;
           }
         }
       } else {
-        retrySignInBtn.style.display = 'none';
         await signOut(auth);
       }
     } catch (err) {
       console.error('Auth error', err);
-      setSyncStatus('Sign-in failed: ' + (err.message || err.code || ''));
+      setSyncStatus('Sign-in failed');
       retrySignInBtn.style.display = 'inline-block';
     } finally {
       isSigningIn = false;
