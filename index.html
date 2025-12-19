@@ -590,6 +590,129 @@
     .pomo-controls { display: flex; gap: 0.3rem; }
 
     /* =========================
+        FLOATING TODO LIST
+        ========================= */
+    .floating-todo {
+      position: fixed;
+      bottom: 1.2rem;
+      left: 1.2rem;
+      width: 280px;
+      max-height: 400px;
+      padding: 0.8rem;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft), var(--shadow-float);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      cursor: grab;
+      z-index: 997;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+    .floating-todo:active { cursor: grabbing; }
+    .todo-header {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .todo-input-container {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+    .todo-input {
+      flex: 1;
+      height: 28px;
+      padding: 0 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.5);
+      color: var(--text);
+      outline: none;
+    }
+    body.dark .todo-input {
+      background: rgba(0,0,0,0.25);
+    }
+    .todo-add-btn {
+      height: 28px;
+      width: 28px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .todo-list {
+      overflow-y: auto;
+      max-height: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.04);
+      font-size: 0.75rem;
+      transition: background 0.15s;
+    }
+    body.dark .todo-item {
+      background: rgba(255,255,255,0.08);
+    }
+    .todo-item:hover {
+      background: rgba(0,0,0,0.08);
+    }
+    body.dark .todo-item:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    .todo-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .todo-text {
+      flex: 1;
+      word-break: break-word;
+    }
+    .todo-text.completed {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    .todo-delete {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: rgba(255,59,48,0.1);
+      color: #ff3b30;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .todo-item:hover .todo-delete {
+      opacity: 1;
+    }
+    .todo-delete:hover {
+      background: #ff3b30;
+      color: white;
+    }
+
+    /* =========================
         CLOSE BUTTON FOR WIDGETS
         ========================= */
     .close-widget-btn {
@@ -612,7 +735,8 @@
       z-index: 1000;
     }
     .analog-clock:hover .close-widget-btn,
-    .floating-pomo:hover .close-widget-btn {
+    .floating-pomo:hover .close-widget-btn,
+    .floating-todo:hover .close-widget-btn {
       opacity: 1;
     }
     .close-widget-btn:hover {
@@ -674,6 +798,17 @@
   </div>
 </div>
 
+<!-- Floating Todo List -->
+<div id="floatingTodo" class="floating-todo">
+  <button id="closeTodoBtn" class="close-widget-btn" title="Close Todo">✕</button>
+  <div class="todo-header">📝 To-Do List</div>
+  <div class="todo-input-container">
+    <input type="text" id="todoInput" class="todo-input" placeholder="Add a task..." />
+    <button id="todoAddBtn" class="todo-add-btn">+</button>
+  </div>
+  <div id="todoList" class="todo-list"></div>
+</div>
+
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
@@ -699,8 +834,11 @@
       <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
         <input type="checkbox" id="toggleClock" /> Show analog clock
       </label>
-      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
         <input type="checkbox" id="toggleFloatingPomo" /> Show floating Pomodoro
+      </label>
+      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+        <input type="checkbox" id="toggleFloatingTodo" /> Show floating To-Do
       </label>
     </div>
 
@@ -1167,9 +1305,13 @@
   const floatingPomo = document.getElementById('floatingPomo');
   const toggleFloatingPomo = document.getElementById('toggleFloatingPomo');
   const closePomoBtn = document.getElementById('closePomoBtn');
+  const floatingTodo = document.getElementById('floatingTodo');
+  const toggleFloatingTodo = document.getElementById('toggleFloatingTodo');
+  const closeTodoBtn = document.getElementById('closeTodoBtn');
 
   const CLOCK_VIS_KEY = 'show_analog_clock';
   const POMO_VIS_KEY = 'show_floating_pomo';
+  const TODO_VIS_KEY = 'show_floating_todo';
 
   function updateClockVisibility(visible) {
     if (!clock) return;
@@ -1185,6 +1327,13 @@
     if (toggleFloatingPomo) toggleFloatingPomo.checked = !!visible;
   }
 
+  function updateTodoVisibility(visible) {
+    if (!floatingTodo) return;
+    floatingTodo.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(TODO_VIS_KEY, String(visible));
+    if (toggleFloatingTodo) toggleFloatingTodo.checked = !!visible;
+  }
+
   // Init states from localStorage
   (function initWidgetVisibility() {
     const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
@@ -1194,15 +1343,21 @@
     const savedPomoVis = localStorage.getItem(POMO_VIS_KEY);
     const showPomo = savedPomoVis === null ? true : savedPomoVis !== 'false';
     updatePomoVisibility(showPomo);
+
+    const savedTodoVis = localStorage.getItem(TODO_VIS_KEY);
+    const showTodo = savedTodoVis === null ? true : savedTodoVis !== 'false';
+    updateTodoVisibility(showTodo);
   })();
 
   // Hook up checkboxes
   if (toggleClock) toggleClock.onchange = () => updateClockVisibility(toggleClock.checked);
   if (toggleFloatingPomo) toggleFloatingPomo.onchange = () => updatePomoVisibility(toggleFloatingPomo.checked);
+  if (toggleFloatingTodo) toggleFloatingTodo.onchange = () => updateTodoVisibility(toggleFloatingTodo.checked);
 
   // Close buttons
   if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
   if (closePomoBtn) closePomoBtn.onclick = (e) => { e.stopPropagation(); updatePomoVisibility(false); };
+  if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
 
   // Draggable (mouse + touch)
   function makeDraggable(el) {
@@ -1253,6 +1408,7 @@
 
   makeDraggable(clock);
   makeDraggable(floatingPomo);
+  makeDraggable(floatingTodo);
 
   // =========================
   // ANALOG CLOCK TICK LOGIC
@@ -1287,6 +1443,94 @@
       setInterval(updateAnalogClock, 1000);
     }, msToNextSecond);
   })();
+
+  // =========================
+  // TODO LIST LOGIC
+  // =========================
+  let todos = [];
+  const todoInput = document.getElementById('todoInput');
+  const todoAddBtn = document.getElementById('todoAddBtn');
+  const todoList = document.getElementById('todoList');
+
+  function renderTodos() {
+    if (!todoList) return;
+    todoList.innerHTML = '';
+    todos.forEach((todo, index) => {
+      const item = document.createElement('div');
+      item.className = 'todo-item';
+      item.innerHTML = `
+        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-index="${index}" />
+        <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
+        <button class="todo-delete" data-index="${index}">✕</button>
+      `;
+      todoList.appendChild(item);
+    });
+
+    // Event listeners
+    todoList.querySelectorAll('.todo-checkbox').forEach(cb => {
+      cb.onchange = (e) => {
+        const idx = Number(e.target.dataset.index);
+        todos[idx].completed = e.target.checked;
+        renderTodos();
+        syncTodosToCloud();
+      };
+    });
+    todoList.querySelectorAll('.todo-delete').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const idx = Number(e.currentTarget.dataset.index);
+        todos.splice(idx, 1);
+        renderTodos();
+        syncTodosToCloud();
+      };
+    });
+  }
+
+  function addTodo() {
+    if (!todoInput) return;
+    const text = todoInput.value.trim();
+    if (!text) return;
+    todos.push({ text, completed: false, id: Date.now() + Math.random() });
+    todoInput.value = '';
+    renderTodos();
+    syncTodosToCloud();
+  }
+
+  async function syncTodosToCloud() {
+    try {
+      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) return;
+      const ref = doc(db, 'user_todos', auth.currentUser.uid);
+      await setDoc(ref, {
+        items: todos,
+        by: deviceId,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.error('[TODO] Cloud sync failed:', err);
+    }
+  }
+
+  window.applyRemoteTodos = (data) => {
+    try {
+      if (!data) return;
+      if (data.by && data.by === deviceId) return;
+      if (Array.isArray(data.items)) {
+        todos = data.items;
+        renderTodos();
+      }
+    } catch (e) {
+      console.error('[TODO] applyRemoteTodos error:', e);
+    }
+  };
+
+  if (todoAddBtn) todoAddBtn.onclick = addTodo;
+  if (todoInput) {
+    todoInput.onkeypress = (e) => {
+      if (e.key === 'Enter') addTodo();
+    };
+  }
+
+  renderTodos();
 </script>
 
 <!-- Firebase Module -->
@@ -1448,6 +1692,26 @@
         }
       }, (err) => {
         console.error('Pomodoro listener error:', err);
+      });
+
+      // Todo listener
+      const todoRef = doc(db, 'user_todos', user.uid);
+      let unsubscribeTodo = null;
+      if (unsubscribeTodo) unsubscribeTodo();
+      unsubscribeTodo = onSnapshot(todoRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (window.applyRemoteTodos) {
+            window.applyRemoteTodos(data);
+          }
+        } else {
+          setDoc(todoRef, {
+            items: [],
+            updatedAt: serverTimestamp()
+          }).catch(err => console.error('[FIREBASE] Initial todo set error:', err));
+        }
+      }, (err) => {
+        console.error('Todo listener error:', err);
       });
 
     } else {
