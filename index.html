@@ -898,8 +898,7 @@
   // HARD BIND + DEBUG (guarantees handler attaches)
 googleLoginBtn.addEventListener('click', async (e) => {
   e.stopPropagation();
-  alert('Login button clicked'); // DEBUG: proves click works
-  console.log('Google Login clicked');
+  
 
   if (location.protocol === 'file:') {
     setSyncStatus('Login blocked: open via http://localhost or https://');
