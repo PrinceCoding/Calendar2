@@ -1224,10 +1224,18 @@
       startLeft = el.offsetLeft; startTop = el.offsetTop;
       el.style.right = 'auto';
       el.style.bottom = 'auto';
+      // Prevent scrolling on touch devices
+      if (e.type === 'touchstart') {
+        e.preventDefault();
+      }
     };
 
     const moveDrag = (e) => {
       if (!isDragging) return;
+      // Prevent scrolling while dragging on touch devices
+      if (e.type === 'touchmove') {
+        e.preventDefault();
+      }
       const p = getPoint(e);
       el.style.left = startLeft + (p.x - startX) + 'px';
       el.style.top = startTop + (p.y - startY) + 'px';
@@ -1236,9 +1244,9 @@
     const endDrag = () => { isDragging = false; };
 
     el.addEventListener('mousedown', startDrag);
-    el.addEventListener('touchstart', startDrag, { passive: true });
+    el.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('mousemove', moveDrag);
-    window.addEventListener('touchmove', moveDrag, { passive: true });
+    window.addEventListener('touchmove', moveDrag, { passive: false });
     window.addEventListener('mouseup', endDrag);
     window.addEventListener('touchend', endDrag);
   }
