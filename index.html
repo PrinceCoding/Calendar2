@@ -6,7 +6,6 @@
   <title>Year Calendar with Notes</title>
 
   <style>
-    /* ... (All your existing CSS remains exactly the same) ... */
     :root {
       --bg: #f5f5f7;
       --card: rgba(255,255,255,0.75);
@@ -67,6 +66,7 @@
       background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     button {
@@ -74,13 +74,11 @@
       background: none;
       font-family: inherit;
       cursor: pointer;
+      transition: opacity 0.2s;
     }
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-      pointer-events: none;
-    }
+    button:active { opacity: 0.7; }
+    button:disabled { opacity: 0.5; cursor: default; }
 
     header {
       position: relative;
@@ -118,8 +116,7 @@
       place-items: center;
     }
 
-    .today-btn,
-    .theme-btn {
+    .today-btn, .theme-btn {
       height: 32px;
       padding: 0 0.9rem;
       border-radius: 10px;
@@ -175,12 +172,6 @@
       justify-content: center;
     }
 
-    body.dark .nav-btn {
-      background: rgba(44,44,46,0.85);
-      color: #f5f5f7;
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-
     .calendar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -203,38 +194,19 @@
       text-align: center;
       font-size: 0.95rem;
       font-weight: 600;
-      color: var(--text);
     }
 
-    .weekdays,
-    .days {
+    .weekdays, .days {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       text-align: center;
       gap: 0.25rem;
     }
 
-    .weekdays div {
-      font-size: 0.6rem;
-      color: var(--muted);
-    }
-
-    .days div {
-      font-size: 0.75rem;
-      padding: 0.35rem 0;
-      border-radius: 8px;
-      transition: background 0.15s ease;
-    }
-
-    .days div:hover {
-      background: rgba(0,0,0,0.06);
-    }
-
-    .today {
-      background: var(--today);
-      color: #fff;
-      font-weight: 600;
-    }
+    .weekdays div { font-size: 0.6rem; color: var(--muted); }
+    .days div { font-size: 0.75rem; padding: 0.35rem 0; border-radius: 8px; transition: background 0.15s ease; }
+    .days div:hover { background: rgba(0,0,0,0.06); }
+    .today { background: var(--today); color: #fff; font-weight: 600; }
 
     .notes {
       margin: 0.6rem 1rem 1rem;
@@ -254,11 +226,7 @@
       margin-bottom: 0.5rem;
     }
 
-    .notes h2 {
-      margin: 0;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
+    .notes h2 { margin: 0; font-size: 0.9rem; font-weight: 600; }
 
     .notes-tools button {
       height: 26px;
@@ -269,13 +237,6 @@
       font-size: 0.7rem;
       font-weight: 600;
       color: var(--text);
-      box-shadow: var(--shadow-soft);
-    }
-
-    body.dark .notes-tools button {
-      background: rgba(44,44,46,0.85);
-      color: #f5f5f7;
-      border: 1px solid rgba(255,255,255,0.18);
     }
 
     .notes-editor {
@@ -284,71 +245,75 @@
       padding: 0.6rem;
       border-radius: 10px;
       border: 1px solid var(--border);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       background: rgba(255,255,255,0.5);
       color: var(--text);
       outline: none;
+      line-height: 1.5;
     }
 
-    body.dark .notes-editor {
-      background: rgba(0,0,0,0.25);
-    }
+    body.dark .notes-editor { background: rgba(0,0,0,0.25); }
 
     footer {
       text-align: center;
       font-size: 0.65rem;
       color: var(--muted);
-      padding-bottom: 0.6rem;
+      padding-bottom: 1rem;
     }
 
-    @media (max-width: 480px) {
-      header { padding: 0.7rem 0.6rem 0.8rem; }
-      .date-time { font-size: 0.7rem; padding: 0 0.6rem; height: 30px; }
-      .today-btn, .theme-btn { position: static; height: 28px; font-size: 0.7rem; padding: 0 0.6rem; }
-      header > div:first-child { flex-wrap: wrap; justify-content: center; }
-      .nav { margin-top: 0.4rem; }
-      h1 { font-size: 1.3rem; }
-      .calendar { grid-template-columns: 1fr; padding: 0.6rem; }
-      .month { padding: 0.6rem; }
-      .month h2 { font-size: 0.9rem; }
-      .weekdays div { font-size: 0.55rem; }
-      .days div { font-size: 0.7rem; padding: 0.3rem 0; }
-      .notes { margin: 0.6rem; }
-      .notes-editor { min-height: 140px; font-size: 0.8rem; }
-    }
-
+    /* Layout 2 Split View */
     body.layout-2 main {
       display: grid;
       grid-template-columns: 2.2fr 8px 1fr;
-      gap: 0;
       padding: 0 1rem 1rem;
-      align-items: stretch;
+      height: calc(100vh - 120px);
     }
 
-    body.layout-2 .calendar { padding: 0; }
-    body.layout-2 .notes { margin: 0; height: fit-content; position: sticky; top: 1rem; }
+    body.layout-2 .calendar { padding: 0; overflow-y: auto; }
+    body.layout-2 .notes { margin: 0; height: 100%; overflow-y: auto; }
 
     .resize-handle {
       cursor: col-resize;
-      background: linear-gradient(to right, transparent, rgba(0,0,0,0.12), transparent);
-    }
-
-    body.dark .resize-handle {
-      background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+      background: linear-gradient(to right, transparent, rgba(0,0,0,0.1), transparent);
     }
 
     @media (max-width: 768px) {
-      body.layout-2 main { display: block; padding: 0.6rem; }
-      body.layout-2 .calendar { padding: 0; }
-      body.layout-2 .notes { position: relative; margin: 0.8rem 0 0; max-height: none; }
+      body.layout-2 main { display: block; height: auto; }
       .resize-handle { display: none; }
+      .today-btn, .theme-btn { position: static; margin-bottom: 10px; }
+      header { flex-wrap: wrap; }
     }
+
+    /* Auth UI Specifics */
+    .input-field {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.5);
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    body.dark .input-field { background: rgba(0,0,0,0.2); }
+
+    /* Fix reCAPTCHA z-index and container styling */
+    #recaptcha-container {
+      margin: 10px 0;
+      transform: scale(0.9);
+      transform-origin: left top;
+    }
+
+    /* Important: Force Google's verification challenge above our modal */
+    .grecaptcha-badge { z-index: 10001 !important; }
+    iframe[title*="recaptcha challenge"] { z-index: 10002 !important; }
   </style>
 </head>
 <body>
 
 <header>
-  <div style="display:inline-flex;align-items:center;gap:0.4rem;">
+  <div style="display:inline-flex;align-items:center;gap:0.4rem; margin-bottom: 1rem;">
     <div class="date-time"><span id="dtText"></span></div>
     <div class="date-time">🍅 <span id="pomoTime">60:00</span>
       <button id="pomoStart" class="pomo-btn">▶</button>
@@ -358,9 +323,12 @@
 
   <button id="todayBtn" class="today-btn">📍 Today</button>
   <button id="themeBtn" class="theme-btn">🍎 macOS</button>
-  <button id="layoutBtn" class="theme-btn" style="right:5.5rem;">🗂 Layout 1</button>
-  <button id="settingsBtn" class="theme-btn" style="right:15.5rem;">⚙️ Settings</button>
-  <button id="monthToggleBtn" class="theme-btn" style="right:10.5rem;">📅 Month</button>
+  
+  <div style="display:flex; gap: 0.5rem; margin-bottom: 1rem;">
+    <button id="layoutBtn" class="theme-btn" style="position:static;">🗂 Layout 1</button>
+    <button id="monthToggleBtn" class="theme-btn" style="position:static;">📅 Month</button>
+    <button id="settingsBtn" class="theme-btn" style="position:static;">⚙️ Settings</button>
+  </div>
 
   <div class="nav">
     <button id="prev" class="nav-btn">◀</button>
@@ -369,50 +337,52 @@
   </div>
 </header>
 
-<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
-    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);">
-    <h2 style="margin-top:0">Settings</h2>
+<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(10px); justify-content:center; align-items:center;">
+    <div style="width:100%; max-width:420px; padding:1.5rem; background:var(--card); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow-float); position:relative; max-height: 90vh; overflow-y: auto;">
+      <h2 style="margin-top:0">Settings</h2>
 
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Appearance</h3>
-      <p style="font-size:0.8rem;color:var(--muted)">Theme</p>
-      <div id="settingsThemes" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
-
-      <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem">Font Size</p>
-      <button class="font-btn" data-size="90">A−</button>
-      <button class="font-btn" data-size="100">A</button>
-      <button class="font-btn" data-size="110">A+</button>
-    </div>
-
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Pomodoro</h3>
-      <p style="font-size:0.75rem;color:var(--muted)">Session length (minutes)</p>
-      <input id="pomoDurationInput" type="number" min="1" style="width:80px;padding:4px 6px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem;" />
-    </div>
-
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Account</h3>
-      <div id="authContent">
-        <button id="googleLoginBtn" class="today-btn" style="position:static; width:100%; margin-bottom:10px;">🔐 Google Login</button>
-        
-        <div id="phoneAuthSection" style="border-top: 1px solid var(--border); padding-top: 10px;">
-          <p style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;">Login via Phone (SMS)</p>
-          <div style="display:flex; gap:5px; margin-bottom:8px;">
-            <input id="phoneInput" type="tel" placeholder="+1234567890" style="flex:1; padding:6px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem;">
-            <button id="sendCodeBtn" class="theme-btn" style="position:static; height:32px;">Send</button>
-          </div>
-          <div id="otpSection" style="display:none; flex-direction:column; gap:8px;">
-            <input id="otpInput" type="text" placeholder="6-digit code" style="padding:6px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem;">
-            <button id="verifyOtpBtn" class="today-btn" style="position:static; width:100%;">Verify Code</button>
-          </div>
+      <div class="month" style="margin-bottom:1rem; background:transparent; box-shadow:none; border:none; padding:0;">
+        <h3 style="font-size:0.9rem; margin-bottom:10px;">Appearance</h3>
+        <p style="font-size:0.8rem;color:var(--muted); margin-bottom:8px;">Font Size</p>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="font-btn today-btn" style="position:static; flex:1;" data-size="90">A−</button>
+          <button class="font-btn today-btn" style="position:static; flex:1;" data-size="100">A</button>
+          <button class="font-btn today-btn" style="position:static; flex:1;" data-size="110">A+</button>
         </div>
       </div>
-      <div id="recaptcha-container"></div>
-      <p style="font-size:0.75rem;color:var(--muted); margin-top:8px;">Sync notes across devices</p>
-    </div>
 
-    <button id="closeSettings" class="theme-btn" style="margin-top:1rem">Close</button>
-  </div>
+      <div class="month" style="margin-bottom:1rem; background:transparent; box-shadow:none; border:none; padding:0;">
+        <h3 style="font-size:0.9rem; margin-bottom:10px;">Pomodoro</h3>
+        <input id="pomoDurationInput" type="number" class="input-field" placeholder="Session minutes">
+      </div>
+
+      <div class="month" style="margin-bottom:1rem; background:transparent; box-shadow:none; border:none; padding:0;">
+        <h3 style="font-size:0.9rem; margin-bottom:10px;">Account</h3>
+        <div id="authContainer">
+          <button id="googleLoginBtn" class="today-btn" style="position:static; width:100%; margin-bottom:12px; display:flex; justify-content:center;">🔐 Login with Google</button>
+          
+          <div id="phoneAuthSection" style="border-top: 1px solid var(--border); padding-top:12px;">
+            <p style="font-size:0.75rem; color:var(--muted); margin-bottom:8px;">Login with Phone (SMS)</p>
+            <div id="phoneInputContainer" style="display:flex; gap:8px;">
+              <input id="phoneInput" type="tel" class="input-field" placeholder="+1234567890" style="margin-bottom:0;">
+              <button id="sendCodeBtn" class="today-btn" style="position:static; white-space:nowrap;">Send SMS</button>
+            </div>
+            
+            <!-- Visible reCAPTCHA container -->
+            <div id="recaptcha-container"></div>
+            
+            <div id="otpSection" style="display:none; margin-top:10px; flex-direction:column; gap:8px;">
+              <input id="otpInput" type="text" class="input-field" placeholder="Verification Code" style="margin-bottom:0;">
+              <button id="verifyOtpBtn" class="today-btn" style="position:static; width:100%; background:var(--primary);">Verify & Sign In</button>
+            </div>
+          </div>
+
+          <button id="signOutBtn" class="theme-btn" style="position:static; width:100%; display:none; justify-content:center; color: #ff3b30;">🚪 Sign Out</button>
+        </div>
+      </div>
+
+      <button id="closeSettings" class="theme-btn" style="width:100%; position:static; margin-top:1rem; justify-content:center;">Done</button>
+    </div>
 </div>
 
 <main id="mainLayout">
@@ -420,15 +390,15 @@
   <div id="resizeHandle" class="resize-handle"></div>
   <section class="notes">
     <div class="notes-header">
-      <div style="display:flex;align-items:center;gap:0.6rem;">
-        <h2 style="margin:0">Notes</h2>
-        <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
+      <div style="display:flex;flex-direction:column;">
+        <h2 id="notesTitle">Notes</h2>
+        <div id="syncStatus" style="font-size:0.7rem;color:var(--muted)">Local Mode</div>
       </div>
       <div class="notes-tools">
-        <button data-cmd="bold"><b>B</b></button>
-        <button data-cmd="italic"><i>I</i></button>
-        <button data-cmd="underline"><u>U</u></button>
-        <button data-cmd="insertUnorderedList">• List</button>
+        <button onclick="document.execCommand('bold')"><b>B</b></button>
+        <button onclick="document.execCommand('italic')"><i>I</i></button>
+        <button onclick="document.execCommand('underline')"><u>U</u></button>
+        <button onclick="document.execCommand('insertUnorderedList')">• List</button>
       </div>
     </div>
     <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
@@ -438,29 +408,26 @@
 <footer>Highlighted date = Today</footer>
 
 <script>
-  // ... (All your existing non-Firebase Javascript remains exactly the same) ...
+  // CALENDAR LOGIC
   const calEl = document.getElementById('calendar');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const settingsPage = document.getElementById('settingsPage');
-  const closeSettings = document.getElementById('closeSettings');
   const yearEl = document.getElementById('year');
+  const dtText = document.getElementById('dtText');
   const notesEditor = document.getElementById('notesEditor');
-  const toolButtons = document.querySelectorAll('.notes-tools button');
-
+  
   const now = new Date();
   const CURRENT_YEAR = now.getFullYear();
   const TODAY_DATE = now.getDate();
   const TODAY_MONTH = now.getMonth();
   let shownYear = CURRENT_YEAR;
+  let monthViewIndex = null;
 
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  let monthViewIndex = null;
-  const monthToggleBtn = document.getElementById('monthToggleBtn');
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
   function renderCalendar(year) {
     calEl.innerHTML = '';
-    yearEl.textContent = `Calendar ${year}`;
+    yearEl.textContent = monthViewIndex !== null ? `${MONTHS[monthViewIndex]} ${year}` : `Calendar ${year}`;
+
     MONTHS.forEach((m, i) => {
       if (monthViewIndex !== null && monthViewIndex !== i) return;
       const box = document.createElement('div');
@@ -475,8 +442,8 @@
       const total = new Date(year, i + 1, 0).getDate();
       for (let j = 0; j < first; j++) g.innerHTML += '<div></div>';
       for (let d = 1; d <= total; d++) {
-        const t = d === TODAY_DATE && i === TODAY_MONTH && year === CURRENT_YEAR;
-        g.innerHTML += `<div class="${t ? 'today' : ''}">${d}</div>`;
+        const isToday = d === TODAY_DATE && i === TODAY_MONTH && year === CURRENT_YEAR;
+        g.innerHTML += `<div class="${isToday ? 'today' : ''}">${d}</div>`;
       }
       box.append(w, g);
       calEl.appendChild(box);
@@ -485,252 +452,221 @@
 
   function updateTime() {
     const d = new Date();
-    dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
+    dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   }
 
-  toolButtons.forEach(b => b.onclick = () => document.execCommand(b.dataset.cmd));
-  const NOTES_KEY = 'calendar_notes_rich';
-  notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || '';
-  notesEditor.oninput = () => localStorage.setItem(NOTES_KEY, notesEditor.innerHTML);
-
   renderCalendar(shownYear);
-  const fontButtons = document.querySelectorAll('.font-btn');
-  fontButtons.forEach(btn => {
-    btn.onclick = () => {
-      const size = btn.dataset.size;
-      document.documentElement.style.fontSize = size + '%';
-      localStorage.setItem('fontSize', size);
-    };
-  });
-  const savedFontSize = localStorage.getItem('fontSize');
-  if (savedFontSize) document.documentElement.style.fontSize = savedFontSize + '%';
-
-  settingsBtn.onclick = () => settingsPage.style.display = 'block';
-  closeSettings.onclick = () => settingsPage.style.display = 'none';
-  settingsPage.addEventListener('click', (e) => { if (e.target === settingsPage) settingsPage.style.display = 'none'; });
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && settingsPage.style.display === 'block') settingsPage.style.display = 'none'; });
-
-  monthToggleBtn.onclick = () => {
-    if (monthViewIndex === null) {
-      monthViewIndex = TODAY_MONTH;
-      monthToggleBtn.textContent = '🗓 Year';
-    } else {
-      monthViewIndex = null;
-      monthToggleBtn.textContent = '📅 Month';
-    }
-    renderCalendar(shownYear);
-  };
-
-  calEl.addEventListener('click', (e) => {
-    const h = e.target.closest('h2[data-month]');
-    if (!h) return;
-    monthViewIndex = Number(h.dataset.month);
-    monthToggleBtn.textContent = '🗓 Year';
-    renderCalendar(shownYear);
-  });
   updateTime();
   setInterval(updateTime, 1000);
 
-  const POMO_KEY = 'pomo_duration_minutes';
-  let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
-  let secs = defaultPomoMinutes * 60, timer = null;
-  const pomoDurationInput = document.getElementById('pomoDurationInput');
-  pomoDurationInput.value = defaultPomoMinutes;
-  pomoDurationInput.onchange = () => {
-    const val = Math.max(1, Number(pomoDurationInput.value) || 60);
-    defaultPomoMinutes = val;
-    localStorage.setItem(POMO_KEY, val);
-    secs = val * 60;
-    pomoTime.textContent = String(val).padStart(2,'0') + ':00';
-    clearInterval(timer); timer = null; pomoStart.textContent = '▶';
-  };
-  pomoStart.onclick = () => {
-    if (timer) { clearInterval(timer); timer = null; pomoStart.textContent = '▶'; return; }
-    pomoStart.textContent = '⏸';
-    timer = setInterval(() => {
-      if (!secs) return clearInterval(timer);
-      secs--; pomoTime.textContent = String(Math.floor(secs/60)).padStart(2,'0')+":"+String(secs%60).padStart(2,'0');
-    },1000);
-  };
-  pomoReset.onclick = () => {
-    clearInterval(timer); timer = null; secs = defaultPomoMinutes * 60;
-    pomoTime.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00'; pomoStart.textContent = '▶';
-  };
-  prev.onclick = () => {
-    if (monthViewIndex !== null) { monthViewIndex = (monthViewIndex + 11) % 12; renderCalendar(shownYear); }
-    else renderCalendar(--shownYear);
-  };
-  next.onclick = () => {
-    if (monthViewIndex !== null) { monthViewIndex = (monthViewIndex + 1) % 12; renderCalendar(shownYear); }
-    else renderCalendar(++shownYear);
-  };
-  todayBtn.onclick = () => {
-    shownYear = CURRENT_YEAR;
-    if (monthViewIndex !== null) monthViewIndex = TODAY_MONTH;
+  document.getElementById('settingsBtn').onclick = () => document.getElementById('settingsPage').style.display = 'flex';
+  document.getElementById('closeSettings').onclick = () => document.getElementById('settingsPage').style.display = 'none';
+  
+  document.getElementById('prev').onclick = () => {
+    if (monthViewIndex !== null) { monthViewIndex = (monthViewIndex + 11) % 12; if(monthViewIndex === 11) shownYear--; }
+    else shownYear--;
     renderCalendar(shownYear);
   };
-  const themes = [
-    { name: '🍎 macOS', class: '' },
-    { name: '🌙 Dark', class: 'dark' },
-    { name: '🌊 Ocean', class: 'theme-ocean' },
-    { name: '🌲 Forest', class: 'theme-forest' },
-    { name: '🌅 Solar', class: 'theme-solar' }
-  ];
-  let themeIndex = 0;
-  themeBtn.onclick = () => {
-    document.body.classList.remove('dark','theme-ocean','theme-forest','theme-solar');
-    themeIndex = (themeIndex + 1) % themes.length;
-    const t = themes[themeIndex];
-    if (t.class) document.body.classList.add(t.class);
-    themeBtn.textContent = t.name;
+  document.getElementById('next').onclick = () => {
+    if (monthViewIndex !== null) { monthViewIndex = (monthViewIndex + 1) % 12; if(monthViewIndex === 0) shownYear++; }
+    else shownYear++;
+    renderCalendar(shownYear);
   };
-  const layoutBtn = document.getElementById('layoutBtn');
-  let currentLayout = 1;
-  layoutBtn.onclick = () => {
-    const main = document.getElementById('mainLayout');
-    if (currentLayout === 1) {
-      currentLayout = 2; document.body.classList.add('layout-2'); layoutBtn.textContent = '🗂 Layout 2';
-      const saved = localStorage.getItem('layout2_split_sizes');
-      if (saved) main.style.gridTemplateColumns = saved;
-    } else {
-      currentLayout = 1; document.body.classList.remove('layout-2'); layoutBtn.textContent = '🗂 Layout 1';
-      main.style.gridTemplateColumns = '';
+  document.getElementById('todayBtn').onclick = () => {
+    shownYear = CURRENT_YEAR;
+    monthViewIndex = null;
+    renderCalendar(shownYear);
+  };
+  document.getElementById('monthToggleBtn').onclick = () => {
+    monthViewIndex = monthViewIndex === null ? TODAY_MONTH : null;
+    renderCalendar(shownYear);
+  };
+
+  calEl.onclick = (e) => {
+    const h2 = e.target.closest('h2[data-month]');
+    if (h2) {
+      monthViewIndex = parseInt(h2.dataset.month);
+      renderCalendar(shownYear);
     }
   };
-  const handle = document.getElementById('resizeHandle');
-  let isResizing = false;
-  handle.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; });
-  window.addEventListener('mousemove', (e) => {
-    if (!isResizing || !document.body.classList.contains('layout-2')) return;
-    const main = document.getElementById('mainLayout');
-    const rect = main.getBoundingClientRect();
-    const leftWidth = e.clientX - rect.left;
-    const total = rect.width;
-    const leftFr = Math.max(1, Math.min(4, (leftWidth / total) * 3));
-    main.style.gridTemplateColumns = `${leftFr}fr 8px ${4 - leftFr}fr`;
-  });
-  window.addEventListener('mouseup', () => {
-    if (!isResizing) return;
-    isResizing = false; document.body.style.cursor = '';
-    const main = document.getElementById('mainLayout');
-    if (document.body.classList.contains('layout-2')) localStorage.setItem('layout2_split_sizes', main.style.gridTemplateColumns);
-  });
+
+  let themeIdx = 0;
+  const themes = ['', 'dark', 'theme-ocean', 'theme-forest', 'theme-solar'];
+  const themeNames = ['🍎 macOS', '🌙 Dark', '🌊 Ocean', '🌲 Forest', '🌅 Solar'];
+  document.getElementById('themeBtn').onclick = () => {
+    document.body.classList.remove(...themes.filter(t => t));
+    themeIdx = (themeIdx + 1) % themes.length;
+    if (themes[themeIdx]) document.body.classList.add(themes[themeIdx]);
+    document.getElementById('themeBtn').textContent = themeNames[themeIdx];
+  };
+
+  let isLayout2 = false;
+  document.getElementById('layoutBtn').onclick = () => {
+    isLayout2 = !isLayout2;
+    document.body.classList.toggle('layout-2', isLayout2);
+    document.getElementById('layoutBtn').textContent = isLayout2 ? '🗂 Layout 2' : '🗂 Layout 1';
+  };
+
+  let pomoSecs = 3600;
+  let pomoInt = null;
+  const pomoTime = document.getElementById('pomoTime');
+  document.getElementById('pomoStart').onclick = (e) => {
+    if (pomoInt) {
+      clearInterval(pomoInt); pomoInt = null; e.target.textContent = '▶';
+    } else {
+      pomoInt = setInterval(() => {
+        if (pomoSecs <= 0) return clearInterval(pomoInt);
+        pomoSecs--;
+        const m = Math.floor(pomoSecs/60);
+        const s = pomoSecs % 60;
+        pomoTime.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+      }, 1000);
+      e.target.textContent = '⏸';
+    }
+  };
+  document.getElementById('pomoReset').onclick = () => {
+    clearInterval(pomoInt); pomoInt = null;
+    const dur = parseInt(document.getElementById('pomoDurationInput').value) || 60;
+    pomoSecs = dur * 60;
+    pomoTime.textContent = `${dur}:00`;
+    document.getElementById('pomoStart').textContent = '▶';
+  };
+
+  notesEditor.oninput = () => {
+    if (!document.getElementById('syncStatus').textContent.includes('Synced')) {
+      localStorage.setItem('calendar_notes_local', notesEditor.innerHTML);
+    }
+  };
+  const localNotes = localStorage.getItem('calendar_notes_local');
+  if (localNotes) notesEditor.innerHTML = localNotes;
 </script>
 
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
-  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
-    authDomain: "calendar-599ac.firebaseapp.com",
-    projectId: "calendar-599ac",
-    storageBucket: "calendar-599ac.firebasestorage.app",
-    messagingSenderId: "89812638572",
-    appId: "1:89812638572:web:f02d7309367576a619b149"
-  };
-
+  const firebaseConfig = JSON.parse('{"apiKey":"AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM","authDomain":"calendar-599ac.firebaseapp.com","projectId":"calendar-599ac","storageBucket":"calendar-599ac.firebasestorage.app","messagingSenderId":"89812638572","appId":"1:89812638572:web:f02d7309367576a619b149"}');
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+  const appId = 'calendar-notes-v2';
 
-  const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const syncStatus = document.getElementById('syncStatus');
+  const googleBtn = document.getElementById('googleLoginBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
   const phoneAuthSection = document.getElementById('phoneAuthSection');
+  const sendCodeBtn = document.getElementById('sendCodeBtn');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
   const otpSection = document.getElementById('otpSection');
+  const syncStatus = document.getElementById('syncStatus');
+  const notesEditor = document.getElementById('notesEditor');
+
   let confirmationResult = null;
+  let unsubscribeNotes = null;
 
-  function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
+  // Clear existing verifier on load to prevent duplicates
+  if (window.recaptchaVerifier) {
+    window.recaptchaVerifier.clear();
+    window.recaptchaVerifier = null;
+  }
 
-  // Phone Auth reCAPTCHA setup
-  const initRecaptcha = () => {
+  // Setup visible reCAPTCHA
+  const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' }, auth);
-    }
-  };
-
-  // SEND SMS CODE
-  document.getElementById('sendCodeBtn').onclick = async () => {
-    const number = document.getElementById('phoneInput').value;
-    if (!number) return alert('Enter phone number in format +1234567890');
-    try {
-      initRecaptcha();
-      setSyncStatus('Sending SMS...');
-      confirmationResult = await signInWithPhoneNumber(auth, number, window.recaptchaVerifier);
-      otpSection.style.display = 'flex';
-      setSyncStatus('SMS Sent');
-    } catch (err) {
-      console.error(err);
-      setSyncStatus('SMS Failed: ' + err.message);
-    }
-  };
-
-  // VERIFY SMS CODE
-  document.getElementById('verifyOtpBtn').onclick = async () => {
-    const code = document.getElementById('otpInput').value;
-    try {
-      setSyncStatus('Verifying...');
-      await confirmationResult.confirm(code);
-    } catch (err) {
-      alert('Invalid code');
-      setSyncStatus('Verification failed');
-    }
-  };
-
-  // Google Login Logic (Existing)
-  googleLoginBtn.onclick = async () => {
-    if (auth.currentUser) { await signOut(auth); return; }
-    try {
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error('Auth error', err);
-      setSyncStatus('Login failed');
-    }
-  };
-
-  let unsubscribeNote = null;
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.phoneNumber || 'User') + ')';
-      phoneAuthSection.style.display = 'none'; // Hide phone UI when logged in
-      setSyncStatus('Signed in — syncing');
-
-      const noteRef = doc(db, 'user_notes', user.uid);
-      if (unsubscribeNote) unsubscribeNote();
-      unsubscribeNote = onSnapshot(noteRef, snap => {
-        if (snap.exists()) {
-          notesEditor.innerHTML = snap.data().content || '';
-          setSyncStatus('Synced');
-        } else {
-          const local = localStorage.getItem('calendar_notes_rich') || '';
-          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 
+        'size': 'normal', // Changed to normal for better feedback
+        'callback': (response) => {
+          // reCAPTCHA solved
+        },
+        'expired-callback': () => {
+          syncStatus.textContent = 'reCAPTCHA expired. Please solve it again.';
         }
       });
+      window.recaptchaVerifier.render();
+    }
+  };
+
+  sendCodeBtn.onclick = async () => {
+    const phone = document.getElementById('phoneInput').value;
+    if (!phone.startsWith('+')) return alert('Use international format starting with + (e.g. +1)');
+    
+    try {
+      setupRecaptcha();
+      syncStatus.textContent = 'Sending SMS...';
+      confirmationResult = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier);
+      otpSection.style.display = 'flex';
+      syncStatus.textContent = 'Code Sent';
+    } catch (err) {
+      console.error(err);
+      syncStatus.textContent = 'Error';
+      alert('Error: ' + err.message);
+      // Reset reCAPTCHA on error so user can try again
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.render().then(widgetId => {
+          grecaptcha.reset(widgetId);
+        });
+      }
+    }
+  };
+
+  verifyOtpBtn.onclick = async () => {
+    const code = document.getElementById('otpInput').value;
+    try {
+      syncStatus.textContent = 'Verifying...';
+      await confirmationResult.confirm(code);
+      document.getElementById('settingsPage').style.display = 'none';
+    } catch (err) {
+      alert('Invalid Verification Code');
+      syncStatus.textContent = 'Verification Failed';
+    }
+  };
+
+  googleBtn.onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
+  signOutBtn.onclick = () => signOut(auth);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      googleBtn.style.display = 'none';
+      phoneAuthSection.style.display = 'none';
+      signOutBtn.style.display = 'flex';
+      syncStatus.textContent = '☁️ Synced: ' + (user.displayName || user.phoneNumber);
+
+      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'main');
+      
+      if (unsubscribeNotes) unsubscribeNotes();
+      unsubscribeNotes = onSnapshot(noteRef, (snap) => {
+        if (snap.exists() && !notesEditor.matches(':focus')) {
+          notesEditor.innerHTML = snap.data().content || '';
+        }
+      }, (err) => {
+        console.error('Firestore error:', err);
+      });
     } else {
-      googleLoginBtn.textContent = '🔐 Google Login';
+      googleBtn.style.display = 'flex';
       phoneAuthSection.style.display = 'block';
+      signOutBtn.style.display = 'none';
       otpSection.style.display = 'none';
-      setSyncStatus('Not signed in (local only)');
-      if (unsubscribeNote) unsubscribeNote();
-      notesEditor.innerHTML = localStorage.getItem('calendar_notes_rich') || ''; 
+      syncStatus.textContent = 'Local Mode';
+      if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
     }
   });
 
   let saveTimer = null;
   notesEditor.addEventListener('input', () => {
-    const html = notesEditor.innerHTML;
-    localStorage.setItem('calendar_notes_rich', html);
-    if (auth.currentUser) {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(async () => {
-        const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-        await setDoc(noteRef, { userId: auth.currentUser.uid, content: html, updatedAt: serverTimestamp() }, { merge: true });
-        setSyncStatus('Saved at ' + new Date().toLocaleTimeString());
-      }, 700);
-    }
+    if (!auth.currentUser) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'main');
+      try {
+        await setDoc(noteRef, {
+          content: notesEditor.innerHTML,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        syncStatus.textContent = '☁️ Changes saved';
+      } catch (err) {
+        syncStatus.textContent = 'Sync Error';
+      }
+    }, 1000);
   });
 </script>
 </body>
