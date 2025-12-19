@@ -6,12 +6,12 @@
   <title>Year Calendar with Notes</title>
 
   <!-- =========================
-       STYLES (CSS)
-       ========================= -->
+        STYLES (CSS)
+        ========================= -->
   <style>
     /* =========================
-       macOS SYSTEM THEME
-       ========================= */
+        macOS SYSTEM THEME
+        ========================= */
     :root {
       --bg: #f5f5f7;
       --card: rgba(255,255,255,0.75);
@@ -91,8 +91,8 @@
     }
 
     /* =========================
-       HEADER
-       ========================= */
+        HEADER
+        ========================= */
     header {
       position: relative;
       padding: 0.9rem 1rem 1rem;
@@ -193,8 +193,8 @@
     }
 
     /* =========================
-       CALENDAR
-       ========================= */
+        CALENDAR
+        ========================= */
     .calendar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -251,8 +251,8 @@
     }
 
     /* =========================
-       NOTES
-       ========================= */
+        NOTES
+        ========================= */
     .notes {
       margin: 0.6rem 1rem 1rem;
       background: var(--card);
@@ -287,6 +287,12 @@
       font-weight: 600;
       color: var(--text);
       box-shadow: var(--shadow-soft);
+    }
+
+    .notes-tools button.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
     }
 
     body.dark .notes-tools button {
@@ -407,8 +413,8 @@
 }
 
     /* =========================
-       LAYOUT 2 (CALENDAR + NOTES SIDE BY SIDE)
-       ========================= */
+        LAYOUT 2 (CALENDAR + NOTES SIDE BY SIDE)
+        ========================= */
     body.layout-2 main {
       display: grid;
       grid-template-columns: 2.2fr 8px 1fr;
@@ -439,8 +445,8 @@
     }
 
     /* =========================
-       LAYOUT 2 – MOBILE FIX (PHONE)
-       ========================= */
+        LAYOUT 2 – MOBILE FIX (PHONE)
+        ========================= */
     @media (max-width: 768px) {
       body.layout-2 main {
         display: block; /* stop grid */
@@ -462,6 +468,157 @@
       }
     }
 
+/* =========================
+        FLOATING ANALOG CLOCK
+        ========================= */
+    .analog-clock {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft), var(--shadow-float);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      cursor: grab;
+      z-index: 999;
+    }
+    .analog-clock:active { cursor: grabbing; }
+    .clock-face { position: relative; width: 100%; height: 100%; }
+    .hour-marks {
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hour-marks span {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 2px;
+      height: 6px;
+      background: var(--muted);
+      transform-origin: center calc(60px - 6px);
+    }
+    .hour-marks span:nth-child(1) { transform: rotate(0deg); }
+    .hour-marks span:nth-child(2) { transform: rotate(30deg); }
+    .hour-marks span:nth-child(3) { transform: rotate(60deg); }
+    .hour-marks span:nth-child(4) { transform: rotate(90deg); }
+    .hour-marks span:nth-child(5) { transform: rotate(120deg); }
+    .hour-marks span:nth-child(6) { transform: rotate(150deg); }
+    .hour-marks span:nth-child(7) { transform: rotate(180deg); }
+    .hour-marks span:nth-child(8) { transform: rotate(210deg); }
+    .hour-marks span:nth-child(9) { transform: rotate(240deg); }
+    .hour-marks span:nth-child(10){ transform: rotate(270deg); }
+    .hour-marks span:nth-child(11){ transform: rotate(300deg); }
+    .hour-marks span:nth-child(12){ transform: rotate(330deg); }
+    .hand {
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform-origin: bottom center;
+      background: var(--text);
+      border-radius: 2px;
+    }
+    .hand.hour { width: 4px; height: 32px; }
+    .hand.minute { width: 3px; height: 44px; }
+    .hand.second { width: 2px; height: 50px; background: var(--primary); }
+    .clock-center {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--text);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .clock-date {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+      letter-spacing: 0.3px;
+      pointer-events: none;
+      line-height: 1.05;
+    }
+    body.dark .clock-date {
+      background: rgba(255,255,255,0.08);
+    }
+    .clock-date div {
+      display: block;
+    }
+
+    /* =========================
+        FLOATING POMODORO
+        ========================= */
+    .floating-pomo {
+      position: fixed;
+      bottom: 10rem;
+      right: 1.2rem;
+      padding: 0.6rem 1rem;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft), var(--shadow-float);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      cursor: grab;
+      z-index: 998;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
+    }
+    .floating-pomo:active { cursor: grabbing; }
+    .pomo-content { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 0.9rem; }
+    .pomo-controls { display: flex; gap: 0.3rem; }
+
+    /* =========================
+        CLOSE BUTTON FOR WIDGETS
+        ========================= */
+    .close-widget-btn {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ff3b30;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .analog-clock:hover .close-widget-btn,
+    .floating-pomo:hover .close-widget-btn {
+      opacity: 1;
+    }
+    .close-widget-btn:hover {
+      background: #d70015;
+      transform: scale(1.1);
+    }
 </style>
 </head>
 <body>
@@ -488,6 +645,35 @@
   </div>
 </header>
 
+<!-- Floating Analog Clock -->
+<div id="analogClock" class="analog-clock">
+  <button id="closeClockBtn" class="close-widget-btn" title="Close Clock">✕</button>
+  <div class="clock-face">
+    <div class="hour-marks">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="hand hour" id="hourHand"></div>
+    <div class="hand minute" id="minuteHand"></div>
+    <div class="hand second" id="secondHand"></div>
+    <div class="clock-center"></div>
+    <div class="clock-date"><div id="clockDay"></div><div id="clockNum"></div></div>
+  </div>
+</div>
+
+<!-- Floating Pomodoro -->
+<div id="floatingPomo" class="floating-pomo">
+  <button id="closePomoBtn" class="close-widget-btn" title="Close Pomodoro">✕</button>
+  <div class="pomo-content">
+    <span class="pomo-emoji">🍅</span>
+    <span id="floatingPomoTime">60:00</span>
+    <div class="pomo-controls">
+      <button id="floatingPomoStart" class="pomo-btn">▶</button>
+      <button id="floatingPomoReset" class="pomo-btn">⟳</button>
+    </div>
+  </div>
+</div>
+
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
@@ -505,6 +691,17 @@
       <button class="font-btn" data-size="90">A−</button>
       <button class="font-btn" data-size="100">A</button>
       <button class="font-btn" data-size="110">A+</button>
+    </div>
+
+    <!-- Widgets -->
+    <div class="month" style="margin-bottom:1rem;">
+      <h3>Widgets</h3>
+      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
+        <input type="checkbox" id="toggleClock" /> Show analog clock
+      </label>
+      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+        <input type="checkbox" id="toggleFloatingPomo" /> Show floating Pomodoro
+      </label>
     </div>
 
     <!-- Pomodoro -->
@@ -577,6 +774,9 @@
 </main>
 
 <script>
+  /* =========================
+      UI & CALENDAR LOGIC
+      ========================= */
   const calEl = document.getElementById('calendar');
   const settingsBtn = document.getElementById('settingsBtn');
   const settingsPage = document.getElementById('settingsPage');
@@ -634,11 +834,26 @@
     }
   }
 
-  toolButtons.forEach(b => b.onclick = () => document.execCommand(b.dataset.cmd));
+  toolButtons.forEach(b => b.onclick = () => {
+    document.execCommand(b.dataset.cmd);
+    updateToolStates();
+  });
 
-  const NOTES_KEY = 'calendar_notes_rich';
-  notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || '';
-  notesEditor.oninput = () => localStorage.setItem(NOTES_KEY, notesEditor.innerHTML);
+  function updateToolStates() {
+    toolButtons.forEach(btn => {
+      const cmd = btn.dataset.cmd;
+      try {
+        const isActive = document.queryCommandState(cmd);
+        btn.classList.toggle('active', isActive);
+      } catch (e) {}
+    });
+  }
+
+  document.addEventListener('selectionchange', () => {
+    if (document.activeElement === notesEditor) {
+      updateToolStates();
+    }
+  });
 
   renderCalendar(shownYear);
 
@@ -695,48 +910,6 @@
   });
   updateTime();
   setInterval(updateTime, 1000);
-
-  const POMO_KEY = 'pomo_duration_minutes';
-  let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
-  let secs = defaultPomoMinutes * 60, timer = null;
-
-  const pomoDurationInput = document.getElementById('pomoDurationInput');
-  pomoDurationInput.value = defaultPomoMinutes;
-
-  pomoDurationInput.onchange = () => {
-    const val = Math.max(1, Number(pomoDurationInput.value) || 60);
-    defaultPomoMinutes = val;
-    localStorage.setItem(POMO_KEY, val);
-    secs = val * 60;
-    const pt = document.getElementById('pomoTime');
-    if(pt) pt.textContent = String(val).padStart(2,'0') + ':00';
-    clearInterval(timer);
-    timer = null;
-    const ps = document.getElementById('pomoStart');
-    if(ps) ps.textContent = '▶';
-  };
-  
-  document.getElementById('pomoStart').onclick = () => {
-    const ps = document.getElementById('pomoStart');
-    const pt = document.getElementById('pomoTime');
-    if (timer) { clearInterval(timer); timer = null; ps.textContent = '▶'; return; }
-    ps.textContent = '⏸';
-    timer = setInterval(() => {
-      if (!secs) return clearInterval(timer);
-      secs--; 
-      if(pt) pt.textContent = String(Math.floor(secs/60)).padStart(2,'0')+":"+String(secs%60).padStart(2,'0');
-    },1000);
-  };
-
-  document.getElementById('pomoReset').onclick = () => {
-    const ps = document.getElementById('pomoStart');
-    const pt = document.getElementById('pomoTime');
-    clearInterval(timer);
-    timer = null;
-    secs = defaultPomoMinutes * 60;
-    if(pt) pt.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00';
-    if(ps) ps.textContent = '▶';
-  };
 
   document.getElementById('prev').onclick = () => {
     if (monthViewIndex !== null) {
@@ -865,15 +1038,110 @@
 
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
-  // --- Auth Handlers ---
+  /* =========================
+      POMODORO SYNC LOGIC
+      ========================= */
+  const POMO_KEY = 'pomo_duration_minutes';
+  let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
+  let secs = defaultPomoMinutes * 60;
+  let timer = null;
+  let isCloudRunning = false;
+
+  const pomoTime = document.getElementById('pomoTime');
+  const floatingPomoTime = document.getElementById('floatingPomoTime');
+  const pomoDurationInput = document.getElementById('pomoDurationInput');
+  pomoDurationInput.value = defaultPomoMinutes;
+
+  function updatePomoDisplay(seconds) {
+    const minStr = String(Math.floor(seconds/60)).padStart(2,'0');
+    const secStr = String(seconds%60).padStart(2,'0');
+    const timeText = `${minStr}:${secStr}`;
+    if(pomoTime) pomoTime.textContent = timeText;
+    if(floatingPomoTime) floatingPomoTime.textContent = timeText;
+  }
+
+  function startLocalTimer() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => {
+      if (secs <= 0) {
+        clearInterval(timer);
+        timer = null;
+        return;
+      }
+      secs--;
+      updatePomoDisplay(secs);
+    }, 1000);
+    document.getElementById('pomoStart').textContent = '⏸';
+    document.getElementById('floatingPomoStart').textContent = '⏸';
+  }
+
+  function stopLocalTimer() {
+    clearInterval(timer);
+    timer = null;
+    document.getElementById('pomoStart').textContent = '▶';
+    document.getElementById('floatingPomoStart').textContent = '▶';
+  }
+
+  async function pushPomoState(running, overrideSecs = null) {
+    if (!auth.currentUser) return;
+    const s = overrideSecs !== null ? overrideSecs : secs;
+    const pomoRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'pomodoro', 'state');
+    try {
+      await setDoc(pomoRef, {
+        secs: s,
+        isRunning: running,
+        timestamp: serverTimestamp(),
+        defaultPomoMinutes: defaultPomoMinutes
+      });
+    } catch (err) { console.error("Pomo push error", err); }
+  }
+
+  function togglePomo() {
+    if (!auth.currentUser) {
+      // Local mode fallback
+      if (timer) { stopLocalTimer(); } else { startLocalTimer(); }
+      return;
+    }
+    pushPomoState(!isCloudRunning);
+  }
+
+  function resetPomo() {
+    const resetSecs = defaultPomoMinutes * 60;
+    if (!auth.currentUser) {
+      secs = resetSecs;
+      updatePomoDisplay(secs);
+      stopLocalTimer();
+      return;
+    }
+    pushPomoState(false, resetSecs);
+  }
+
+  pomoDurationInput.onchange = () => {
+    const val = Math.max(1, Number(pomoDurationInput.value) || 60);
+    defaultPomoMinutes = val;
+    localStorage.setItem(POMO_KEY, val);
+    if (!auth.currentUser) {
+      secs = val * 60;
+      updatePomoDisplay(secs);
+      stopLocalTimer();
+    } else {
+      pushPomoState(false, val * 60);
+    }
+  };
+
+  document.getElementById('pomoStart').onclick = togglePomo;
+  document.getElementById('floatingPomoStart').onclick = togglePomo;
+  document.getElementById('pomoReset').onclick = resetPomo;
+  document.getElementById('floatingPomoReset').onclick = resetPomo;
+
+  /* =========================
+      AUTH & NOTES SYNC
+      ========================= */
   const handleAuthError = (err) => {
     console.error(err);
     let msg = 'Authentication failed';
     if(err.code === 'auth/wrong-password') msg = 'Wrong password';
     if(err.code === 'auth/user-not-found') msg = 'User not found';
-    if(err.code === 'auth/email-already-in-use') msg = 'Email already registered';
-    if(err.code === 'auth/invalid-email') msg = 'Invalid email address';
-    if(err.code === 'auth/weak-password') msg = 'Password is too weak';
     setSyncStatus('Error: ' + msg);
   };
 
@@ -881,86 +1149,88 @@
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if(!email || !password) return setSyncStatus('Enter email & password');
-    try {
-      setSyncStatus('Logging in...');
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) { handleAuthError(err); }
+    try { await signInWithEmailAndPassword(auth, email, password); } catch (err) { handleAuthError(err); }
   };
 
   signupBtn.onclick = async () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if(!email || !password) return setSyncStatus('Enter email & password');
-    try {
-      setSyncStatus('Creating account...');
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (err) { handleAuthError(err); }
+    try { await createUserWithEmailAndPassword(auth, email, password); } catch (err) { handleAuthError(err); }
   };
 
   resetPasswordBtn.onclick = async () => {
     const email = emailInput.value.trim();
-    if(!email) return setSyncStatus('Enter your email first');
-    try {
-      setSyncStatus('Sending reset link...');
-      await sendPasswordResetEmail(auth, email);
-      setSyncStatus('Check your inbox for reset link');
-    } catch (err) { handleAuthError(err); }
+    if(!email) return setSyncStatus('Enter email');
+    try { await sendPasswordResetEmail(auth, email); setSyncStatus('Reset link sent'); } catch (err) { handleAuthError(err); }
   };
 
   logoutBtn.onclick = () => signOut(auth);
 
-  // --- Initial Startup ---
   const initAuth = async () => {
     try {
       await setPersistence(auth, browserLocalPersistence);
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
+      } else {
+        await signInAnonymously(auth);
       }
     } catch (err) { console.error("Init Auth error", err); }
   };
   initAuth();
 
-  // --- Sync Logic ---
-  let unsubscribeNote = null;
+  let unsubNotes = null;
+  let unsubPomo = null;
+
   onAuthStateChanged(auth, user => {
     if (user) {
       loggedOutUI.style.display = 'none';
       loggedInUI.style.display = 'block';
-      userEmailDisplay.textContent = `Logged in as: ${user.email}`;
-      setSyncStatus('Signed in — syncing');
+      userEmailDisplay.textContent = `Logged in as: ${user.email || 'Anonymous'}`;
+      setSyncStatus('Cloud Sync Active');
 
-      // RULE 1: Strict path structure
-      const noteRef = doc(db, 'user_notes', user.uid);
+      // Notes Sync
+      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'current');
+      if (unsubNotes) unsubNotes();
+      unsubNotes = onSnapshot(noteRef, snap => {
+        if (snap.exists() && document.activeElement !== notesEditor) {
+          notesEditor.innerHTML = snap.data().content || '';
+        }
+      }, err => setSyncStatus('Notes Sync Error'));
 
-      if (unsubscribeNote) unsubscribeNote();
-      unsubscribeNote = onSnapshot(noteRef, snap => {
+      // Pomodoro Sync
+      const pomoRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pomodoro', 'state');
+      if (unsubPomo) unsubPomo();
+      unsubPomo = onSnapshot(pomoRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
-          // Avoid overwriting if user is typing
-          if (document.activeElement !== notesEditor) {
-            notesEditor.innerHTML = data.content || '';
+          isCloudRunning = data.isRunning;
+          defaultPomoMinutes = data.defaultPomoMinutes || 60;
+          pomoDurationInput.value = defaultPomoMinutes;
+          
+          if (isCloudRunning && data.timestamp) {
+            const serverTime = data.timestamp.toMillis();
+            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
+            secs = Math.max(0, data.secs - elapsed);
+            startLocalTimer();
+          } else {
+            secs = data.secs;
+            updatePomoDisplay(secs);
+            stopLocalTimer();
           }
-          setSyncStatus('Cloud Synced');
-        } else {
-          // New user, seed with local content
-          const local = localStorage.getItem(NOTES_KEY) || '';
-          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
-            .then(() => setSyncStatus('Synced (Started Cloud)'));
         }
-      }, err => {
-        console.error('Firestore Error:', err);
-        setSyncStatus('Sync Error: Permission Denied');
       });
+
     } else {
       loggedOutUI.style.display = 'block';
       loggedInUI.style.display = 'none';
-      setSyncStatus('Not signed in (Local mode)');
-      if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
-      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
+      setSyncStatus('Local Mode');
+      if (unsubNotes) unsubNotes();
+      if (unsubPomo) unsubPomo();
     }
   });
 
-  // --- Debounced Save ---
+  // Notes Auto-save
   let saveTimer = null;
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
@@ -968,19 +1238,90 @@
     if (auth.currentUser) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
-        try {
-          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-          await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
-          setSyncStatus('All changes saved');
-        } catch (err) {
-          setSyncStatus('Cloud save failed');
-        }
+        const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'current');
+        await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
       }, 800);
     }
   });
 
-  window.addEventListener('offline', () => setSyncStatus('Offline — saved locally'));
-  window.addEventListener('online', () => setSyncStatus('Online'));
+  /* =========================
+      WIDGETS LOGIC
+      ========================= */
+  const clock = document.getElementById('analogClock');
+  const toggleClock = document.getElementById('toggleClock');
+  const closeClockBtn = document.getElementById('closeClockBtn');
+  const CLOCK_VIS_KEY = 'show_analog_clock';
+
+  const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
+  const showClock = savedClock !== 'false';
+  clock.style.display = showClock ? 'block' : 'none';
+  if (toggleClock) toggleClock.checked = showClock;
+
+  function updateClockVisibility(visible) {
+    clock.style.display = visible ? 'block' : 'none';
+    localStorage.setItem(CLOCK_VIS_KEY, visible);
+    if (toggleClock) toggleClock.checked = visible;
+  }
+  if (toggleClock) toggleClock.onchange = () => updateClockVisibility(toggleClock.checked);
+  if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
+
+  const hourHand = document.getElementById('hourHand');
+  const minuteHand = document.getElementById('minuteHand');
+  const secondHand = document.getElementById('secondHand');
+  const clockDay = document.getElementById('clockDay');
+  const clockNum = document.getElementById('clockNum');
+
+  function updateAnalogClock() {
+    const now = new Date();
+    const s = now.getSeconds();
+    const m = now.getMinutes();
+    const h = now.getHours() % 12;
+    hourHand.style.transform = `translateX(-50%) rotate(${h * 30 + m * 0.5}deg)`;
+    minuteHand.style.transform = `translateX(-50%) rotate(${m * 6}deg)`;
+    secondHand.style.transform = `translateX(-50%) rotate(${s * 6}deg)`;
+    clockDay.textContent = now.toLocaleDateString(undefined, { weekday: 'short' });
+    clockNum.textContent = now.getDate();
+  }
+  setInterval(updateAnalogClock, 1000);
+  updateAnalogClock();
+
+  const floatingPomo = document.getElementById('floatingPomo');
+  const toggleFloatingPomo = document.getElementById('toggleFloatingPomo');
+  const closePomoBtn = document.getElementById('closePomoBtn');
+  const POMO_VIS_KEY = 'show_floating_pomo';
+
+  const savedPomoVis = localStorage.getItem(POMO_VIS_KEY);
+  const showPomo = savedPomoVis !== 'false';
+  floatingPomo.style.display = showPomo ? 'flex' : 'none';
+  if (toggleFloatingPomo) toggleFloatingPomo.checked = showPomo;
+
+  function updatePomoVisibility(visible) {
+    floatingPomo.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(POMO_VIS_KEY, visible);
+    if (toggleFloatingPomo) toggleFloatingPomo.checked = visible;
+  }
+  if (toggleFloatingPomo) toggleFloatingPomo.onchange = () => updatePomoVisibility(toggleFloatingPomo.checked);
+  if (closePomoBtn) closePomoBtn.onclick = (e) => { e.stopPropagation(); updatePomoVisibility(false); };
+
+  function makeDraggable(el) {
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+    el.addEventListener('mousedown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      isDragging = true;
+      startX = e.clientX; startY = e.clientY;
+      startLeft = el.offsetLeft; startTop = el.offsetTop;
+      el.style.right = 'auto'; el.style.bottom = 'auto';
+    });
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      el.style.left = startLeft + (e.clientX - startX) + 'px';
+      el.style.top = startTop + (e.clientY - startY) + 'px';
+    });
+    window.addEventListener('mouseup', () => isDragging = false);
+  }
+  makeDraggable(clock);
+  makeDraggable(floatingPomo);
 </script>
 </body>
 </html>
