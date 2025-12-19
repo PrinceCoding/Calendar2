@@ -300,12 +300,13 @@
 
     /* Fix reCAPTCHA z-index and container styling */
     #recaptcha-container {
-      margin: 10px 0;
-      transform: scale(0.9);
-      transform-origin: left top;
+      margin: 15px 0;
+      display: flex;
+      justify-content: center;
+      min-height: 78px;
     }
 
-    /* Important: Force Google's verification challenge above our modal */
+    /* Force verification challenge above modal */
     .grecaptcha-badge { z-index: 10001 !important; }
     iframe[title*="recaptcha challenge"] { z-index: 10002 !important; }
   </style>
@@ -368,7 +369,6 @@
               <button id="sendCodeBtn" class="today-btn" style="position:static; white-space:nowrap;">Send SMS</button>
             </div>
             
-            <!-- Visible reCAPTCHA container -->
             <div id="recaptcha-container"></div>
             
             <div id="otpSection" style="display:none; margin-top:10px; flex-direction:column; gap:8px;">
@@ -564,26 +564,28 @@
   let confirmationResult = null;
   let unsubscribeNotes = null;
 
-  // Clear existing verifier on load to prevent duplicates
-  if (window.recaptchaVerifier) {
-    window.recaptchaVerifier.clear();
-    window.recaptchaVerifier = null;
-  }
+  // Safe helper to reset reCAPTCHA container and instance
+  const clearRecaptcha = () => {
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (e) { console.error("Verifier clear error:", e); }
+      window.recaptchaVerifier = null;
+    }
+    const container = document.getElementById('recaptcha-container');
+    if (container) container.innerHTML = ''; // Force empty DOM to prevent "element must be empty" error
+  };
 
   // Setup visible reCAPTCHA
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 
-        'size': 'normal', // Changed to normal for better feedback
-        'callback': (response) => {
-          // reCAPTCHA solved
-        },
-        'expired-callback': () => {
-          syncStatus.textContent = 'reCAPTCHA expired. Please solve it again.';
-        }
-      });
-      window.recaptchaVerifier.render();
-    }
+  const setupRecaptcha = async () => {
+    clearRecaptcha(); // Always start clean
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 
+      'size': 'normal',
+      'expired-callback': () => {
+        syncStatus.textContent = 'reCAPTCHA expired. Please solve it again.';
+      }
+    });
+    return await window.recaptchaVerifier.render();
   };
 
   sendCodeBtn.onclick = async () => {
@@ -591,7 +593,7 @@
     if (!phone.startsWith('+')) return alert('Use international format starting with + (e.g. +1)');
     
     try {
-      setupRecaptcha();
+      await setupRecaptcha(); // Wait for it to render properly
       syncStatus.textContent = 'Sending SMS...';
       confirmationResult = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier);
       otpSection.style.display = 'flex';
@@ -600,12 +602,7 @@
       console.error(err);
       syncStatus.textContent = 'Error';
       alert('Error: ' + err.message);
-      // Reset reCAPTCHA on error so user can try again
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => {
-          grecaptcha.reset(widgetId);
-        });
-      }
+      clearRecaptcha(); // Clean up on error so user can try again
     }
   };
 
