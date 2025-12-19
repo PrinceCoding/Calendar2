@@ -1009,15 +1009,8 @@
   } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-  // Firebase configuration
-  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
-    authDomain: "calendar-599ac.firebaseapp.com",
-    projectId: "calendar-599ac",
-    storageBucket: "calendar-599ac.firebasestorage.app",
-    messagingSenderId: "89812638572",
-    appId: "1:89812638572:web:f02d7309367576a619b149"
-  };
+  // Initialize Firebase using environment variables
+  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "" };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -1140,10 +1133,9 @@
   const handleAuthError = (err) => {
     console.error("Auth error detail:", err);
     let msg = 'Authentication failed';
-    if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Wrong email/password';
-    if(err.code === 'auth/user-not-found') msg = 'User not found';
-    if(err.code === 'auth/email-already-in-use') msg = 'Email already in use';
-    if(err.code === 'auth/invalid-email') msg = 'Invalid email';
+    if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email' || err.code === 'auth/operation-not-allowed') {
+        msg = 'Invalid login or provider disabled';
+    }
     setSyncStatus('Error: ' + msg);
   };
 
@@ -1152,7 +1144,7 @@
     const password = passwordInput.value;
     if(!email || !password) return setSyncStatus('Enter email & password');
     try { 
-      setSyncStatus('Attempting login...');
+      setSyncStatus('Logging in...');
       await signInWithEmailAndPassword(auth, email, password); 
     } catch (err) { handleAuthError(err); }
   };
@@ -1173,14 +1165,18 @@
     try { await sendPasswordResetEmail(auth, email); setSyncStatus('Reset link sent'); } catch (err) { handleAuthError(err); }
   };
 
-  logoutBtn.onclick = () => signOut(auth);
+  logoutBtn.onclick = async () => {
+    await signOut(auth);
+    // After logout, standard environment protocol is to sign in anonymously
+    await signInAnonymously(auth);
+  };
 
   const initAuth = async () => {
     try {
       await setPersistence(auth, browserLocalPersistence);
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
-      } else if (!auth.currentUser) {
+      } else {
         await signInAnonymously(auth);
       }
     } catch (err) { console.error("Init Auth error", err); }
@@ -1192,9 +1188,10 @@
 
   onAuthStateChanged(auth, user => {
     if (user) {
-      loggedOutUI.style.display = 'none';
-      loggedInUI.style.display = 'block';
-      userEmailDisplay.textContent = `Logged in as: ${user.email || 'Guest'}`;
+      const isAnonymous = user.isAnonymous;
+      loggedOutUI.style.display = isAnonymous ? 'block' : 'none';
+      loggedInUI.style.display = isAnonymous ? 'none' : 'block';
+      userEmailDisplay.textContent = isAnonymous ? 'Guest session' : `Logged in as: ${user.email}`;
       setSyncStatus('Cloud Synced');
 
       // Notes Basic Sync Logic
@@ -1207,6 +1204,7 @@
             notesEditor.innerHTML = data.content || '';
           }
         } else {
+          // Rule: Basic seeding logic - Cloud initialized from LocalStorage
           const local = localStorage.getItem(NOTES_KEY) || '';
           setDoc(noteRef, { content: local, updatedAt: serverTimestamp() });
         }
@@ -1215,7 +1213,7 @@
         setSyncStatus('Sync Error: Access Denied');
       });
 
-      // Pomodoro Cross-Device Sync
+      // Pomodoro Cross-Device Sync (Rule 1 compliant path)
       const pomoRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pomodoro', 'state');
       if (unsubPomo) unsubPomo();
       unsubPomo = onSnapshot(pomoRef, snap => {
@@ -1226,7 +1224,7 @@
           pomoDurationInput.value = defaultPomoMinutes;
           
           if (isTimerRunning && data.timestamp) {
-            // Real-time synchronization logic using server timestamp
+            // Real-time synchronization using server offset
             const serverTime = data.timestamp.toMillis();
             const elapsedSincePush = Math.floor((Date.now() - serverTime) / 1000);
             secsRemaining = Math.max(0, data.secs - elapsedSincePush);
