@@ -913,8 +913,20 @@
   setInterval(updateTime, 1000);
 
   const POMO_KEY = 'pomo_duration_minutes';
+  const POMO_SECS_LOCAL_KEY = 'pomo_secs_local';
+  const DEVICE_ID_KEY = 'device_id';
   let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
-  let secs = defaultPomoMinutes * 60, timer = null;
+  let secsStored = Number(localStorage.getItem(POMO_SECS_LOCAL_KEY));
+  let secs = (!isNaN(secsStored) && secsStored > 0) ? secsStored : (defaultPomoMinutes * 60);
+  let timer = null; // local display tick interval
+  let anchorStartMs = null; // when (ms) the session started (server/local)
+  let anchorRemaining = null; // secs remaining at start
+  let isApplyingRemote = false;
+  let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+  if (!deviceId) {
+    deviceId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem(DEVICE_ID_KEY, deviceId);
+  }
 
   const pomoDurationInput = document.getElementById('pomoDurationInput');
   pomoDurationInput.value = defaultPomoMinutes;
@@ -929,34 +941,81 @@
     if(fpt) fpt.textContent = timeText;
   }
 
-  function togglePomo() {
+  function saveLocalSecs() {
+    localStorage.setItem(POMO_SECS_LOCAL_KEY, String(secs));
+  }
+
+  function setStartButtons(running) {
     const ps = document.getElementById('pomoStart');
     const fps = document.getElementById('floatingPomoStart');
-    if (timer) { 
-      clearInterval(timer); 
-      timer = null; 
-      ps.textContent = '▶'; 
-      fps.textContent = '▶';
-      return; 
+    if (ps) ps.textContent = running ? '⏸' : '▶';
+    if (fps) fps.textContent = running ? '⏸' : '▶';
+  }
+
+  async function syncToCloud(runningFlag, extra = {}) {
+    try {
+      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) return;
+      const ref = doc(db, 'user_pomodoro', auth.currentUser.uid);
+      await setDoc(ref, Object.assign({
+        duration: defaultPomoMinutes,
+        running: !!runningFlag,
+        by: deviceId,
+        updatedAt: serverTimestamp()
+      }, extra), { merge: true });
+    } catch (err) {
+      console.error('[POMO] Cloud sync failed:', err);
     }
-    ps.textContent = '⏸';
-    fps.textContent = '⏸';
-    timer = setInterval(() => {
-      if (!secs) return clearInterval(timer);
-      secs--; 
+  }
+
+  function clearLocalTimer() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function startLocalDisplayFromAnchor(remainAtStart, startedAtMs) {
+    clearLocalTimer();
+    anchorRemaining = remainAtStart;
+    anchorStartMs = startedAtMs;
+    setStartButtons(true);
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - anchorStartMs) / 1000);
+      const left = Math.max(0, Math.round(anchorRemaining - elapsed));
+      secs = left;
       updatePomoDisplay();
-    }, 1000);
+      saveLocalSecs();
+      if (left <= 0) {
+        clearLocalTimer();
+        setStartButtons(false);
+      }
+    };
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+
+  function togglePomo() {
+    // Pause if currently running
+    if (timer) {
+      clearLocalTimer();
+      setStartButtons(false);
+      saveLocalSecs();
+      // Persist pause with remaining seconds
+      syncToCloud(false, { remaining: secs, startedAt: null });
+      return;
+    }
+    // Start a new session from current remaining seconds
+    const remainAtStart = secs;
+    const startedNow = Date.now();
+    startLocalDisplayFromAnchor(remainAtStart, startedNow);
+    // Persist start (no per-second writes)
+    syncToCloud(true, { remaining: remainAtStart, startedAt: serverTimestamp() });
   }
 
   function resetPomo() {
-    const ps = document.getElementById('pomoStart');
-    const fps = document.getElementById('floatingPomoStart');
-    clearInterval(timer);
-    timer = null;
+    clearLocalTimer();
     secs = defaultPomoMinutes * 60;
     updatePomoDisplay();
-    ps.textContent = '▶';
-    fps.textContent = '▶';
+    setStartButtons(false);
+    saveLocalSecs();
+    syncToCloud(false, { remaining: secs, startedAt: null });
   }
 
   pomoDurationInput.onchange = () => {
@@ -965,10 +1024,10 @@
     localStorage.setItem(POMO_KEY, val);
     secs = val * 60;
     updatePomoDisplay();
-    clearInterval(timer);
-    timer = null;
-    document.getElementById('pomoStart').textContent = '▶';
-    document.getElementById('floatingPomoStart').textContent = '▶';
+    clearLocalTimer();
+    setStartButtons(false);
+    saveLocalSecs();
+    syncToCloud(false, { remaining: secs, startedAt: null });
   };
   
   document.getElementById('pomoStart').onclick = togglePomo;
@@ -976,6 +1035,41 @@
 
   document.getElementById('pomoReset').onclick = resetPomo;
   document.getElementById('floatingPomoReset').onclick = resetPomo;
+
+  // Expose handler for Firebase snapshot updates
+  window.applyRemoteState = (data) => {
+    try {
+      if (!data) return;
+      if (data.by && data.by === deviceId) return; // ignore self-originating updates
+
+      // Update duration if changed remotely
+      if (typeof data.duration === 'number' && data.duration > 0 && data.duration !== defaultPomoMinutes) {
+        defaultPomoMinutes = data.duration;
+        localStorage.setItem(POMO_KEY, String(defaultPomoMinutes));
+        if (pomoDurationInput) pomoDurationInput.value = defaultPomoMinutes;
+      }
+
+      const running = !!data.running;
+      const remaining = (typeof data.remaining === 'number' && data.remaining >= 0)
+        ? data.remaining
+        : (typeof data.secs === 'number' ? data.secs : defaultPomoMinutes * 60);
+
+      if (running && data.startedAt && typeof data.startedAt.toMillis === 'function') {
+        const startedAtMs = data.startedAt.toMillis();
+        startLocalDisplayFromAnchor(remaining, startedAtMs);
+      } else if (running) {
+        // Fallback if startedAt missing: just start from remaining now
+        startLocalDisplayFromAnchor(remaining, Date.now());
+      } else {
+        clearLocalTimer();
+        secs = remaining;
+        updatePomoDisplay();
+        setStartButtons(false);
+      }
+    } catch (e) {
+      console.error('[POMO] applyRemoteState error:', e);
+    }
+  };
 
   document.getElementById('prev').onclick = () => {
     if (monthViewIndex !== null) {
@@ -1063,6 +1157,128 @@
       localStorage.setItem('layout2_split_sizes', main.style.gridTemplateColumns);
     }
   });
+
+  // =========================
+  // WIDGET VISIBILITY + DRAG
+  // =========================
+  const clock = document.getElementById('analogClock');
+  const toggleClock = document.getElementById('toggleClock');
+  const closeClockBtn = document.getElementById('closeClockBtn');
+  const floatingPomo = document.getElementById('floatingPomo');
+  const toggleFloatingPomo = document.getElementById('toggleFloatingPomo');
+  const closePomoBtn = document.getElementById('closePomoBtn');
+
+  const CLOCK_VIS_KEY = 'show_analog_clock';
+  const POMO_VIS_KEY = 'show_floating_pomo';
+
+  function updateClockVisibility(visible) {
+    if (!clock) return;
+    clock.style.display = visible ? 'block' : 'none';
+    localStorage.setItem(CLOCK_VIS_KEY, String(visible));
+    if (toggleClock) toggleClock.checked = !!visible;
+  }
+
+  function updatePomoVisibility(visible) {
+    if (!floatingPomo) return;
+    floatingPomo.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(POMO_VIS_KEY, String(visible));
+    if (toggleFloatingPomo) toggleFloatingPomo.checked = !!visible;
+  }
+
+  // Init states from localStorage
+  (function initWidgetVisibility() {
+    const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
+    const showClock = savedClock === null ? true : savedClock !== 'false';
+    updateClockVisibility(showClock);
+
+    const savedPomoVis = localStorage.getItem(POMO_VIS_KEY);
+    const showPomo = savedPomoVis === null ? true : savedPomoVis !== 'false';
+    updatePomoVisibility(showPomo);
+  })();
+
+  // Hook up checkboxes
+  if (toggleClock) toggleClock.onchange = () => updateClockVisibility(toggleClock.checked);
+  if (toggleFloatingPomo) toggleFloatingPomo.onchange = () => updatePomoVisibility(toggleFloatingPomo.checked);
+
+  // Close buttons
+  if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
+  if (closePomoBtn) closePomoBtn.onclick = (e) => { e.stopPropagation(); updatePomoVisibility(false); };
+
+  // Draggable (mouse + touch)
+  function makeDraggable(el) {
+    if (!el) return;
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+
+    const getPoint = (evt) => {
+      if (evt.touches && evt.touches.length) return { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+      return { x: evt.clientX, y: evt.clientY };
+    };
+
+    const startDrag = (e) => {
+      // prevent dragging when pressing inner buttons
+      if (e.target && e.target.tagName === 'BUTTON') return;
+      isDragging = true;
+      const p = getPoint(e);
+      startX = p.x; startY = p.y;
+      startLeft = el.offsetLeft; startTop = el.offsetTop;
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+    };
+
+    const moveDrag = (e) => {
+      if (!isDragging) return;
+      const p = getPoint(e);
+      el.style.left = startLeft + (p.x - startX) + 'px';
+      el.style.top = startTop + (p.y - startY) + 'px';
+    };
+
+    const endDrag = () => { isDragging = false; };
+
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDrag, { passive: true });
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('touchmove', moveDrag, { passive: true });
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+  }
+
+  makeDraggable(clock);
+  makeDraggable(floatingPomo);
+
+  // =========================
+  // ANALOG CLOCK TICK LOGIC
+  // =========================
+  const hourHand = document.getElementById('hourHand');
+  const minuteHand = document.getElementById('minuteHand');
+  const secondHand = document.getElementById('secondHand');
+  const clockDay = document.getElementById('clockDay');
+  const clockNum = document.getElementById('clockNum');
+
+  function updateAnalogClock() {
+    const now = new Date();
+    const sec = now.getSeconds();
+    const min = now.getMinutes();
+    const hr = now.getHours() % 12;
+
+    if (hourHand) hourHand.style.transform = `translateX(-50%) rotate(${hr * 30 + min * 0.5}deg)`;
+    if (minuteHand) minuteHand.style.transform = `translateX(-50%) rotate(${min * 6}deg)`;
+    if (secondHand) secondHand.style.transform = `translateX(-50%) rotate(${sec * 6}deg)`;
+
+    if (clockDay) clockDay.textContent = now.toLocaleDateString(undefined, { weekday: 'short' });
+    if (clockNum) clockNum.textContent = now.getDate();
+  }
+
+  // Align ticks to the next second boundary for accuracy
+  (function startClockTicks() {
+    updateAnalogClock();
+    const now = new Date();
+    const msToNextSecond = 1000 - now.getMilliseconds();
+    setTimeout(() => {
+      updateAnalogClock();
+      setInterval(updateAnalogClock, 1000);
+    }, msToNextSecond);
+  })();
 </script>
 
 <!-- Firebase Module -->
@@ -1215,9 +1431,10 @@
           const localDuration = Number(localStorage.getItem('pomo_duration_minutes')) || 60;
           const localSecs = Number(localStorage.getItem('pomo_secs_local')) || (localDuration * 60);
           setDoc(pomoRef, {
-            secs: localSecs,
+            remaining: localSecs,
             duration: localDuration,
             running: false,
+            startedAt: null,
             updatedAt: serverTimestamp()
           }).catch(err => console.error('[FIREBASE] Initial pomo set error:', err));
         }
