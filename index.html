@@ -3075,19 +3075,18 @@
   let currentSessionCode = null;
   let peer = null;
   let connections = [];
+  let myUserId = null;
   
   // Get user display name (email or name)
   function getUserDisplayName() {
     // Try to get from Firebase auth if logged in
-    if (auth && auth.currentUser && auth.currentUser.email) {
+    if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.email) {
       return auth.currentUser.email;
     }
     
     // Otherwise use random anonymous name
     return 'User' + Math.floor(Math.random() * 10000);
   }
-  
-  let myUserId = getUserDisplayName();
   
   // Generate random session code
   function generateSessionCode() {
@@ -3101,6 +3100,7 @@
   
   // Initialize PeerJS
   function initPeer(sessionCode, isHost) {
+    myUserId = getUserDisplayName();
     const peerId = `study-${sessionCode.toLowerCase()}-${isHost ? 'host' : myUserId}`;
     
     peer = new Peer(peerId, {
@@ -3160,6 +3160,7 @@
   }
   
   function broadcastMessage(text) {
+    if (!myUserId) myUserId = getUserDisplayName();
     const message = {
       type: 'message',
       userId: myUserId,
