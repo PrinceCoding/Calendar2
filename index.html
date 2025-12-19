@@ -713,6 +713,174 @@
     }
 
     /* =========================
+        FLOATING EVENTS WIDGET
+        ========================= */
+    .floating-events {
+      position: fixed;
+      bottom: 1.2rem;
+      left: 20rem;
+      width: 320px;
+      max-height: 450px;
+      padding: 0.8rem;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft), var(--shadow-float);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      cursor: grab;
+      z-index: 996;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+    .floating-events:active { cursor: grabbing; }
+    .events-header {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .events-input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+    .events-input-row {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .event-date-input {
+      width: 110px;
+      height: 28px;
+      padding: 0 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.5);
+      color: var(--text);
+      outline: none;
+    }
+    body.dark .event-date-input {
+      background: rgba(0,0,0,0.25);
+    }
+    .event-text-input {
+      flex: 1;
+      height: 28px;
+      padding: 0 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.5);
+      color: var(--text);
+      outline: none;
+    }
+    body.dark .event-text-input {
+      background: rgba(0,0,0,0.25);
+    }
+    .event-add-btn {
+      height: 28px;
+      padding: 0 0.8rem;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .events-list {
+      overflow-y: auto;
+      max-height: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .event-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.04);
+      font-size: 0.75rem;
+      transition: background 0.15s;
+      position: relative;
+    }
+    body.dark .event-item {
+      background: rgba(255,255,255,0.08);
+    }
+    .event-item:hover {
+      background: rgba(0,0,0,0.08);
+    }
+    body.dark .event-item:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    .event-date-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+      width: fit-content;
+    }
+    .event-text {
+      word-break: break-word;
+      line-height: 1.4;
+    }
+    .event-delete {
+      position: absolute;
+      top: 0.3rem;
+      right: 0.3rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: rgba(255,59,48,0.1);
+      color: #ff3b30;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .event-item:hover .event-delete {
+      opacity: 1;
+    }
+    .event-delete:hover {
+      background: #ff3b30;
+      color: white;
+    }
+    .event-dot {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--primary);
+      pointer-events: none;
+    }
+    .days div {
+      position: relative;
+    }
+    .selected-date-badge {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* =========================
         CLOSE BUTTON FOR WIDGETS
         ========================= */
     .close-widget-btn {
@@ -736,7 +904,8 @@
     }
     .analog-clock:hover .close-widget-btn,
     .floating-pomo:hover .close-widget-btn,
-    .floating-todo:hover .close-widget-btn {
+    .floating-todo:hover .close-widget-btn,
+    .floating-events:hover .close-widget-btn {
       opacity: 1;
     }
     .close-widget-btn:hover {
@@ -809,6 +978,23 @@
   <div id="todoList" class="todo-list"></div>
 </div>
 
+<!-- Floating Events Widget -->
+<div id="floatingEvents" class="floating-events">
+  <button id="closeEventsBtn" class="close-widget-btn" title="Close Events">✕</button>
+  <div class="events-header">
+    <span>📅 Events</span>
+    <span id="selectedDateBadge" class="selected-date-badge" style="cursor:pointer" title="Click to show all events"></span>
+  </div>
+  <div class="events-input-container">
+    <div class="events-input-row">
+      <input type="date" id="eventDateInput" class="event-date-input" />
+      <input type="text" id="eventTextInput" class="event-text-input" placeholder="Event description..." />
+    </div>
+    <button id="eventAddBtn" class="event-add-btn">+ Add Event</button>
+  </div>
+  <div id="eventsList" class="events-list"></div>
+</div>
+
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
@@ -837,8 +1023,11 @@
       <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
         <input type="checkbox" id="toggleFloatingPomo" /> Show floating Pomodoro
       </label>
-      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;">
         <input type="checkbox" id="toggleFloatingTodo" /> Show floating To-Do
+      </label>
+      <label style="font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+        <input type="checkbox" id="toggleFloatingEvents" /> Show floating Events
       </label>
     </div>
 
@@ -931,6 +1120,10 @@
   const monthToggleBtn = document.getElementById('monthToggleBtn');
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
+  // Events data (initialized early for calendar rendering)
+  let events = [];
+  let selectedCalendarDate = null;
+
   function renderCalendar(year) {
     calEl.innerHTML = '';
     yearEl.textContent = `Calendar ${year}`;
@@ -953,11 +1146,32 @@
       for (let j = 0; j < first; j++) g.innerHTML += '<div></div>';
       for (let d = 1; d <= total; d++) {
         const t = d === TODAY_DATE && i === TODAY_MONTH && year === CURRENT_YEAR;
-        g.innerHTML += `<div class="${t ? 'today' : ''}">${d}</div>`;
+        const dateStr = `${year}-${String(i + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const hasEvent = events.some(e => e.date === dateStr);
+        const dotHtml = hasEvent ? '<span class="event-dot"></span>' : '';
+        g.innerHTML += `<div class="${t ? 'today' : ''}" data-date="${dateStr}" style="cursor:pointer">${d}${dotHtml}</div>`;
       }
 
       box.append(w, g);
       calEl.appendChild(box);
+    });
+
+    // Add click handlers to dates for event viewing
+    calEl.querySelectorAll('.days div[data-date]').forEach(dayEl => {
+      dayEl.onclick = (e) => {
+        const dateStr = e.currentTarget.dataset.date;
+        if (!dateStr) return;
+        selectedCalendarDate = dateStr;
+        const eventDateInput = document.getElementById('eventDateInput');
+        if (eventDateInput) eventDateInput.value = dateStr;
+        if (window.renderEvents) window.renderEvents(dateStr);
+        
+        // Show events widget if hidden
+        const eventsWidget = document.getElementById('floatingEvents');
+        if (eventsWidget && eventsWidget.style.display === 'none') {
+          if (window.updateEventsVisibility) window.updateEventsVisibility(true);
+        }
+      };
     });
   }
 
@@ -1308,10 +1522,14 @@
   const floatingTodo = document.getElementById('floatingTodo');
   const toggleFloatingTodo = document.getElementById('toggleFloatingTodo');
   const closeTodoBtn = document.getElementById('closeTodoBtn');
+  const floatingEvents = document.getElementById('floatingEvents');
+  const toggleFloatingEvents = document.getElementById('toggleFloatingEvents');
+  const closeEventsBtn = document.getElementById('closeEventsBtn');
 
   const CLOCK_VIS_KEY = 'show_analog_clock';
   const POMO_VIS_KEY = 'show_floating_pomo';
   const TODO_VIS_KEY = 'show_floating_todo';
+  const EVENTS_VIS_KEY = 'show_floating_events';
 
   function updateClockVisibility(visible) {
     if (!clock) return;
@@ -1334,6 +1552,14 @@
     if (toggleFloatingTodo) toggleFloatingTodo.checked = !!visible;
   }
 
+  function updateEventsVisibility(visible) {
+    if (!floatingEvents) return;
+    floatingEvents.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(EVENTS_VIS_KEY, String(visible));
+    if (toggleFloatingEvents) toggleFloatingEvents.checked = !!visible;
+  }
+  window.updateEventsVisibility = updateEventsVisibility;
+
   // Init states from localStorage
   (function initWidgetVisibility() {
     const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
@@ -1347,17 +1573,23 @@
     const savedTodoVis = localStorage.getItem(TODO_VIS_KEY);
     const showTodo = savedTodoVis === null ? true : savedTodoVis !== 'false';
     updateTodoVisibility(showTodo);
+
+    const savedEventsVis = localStorage.getItem(EVENTS_VIS_KEY);
+    const showEvents = savedEventsVis === null ? true : savedEventsVis !== 'false';
+    updateEventsVisibility(showEvents);
   })();
 
   // Hook up checkboxes
   if (toggleClock) toggleClock.onchange = () => updateClockVisibility(toggleClock.checked);
   if (toggleFloatingPomo) toggleFloatingPomo.onchange = () => updatePomoVisibility(toggleFloatingPomo.checked);
   if (toggleFloatingTodo) toggleFloatingTodo.onchange = () => updateTodoVisibility(toggleFloatingTodo.checked);
+  if (toggleFloatingEvents) toggleFloatingEvents.onchange = () => updateEventsVisibility(toggleFloatingEvents.checked);
 
   // Close buttons
   if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
   if (closePomoBtn) closePomoBtn.onclick = (e) => { e.stopPropagation(); updatePomoVisibility(false); };
   if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
+  if (closeEventsBtn) closeEventsBtn.onclick = (e) => { e.stopPropagation(); updateEventsVisibility(false); };
 
   // Draggable (mouse + touch)
   function makeDraggable(el) {
@@ -1409,6 +1641,7 @@
   makeDraggable(clock);
   makeDraggable(floatingPomo);
   makeDraggable(floatingTodo);
+  makeDraggable(floatingEvents);
 
   // =========================
   // ANALOG CLOCK TICK LOGIC
@@ -1531,6 +1764,147 @@
   }
 
   renderTodos();
+
+  // =========================
+  // EVENTS LOGIC
+  // =========================
+  const eventDateInput = document.getElementById('eventDateInput');
+  const eventTextInput = document.getElementById('eventTextInput');
+  const eventAddBtn = document.getElementById('eventAddBtn');
+  const eventsList = document.getElementById('eventsList');
+  const selectedDateBadge = document.getElementById('selectedDateBadge');
+
+  // Set today as default date
+  if (eventDateInput) {
+    const today = new Date();
+    eventDateInput.value = today.toISOString().split('T')[0];
+  }
+
+  // Click date badge to show all events
+  if (selectedDateBadge) {
+    selectedDateBadge.onclick = () => {
+      selectedCalendarDate = null;
+      renderEvents(null);
+    };
+  }
+
+  function renderEvents(filterDate = null) {
+    if (!eventsList) return;
+    eventsList.innerHTML = '';
+    
+    // Filter events by date if specified
+    const filteredEvents = filterDate 
+      ? events.filter(e => e.date === filterDate)
+      : events;
+
+    // Sort events by date (newest first)
+    filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    filteredEvents.forEach((event) => {
+      const actualIndex = events.findIndex(e => e.id === event.id);
+      const item = document.createElement('div');
+      item.className = 'event-item';
+      const dateObj = new Date(event.date + 'T00:00:00');
+      const dateStr = dateObj.toLocaleDateString(undefined, { 
+        weekday: 'short', 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+      item.innerHTML = `
+        <div class="event-date-badge">${dateStr}</div>
+        <div class="event-text">${event.text}</div>
+        <button class="event-delete" data-index="${actualIndex}">✕</button>
+      `;
+      eventsList.appendChild(item);
+    });
+
+    // Event listeners
+    eventsList.querySelectorAll('.event-delete').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const idx = Number(e.currentTarget.dataset.index);
+        events.splice(idx, 1);
+        renderEvents(selectedCalendarDate);
+        renderCalendar(shownYear);
+        syncEventsToCloud();
+      };
+    });
+
+    // Update selected date badge
+    if (selectedDateBadge) {
+      if (filterDate) {
+        const dateObj = new Date(filterDate + 'T00:00:00');
+        selectedDateBadge.textContent = '📆 ' + dateObj.toLocaleDateString(undefined, { 
+          month: 'short', 
+          day: 'numeric' 
+        });
+        selectedDateBadge.style.display = 'inline-block';
+      } else {
+        selectedDateBadge.textContent = '';
+        selectedDateBadge.style.display = 'none';
+      }
+    }
+  }
+  window.renderEvents = renderEvents;
+
+  function addEvent() {
+    if (!eventDateInput || !eventTextInput) return;
+    const date = eventDateInput.value;
+    const text = eventTextInput.value.trim();
+    if (!date || !text) return;
+    
+    events.push({ 
+      date, 
+      text, 
+      id: Date.now() + Math.random() 
+    });
+    
+    eventTextInput.value = '';
+    // Keep current filter (if any) after adding
+    renderEvents(selectedCalendarDate);
+    renderCalendar(shownYear);
+    syncEventsToCloud();
+  }
+
+  async function syncEventsToCloud() {
+    try {
+      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) return;
+      const ref = doc(db, 'user_events', auth.currentUser.uid);
+      await setDoc(ref, {
+        items: events,
+        by: deviceId,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.error('[EVENTS] Cloud sync failed:', err);
+    }
+  }
+
+  window.applyRemoteEvents = (data) => {
+    try {
+      if (!data) return;
+      if (data.by && data.by === deviceId) return;
+      if (Array.isArray(data.items)) {
+        events = data.items;
+        // Preserve current filter when receiving remote updates
+        renderEvents(selectedCalendarDate);
+        renderCalendar(shownYear);
+      }
+    } catch (e) {
+      console.error('[EVENTS] applyRemoteEvents error:', e);
+    }
+  };
+
+  if (eventAddBtn) eventAddBtn.onclick = addEvent;
+  if (eventTextInput) {
+    eventTextInput.onkeypress = (e) => {
+      if (e.key === 'Enter') addEvent();
+    };
+  }
+
+  // Show all events initially (no filter)
+  renderEvents(null);
 </script>
 
 <!-- Firebase Module -->
@@ -1712,6 +2086,26 @@
         }
       }, (err) => {
         console.error('Todo listener error:', err);
+      });
+
+      // Events listener
+      const eventsRef = doc(db, 'user_events', user.uid);
+      let unsubscribeEvents = null;
+      if (unsubscribeEvents) unsubscribeEvents();
+      unsubscribeEvents = onSnapshot(eventsRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (window.applyRemoteEvents) {
+            window.applyRemoteEvents(data);
+          }
+        } else {
+          setDoc(eventsRef, {
+            items: [],
+            updatedAt: serverTimestamp()
+          }).catch(err => console.error('[FIREBASE] Initial events set error:', err));
+        }
+      }, (err) => {
+        console.error('Events listener error:', err);
       });
 
     } else {
