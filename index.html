@@ -5,15 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Year Calendar with Notes</title>
 
-  <!-- PWA / APP ICONS -->
-  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Year Calendar">
-  <link rel="manifest" href="manifest.json">
-
   <!-- =========================
        STYLES (CSS)
        ========================= -->
@@ -832,13 +823,12 @@
   });
 </script>
 
-<!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
+<!-- Firebase: SIMPLE Google Auth + Firestore (Safari-safe) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, initializeAuth, indexedDBLocalPersistence } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { initializeAuth, indexedDBLocalPersistence, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  // Your Firebase config (from project settings)
   const firebaseConfig = {
     apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
     authDomain: "calendar-599ac.firebaseapp.com",
@@ -849,149 +839,65 @@
   };
 
   const app = initializeApp(firebaseConfig);
-
-// ✅ SAFARI-SAFE AUTH INITIALIZATION (DO NOT mix with getAuth / setPersistence)
-const auth = initializeAuth(app, {
-  persistence: indexedDBLocalPersistence
-});
-
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+  const auth = initializeAuth(app, { persistence: indexedDBLocalPersistence });
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
-  function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
+  const notesEditor = document.getElementById('notesEditor');
+  const NOTES_KEY = 'calendar_notes_rich';
 
-  // Create an inline Retry button (hidden by default)
-  const retrySignInBtn = document.createElement('button');
-  retrySignInBtn.id = 'retrySignInBtn';
-  retrySignInBtn.className = 'theme-btn';
-  retrySignInBtn.style.display = 'none';
-  retrySignInBtn.style.marginLeft = '0.5rem';
-  retrySignInBtn.textContent = 'Retry';
-  googleLoginBtn.parentNode.insertBefore(retrySignInBtn, googleLoginBtn.nextSibling);
-  retrySignInBtn.onclick = () => googleLoginBtn.click();
+  function setStatus(t){ syncStatus.textContent = t; }
 
-  // Toggle sign in / sign out (prevent duplicate popup requests)
-  let isSigningIn = false;
-
-  function isIOS() {
-    // iPadOS may report "MacIntel" — detect touch-capable Mac to catch iPadOS
-    return /iPad|iPhone/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
-
-  function isSafari() {
-    // Basic Safari detection (not Chrome / Android)
-    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  }
-
-  // GOOGLE LOGIN (Safari-safe)
-  // ✅ GOOGLE LOGIN — WORKS ON SAFARI + ALL BROWSERS
-googleLoginBtn.onclick = async () => {
-  try {
+  // Always use redirect (works on Safari, iOS, PWA, Desktop)
+  googleLoginBtn.onclick = async () => {
     if (!auth.currentUser) {
-      setSyncStatus('Opening Google sign-in…');
-
-      // Safari / iOS must use redirect
-      if (isIOS() || isSafari()) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+      setStatus('Signing in…');
+      await signInWithRedirect(auth, provider);
     } else {
       await signOut(auth);
     }
-  } catch (err) {
-    console.error('Google sign-in error', err);
-    setSyncStatus('Google sign-in failed: ' + (err.code || err.message));
-  }
-};
+  };
 
-  // Process redirect sign-in result (used on iOS where popups may not work)
-  (async () => {
-    try {
-      const redirectResult = await getRedirectResult(auth);
-      if (redirectResult && redirectResult.user) {
-        // onAuthStateChanged will also fire, but set a helpful status now
-        setSyncStatus('Signed in (via redirect) — syncing');
-        retrySignInBtn.style.display = 'none';
-      }
-    } catch (err) {
-      console.error('Redirect sign-in error', err);
-      const code = err && err.code ? err.code : 'unknown';
-      const msg = err && err.message ? err.message : '';
-      if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') {
-        let help = 'Sign-in cancelled';
-        if (isIOS() && isSafari()) help += ' — Safari may block third-party cookies or cross-site tracking. Open Settings → Safari and disable "Prevent Cross-Site Tracking", or open this page directly in Safari and try again.';
-        setSyncStatus(help);
-        retrySignInBtn.style.display = 'inline-block';
-      } else {
-        setSyncStatus(`Sign-in redirect failed: ${code} ${msg}`);
-        retrySignInBtn.style.display = 'inline-block';
-      }
-    }
-  })();
+  // Handle redirect result
+  try {
+    await getRedirectResult(auth);
+  } catch (e) {}
 
-  // Listen for auth changes and sync notes
-  let unsubscribeNote = null;
+  let unsub = null;
   onAuthStateChanged(auth, user => {
-    if (user) {
-      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || 'you') + ')';
-      setSyncStatus('Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
-      retrySignInBtn.style.display = 'none';
-
-      const noteRef = doc(db, 'user_notes', user.uid);
-
-      if (unsubscribeNote) unsubscribeNote();
-      unsubscribeNote = onSnapshot(noteRef, snap => {
-        if (snap.exists()) {
-          const data = snap.data();
-          notesEditor.innerHTML = data.content || '';
-          setSyncStatus('Synced');
-        } else {
-          // If doc doesn't exist and local content exists, seed it
-          const local = localStorage.getItem(NOTES_KEY) || '';
-          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-            .then(()=> setSyncStatus('Synced (seeded)'))
-            .catch(err => { console.error('Seed failed', err); setSyncStatus('Sync error: ' + (err.message || err.code || '')); });
-        }
-      }, err => { console.error('Snapshot error', err); setSyncStatus('Sync error: ' + (err.message || err.code || '')); });
-    } else {
+    if (!user) {
       googleLoginBtn.textContent = '🔐 Google Login';
-      setSyncStatus('Not signed in (local only)');
-      retrySignInBtn.style.display = 'none';
-      if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
-      // revert to local copy if signed out
-      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
+      setStatus('Not signed in (local only)');
+      if (unsub) unsub();
+      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || '';
+      return;
     }
+
+    googleLoginBtn.textContent = 'Sign out';
+    setStatus('Signed in — syncing');
+
+    const ref = doc(db, 'user_notes', user.uid);
+    unsub = onSnapshot(ref, snap => {
+      if (snap.exists()) {
+        notesEditor.innerHTML = snap.data().content || '';
+        setStatus('Synced');
+      }
+    });
   });
 
-  // Save edits locally immediately and to Firestore when signed in (debounced)
-  let saveTimer = null;
-  notesEditor.addEventListener('input', () => {
+  notesEditor.addEventListener('input', async () => {
     const html = notesEditor.innerHTML;
     localStorage.setItem(NOTES_KEY, html);
     if (auth.currentUser) {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(async () => {
-        try {
-          setSyncStatus('Saving...');
-          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-          await setDoc(noteRef, { userId: auth.currentUser.uid, content: html, updatedAt: serverTimestamp() }, { merge: true });
-          setSyncStatus('All changes saved at ' + new Date().toLocaleTimeString());
-        } catch (err) {
-          console.error('Failed to save to Firestore', err);
-          setSyncStatus('Save failed: ' + (err.message || err.code || ''));
-        }
-      }, 700);
-    } else {
-      setSyncStatus('Not signed in (local only)');
+      await setDoc(doc(db, 'user_notes', auth.currentUser.uid), {
+        content: html,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      setStatus('Saved');
     }
   });
-
-  // Update sync status when network changes
-  window.addEventListener('offline', () => setSyncStatus('Offline — changes saved locally'));
-  window.addEventListener('online', () => setSyncStatus('Online'));
 </script>
 </body>
 </html>
