@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Year Calendar with Notes</title>
 
+  <!-- PWA / APP ICONS -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Year Calendar">
+  <link rel="manifest" href="manifest.json">
+
   <!-- =========================
        STYLES (CSS)
        ========================= -->
@@ -476,11 +485,27 @@
 
     <!-- Appearance -->
     <div class="month" style="margin-bottom:1rem;">
+      <h3>Appearance</h3>
+      <p style="font-size:0.8rem;color:var(--muted)">Theme</p>
+      <div id="settingsThemes" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
+
+      <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem">Font Size</p>
+      <button class="font-btn" data-size="90">A−</button>
+      <button class="font-btn" data-size="100">A</button>
+      <button class="font-btn" data-size="110">A+</button>
+    </div>
+
+    <!-- Pomodoro -->
+    <div class="month" style="margin-bottom:1rem;">
+      <h3>Pomodoro</h3>
+      <p style="font-size:0.75rem;color:var(--muted)">Session length (minutes)</p>
+      <input id="pomoDurationInput" type="number" min="1" style="width:80px;padding:4px 6px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem;" />
+    </div>
+
+    <!-- Account -->
+    <div class="month" style="margin-bottom:1rem;">
       <h3>Account</h3>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <button id="googleLoginBtn" class="today-btn" style="position:static">🔐 Google Login</button>
-        <button id="appleLoginBtn" class="today-btn" style="position:static;background:#000;color:#fff"> Sign in with Apple</button>
-      </div>
+      <button id="googleLoginBtn" class="today-btn" style="position:static">🔐 Google Login</button>
       <p style="font-size:0.75rem;color:var(--muted)">Sync notes across devices</p>
     </div>
 
@@ -810,7 +835,7 @@
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Your Firebase config (from project settings)
@@ -824,13 +849,15 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  // SAFARI FIX: use IndexedDB persistence (required for iOS Safari)
+  import { initializeAuth, indexedDBLocalPersistence } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  const auth = initializeAuth(app, {
+    persistence: indexedDBLocalPersistence
+  });
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
-  const appleProvider = new OAuthProvider('apple.com');
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
-  const appleLoginBtn = document.getElementById('appleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
@@ -857,8 +884,8 @@
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
+  // GOOGLE LOGIN (Safari-safe)
   googleLoginBtn.onclick = async () => {
-
     if (isSigningIn) return; // guard against duplicate clicks
     try {
       if (!auth.currentUser) {
@@ -875,11 +902,12 @@
         }
 
         // On iOS/iPadOS Safari, popups and third-party cookies are often blocked — use redirect flow
-        if (isIOS()) {
+        // Safari & iOS MUST use redirect
+        if (isIOS() || isSafari()) {
           await signInWithRedirect(auth, provider);
         } else {
-          try {
-            await signInWithPopup(auth, provider);
+          await signInWithPopup(auth, provider);
+        }
           } catch (err) {
             // If popups are blocked or not supported, fall back to redirect
             // Handle explicit 'popup-blocked' error as well.
@@ -933,23 +961,6 @@
       isSigningIn = false;
       googleLoginBtn.disabled = false;
       // keep retry visible if flow failed
-    }
-  };
-
-  // Apple Sign-In
-  appleLoginBtn.onclick = async () => {
-    try {
-      setSyncStatus('Signing in with Apple…');
-      try { await setPersistence(auth, browserLocalPersistence); } catch(e){}
-
-      if (isIOS() || isSafari()) {
-        await signInWithRedirect(auth, appleProvider);
-      } else {
-        await signInWithPopup(auth, appleProvider);
-      }
-    } catch (err) {
-      console.error('Apple sign-in error', err);
-      setSyncStatus('Apple Sign-In failed: ' + (err.code || err.message));
     }
   };
 
