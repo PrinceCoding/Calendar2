@@ -469,8 +469,8 @@
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
-<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
-    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);">
+<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);pointer-events:auto;">
+    <div class="settings-content" style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);pointer-events:auto;">
     <h2 style="margin-top:0">Settings</h2>
 
     <!-- Appearance -->
@@ -895,7 +895,12 @@
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
-  googleLoginBtn.onclick = async () => {
+  // HARD BIND + DEBUG (guarantees handler attaches)
+googleLoginBtn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  alert('Login button clicked'); // DEBUG: proves click works
+  console.log('Google Login clicked');
+
   if (location.protocol === 'file:') {
     setSyncStatus('Login blocked: open via http://localhost or https://');
     return;
@@ -906,9 +911,6 @@
     isSigningIn = true;
     googleLoginBtn.disabled = true;
     retrySignInBtn.style.display = 'none';
-
-    // Persistence already set via initializeAuth for Safari safety
-    // await setPersistence(auth, browserLocalPersistence);
 
     if (isIOS() || isSafari()) {
       setSyncStatus('Redirecting to Google…');
@@ -925,7 +927,7 @@
     isSigningIn = false;
     googleLoginBtn.disabled = false;
   }
-};
+});
 
   // Process redirect sign-in result (used on iOS where popups may not work)
   // Handle redirect result (MANDATORY for iOS Safari)
