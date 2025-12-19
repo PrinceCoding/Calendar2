@@ -774,13 +774,6 @@
 </main>
 
 <script>
-  // Global Firebase references (will be populated by Firebase module)
-  let auth = null;
-  let db = null;
-  let doc = null;
-  let setDoc = null;
-  let serverTimestamp = null;
-
   const calEl = document.getElementById('calendar');
   const settingsBtn = document.getElementById('settingsBtn');
   const settingsPage = document.getElementById('settingsPage');
@@ -936,21 +929,14 @@
     if(fpt) fpt.textContent = timeText;
   }
 
-  let syncPomoInterval = null;
   function togglePomo() {
     const ps = document.getElementById('pomoStart');
     const fps = document.getElementById('floatingPomoStart');
     if (timer) { 
       clearInterval(timer); 
-      clearInterval(syncPomoInterval);
       timer = null; 
       ps.textContent = '▶'; 
       fps.textContent = '▶';
-      // Immediately sync paused state to cloud
-      if (window.auth && window.auth.currentUser) {
-        const pomoRef = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
-        window.setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: false, updatedAt: window.serverTimestamp() }, { merge: true }).catch(err => console.error('Pause sync error:', err));
-      }
       return; 
     }
     ps.textContent = '⏸';
@@ -960,34 +946,17 @@
       secs--; 
       updatePomoDisplay();
     }, 1000);
-    
-    // Immediately sync running state to cloud
-    if (window.auth && window.auth.currentUser) {
-      const pomoRef = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
-      window.setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: window.serverTimestamp() }, { merge: true }).catch(err => console.error('Start sync error:', err));
-    }
-    
-    // Save running state and sync seconds every 2 seconds while timer is active
-    if (syncPomoInterval) clearInterval(syncPomoInterval);
-    syncPomoInterval = setInterval(() => {
-      if (timer && window.auth && window.auth.currentUser) {
-        const pomoRef = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
-        window.setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: window.serverTimestamp() }, { merge: true }).catch(err => console.error('Real-time sync error:', err));
-      }
-    }, 2000);
   }
 
   function resetPomo() {
     const ps = document.getElementById('pomoStart');
     const fps = document.getElementById('floatingPomoStart');
     clearInterval(timer);
-    clearInterval(syncPomoInterval);
     timer = null;
     secs = defaultPomoMinutes * 60;
     updatePomoDisplay();
     ps.textContent = '▶';
     fps.textContent = '▶';
-    savePomoToCloudDebounced();
   }
 
   pomoDurationInput.onchange = () => {
@@ -1099,33 +1068,36 @@
 <!-- Firebase Module -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { 
+  import {
     getAuth, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged,
     signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail,
-    signInAnonymously, signInWithCustomToken
+    signInWithCustomToken
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  // Firebase environment config
+  // Firebase config
   const firebaseConfig = {
-    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
-    authDomain: "calendar-599ac.firebaseapp.com",
-    projectId: "calendar-599ac",
-    storageBucket: "calendar-599ac.firebasestorage.app",
-    messagingSenderId: "89812638572",
-    appId: "1:89812638572:web:f02d7309367576a619b149"
+    apiKey: 'AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM',
+    authDomain: 'calendar-599ac.firebaseapp.com',
+    projectId: 'calendar-599ac',
+    storageBucket: 'calendar-599ac.firebasestorage.app',
+    messagingSenderId: '89812638572',
+    appId: '1:89812638572:web:f02d7309367576a619b149'
   };
+
+  // Initialize
   const app = initializeApp(firebaseConfig);
-  const authObj = getAuth(app);
-  const dbObj = getFirestore(app);
-  
-  // Expose to global scope for Pomodoro sync
-  window.auth = authObj;
-  window.db = dbObj;
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Expose for non-module script usage
+  window.auth = auth;
+  window.db = db;
   window.doc = doc;
   window.setDoc = setDoc;
   window.serverTimestamp = serverTimestamp;
 
+  // UI elements
   const loginBtn = document.getElementById('loginBtn');
   const signupBtn = document.getElementById('signupBtn');
   const resetPasswordBtn = document.getElementById('resetPasswordBtn');
@@ -1137,49 +1109,46 @@
   const userEmailDisplay = document.getElementById('userEmailDisplay');
   const syncStatus = document.getElementById('syncStatus');
   const notesEditor = document.getElementById('notesEditor');
-  const NOTES_KEY = 'calendar_notes_rich';
-  
-  const auth = authObj;
-  const db = dbObj;
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-notes-v1';
 
-  function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
+  const NOTES_KEY_CLOUD = 'calendar_notes_rich';
 
-  // --- Auth Handlers ---
+  const setSyncStatus = (text) => { if (syncStatus) syncStatus.textContent = text; };
+
+  // Auth actions
   const handleAuthError = (err) => {
     console.error(err);
     let msg = 'Authentication failed';
-    if(err.code === 'auth/wrong-password') msg = 'Wrong password';
-    if(err.code === 'auth/user-not-found') msg = 'User not found';
-    if(err.code === 'auth/email-already-in-use') msg = 'Email already registered';
-    if(err.code === 'auth/invalid-email') msg = 'Invalid email address';
-    if(err.code === 'auth/weak-password') msg = 'Password is too weak';
+    if (err.code === 'auth/wrong-password') msg = 'Wrong password';
+    if (err.code === 'auth/user-not-found') msg = 'User not found';
+    if (err.code === 'auth/email-already-in-use') msg = 'Email already registered';
+    if (err.code === 'auth/invalid-email') msg = 'Invalid email address';
+    if (err.code === 'auth/weak-password') msg = 'Password is too weak';
     setSyncStatus('Error: ' + msg);
   };
 
-  loginBtn.onclick = async () => {
+  if (loginBtn) loginBtn.onclick = async () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-    if(!email || !password) return setSyncStatus('Enter email & password');
+    if (!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Logging in...');
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) { handleAuthError(err); }
   };
 
-  signupBtn.onclick = async () => {
+  if (signupBtn) signupBtn.onclick = async () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-    if(!email || !password) return setSyncStatus('Enter email & password');
+    if (!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Creating account...');
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (err) { handleAuthError(err); }
   };
 
-  resetPasswordBtn.onclick = async () => {
+  if (resetPasswordBtn) resetPasswordBtn.onclick = async () => {
     const email = emailInput.value.trim();
-    if(!email) return setSyncStatus('Enter your email first');
+    if (!email) return setSyncStatus('Enter your email first');
     try {
       setSyncStatus('Sending reset link...');
       await sendPasswordResetEmail(auth, email);
@@ -1187,279 +1156,108 @@
     } catch (err) { handleAuthError(err); }
   };
 
-  logoutBtn.onclick = () => signOut(auth);
+  if (logoutBtn) logoutBtn.onclick = () => signOut(auth);
 
-  // --- Initial Startup ---
-  const initAuth = async () => {
+  // Persist auth
+  (async function initAuth() {
     try {
       await setPersistence(auth, browserLocalPersistence);
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
       }
-    } catch (err) { console.error("Init Auth error", err); }
-  };
-  initAuth();
+    } catch (err) {
+      console.error('Init Auth error', err);
+    }
+  })();
 
-  // --- Sync Logic ---
+  // Realtime sync
   let unsubscribeNote = null;
   let unsubscribePomo = null;
-  let pomoSaveTimer = null;
-  function setPomoSyncStatus(text){ const el = document.getElementById('pomoSyncStatus'); if (el) el.textContent = text; else setSyncStatus(text); }
-  onAuthStateChanged(auth, user => {
+
+  onAuthStateChanged(auth, (user) => {
     if (user) {
-      loggedOutUI.style.display = 'none';
-      loggedInUI.style.display = 'block';
-      userEmailDisplay.textContent = `Logged in as: ${user.email}`;
+      if (loggedOutUI) loggedOutUI.style.display = 'none';
+      if (loggedInUI) loggedInUI.style.display = 'block';
+      if (userEmailDisplay) userEmailDisplay.textContent = `Logged in as: ${user.email}`;
       setSyncStatus('Signed in — syncing');
 
+      // Notes listener
       const noteRef = doc(db, 'user_notes', user.uid);
-
       if (unsubscribeNote) unsubscribeNote();
-      unsubscribeNote = onSnapshot(noteRef, snap => {
+      unsubscribeNote = onSnapshot(noteRef, (snap) => {
         if (snap.exists()) {
           const data = snap.data();
-          if (document.activeElement !== notesEditor) {
+          if (document.activeElement !== notesEditor && notesEditor) {
             notesEditor.innerHTML = data.content || '';
           }
           setSyncStatus('Cloud Synced');
         } else {
-          const local = localStorage.getItem(NOTES_KEY) || '';
+          const local = localStorage.getItem(NOTES_KEY_CLOUD) || '';
           setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
-            .then(() => setSyncStatus('Synced (Started Cloud)'));
+            .then(() => setSyncStatus('Synced (Started Cloud)'))
+            .catch(() => setSyncStatus('Sync Error'));
         }
-      }, err => {
+      }, (err) => {
         console.error('Firestore Error:', err);
         setSyncStatus('Sync Error: Permission Denied');
       });
 
-      // --- Pomodoro Sync ---
+      // Pomodoro listener
       const pomoRef = doc(db, 'user_pomodoro', user.uid);
       if (unsubscribePomo) unsubscribePomo();
-      unsubscribePomo = onSnapshot(pomoRef, snap => {
+      unsubscribePomo = onSnapshot(pomoRef, (snap) => {
         if (snap.exists()) {
           const data = snap.data();
-          const remoteSecs = typeof data.secs === 'number' ? data.secs : Number(localStorage.getItem('calendar_pomo_secs')) || window.secs || 0;
-          const remoteDuration = typeof data.duration === 'number' ? data.duration : Number(localStorage.getItem('pomo_duration_minutes')) || window.defaultPomoMinutes || 60;
-          const remoteRunning = !!data.running;
-
-          // Apply remote state
-          window.secs = remoteSecs;
-          window.defaultPomoMinutes = remoteDuration;
-          const pomoDurInput = document.getElementById('pomoDurationInput');
-          if (pomoDurInput) pomoDurInput.value = remoteDuration;
-          if (typeof updatePomoDisplay === 'function') updatePomoDisplay();
-
-          if (remoteRunning && !window.timer) {
-            window.timer = setInterval(() => {
-              if (!window.secs) return clearInterval(window.timer);
-              window.secs--;
-              updatePomoDisplay();
-            }, 1000);
-            document.getElementById('pomoStart').textContent = '⏸';
-            document.getElementById('floatingPomoStart').textContent = '⏸';
-          } else if (!remoteRunning && window.timer) {
-            clearInterval(window.timer);
-            window.timer = null;
-            document.getElementById('pomoStart').textContent = '▶';
-            document.getElementById('floatingPomoStart').textContent = '▶';
+          if (window.applyRemoteState) {
+            window.applyRemoteState(data);
           }
-
-          setPomoSyncStatus('Pomodoro Cloud Synced');
         } else {
-          const localSecs = Number(localStorage.getItem('calendar_pomo_secs')) || window.secs;
-          const localDuration = Number(localStorage.getItem('pomo_duration_minutes')) || window.defaultPomoMinutes;
-          setDoc(pomoRef, { secs: localSecs, duration: localDuration, running: !!window.timer, updatedAt: serverTimestamp() })
-            .then(() => setPomoSyncStatus('Pomodoro cloud started'));
+          const localDuration = Number(localStorage.getItem('pomo_duration_minutes')) || 60;
+          const localSecs = Number(localStorage.getItem('pomo_secs_local')) || (localDuration * 60);
+          setDoc(pomoRef, {
+            secs: localSecs,
+            duration: localDuration,
+            running: false,
+            updatedAt: serverTimestamp()
+          }).catch(err => console.error('[FIREBASE] Initial pomo set error:', err));
         }
-      }, err => {
-        console.error('Pomodoro Sync Error:', err);
-        setPomoSyncStatus('Pomo Sync Error');
+      }, (err) => {
+        console.error('Pomodoro listener error:', err);
       });
+
     } else {
-      loggedOutUI.style.display = 'block';
-      loggedInUI.style.display = 'none';
+      if (loggedOutUI) loggedOutUI.style.display = 'block';
+      if (loggedInUI) loggedInUI.style.display = 'none';
       setSyncStatus('Not signed in (Local mode)');
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       if (unsubscribePomo) { unsubscribePomo(); unsubscribePomo = null; }
-      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
-      setPomoSyncStatus('Not signed in (Local mode)');
+      if (notesEditor) notesEditor.innerHTML = localStorage.getItem(NOTES_KEY_CLOUD) || '';
     }
   });
 
-  // --- Debounced Save ---
+  // Debounced cloud save for notes
   let saveTimer = null;
-  notesEditor.addEventListener('input', () => {
-    const html = notesEditor.innerHTML;
-    localStorage.setItem(NOTES_KEY, html);
-    if (auth.currentUser) {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(async () => {
-        try {
-          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-          await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
-          setSyncStatus('All changes saved');
-        } catch (err) {
-          setSyncStatus('Cloud save failed');
-        }
-      }, 800);
-    }
-  });
+  if (notesEditor) {
+    notesEditor.addEventListener('input', () => {
+      const html = notesEditor.innerHTML;
+      localStorage.setItem(NOTES_KEY_CLOUD, html);
+      if (auth.currentUser) {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(async () => {
+          try {
+            const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
+            await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
+            setSyncStatus('All changes saved');
+          } catch (err) {
+            setSyncStatus('Cloud save failed');
+          }
+        }, 800);
+      }
+    });
+  }
 
   window.addEventListener('offline', () => setSyncStatus('Offline — saved locally'));
   window.addEventListener('online', () => setSyncStatus('Online'));
-
-  // --- Pomodoro Cloud Save Handlers ---
-  const POMO_STATE_KEY = 'calendar_pomo_state';
-  function savePomoToCloudDebounced() {
-    if (!auth.currentUser) return;
-    clearTimeout(pomoSaveTimer);
-    pomoSaveTimer = setTimeout(async () => {
-      try {
-        const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
-        await setDoc(pomoRef, { secs: Number(window.secs || 0), duration: Number(window.defaultPomoMinutes || Number(localStorage.getItem('pomo_duration_minutes')) || 60), running: !!window.timer, updatedAt: serverTimestamp() }, { merge: true });
-        setPomoSyncStatus('Pomodoro saved');
-      } catch (err) {
-        console.error('Pomodoro save failed', err);
-        setPomoSyncStatus('Pomo save failed');
-      }
-    }, 800);
-  }
-
-  const startBtn = document.getElementById('pomoStart');
-  const floatingStartBtn = document.getElementById('floatingPomoStart');
-  const resetBtn = document.getElementById('pomoReset');
-  const floatingResetBtn = document.getElementById('floatingPomoReset');
-
-  if (startBtn) startBtn.addEventListener('click', savePomoToCloudDebounced);
-  if (floatingStartBtn) floatingStartBtn.addEventListener('click', savePomoToCloudDebounced);
-  if (resetBtn) resetBtn.addEventListener('click', () => { savePomoToCloudDebounced(); localStorage.setItem('calendar_pomo_secs', window.secs); });
-  if (floatingResetBtn) floatingResetBtn.addEventListener('click', () => { savePomoToCloudDebounced(); localStorage.setItem('calendar_pomo_secs', window.secs); });
-  if (pomoDurationInput) pomoDurationInput.addEventListener('change', savePomoToCloudDebounced);
-
-  window.addEventListener('beforeunload', () => {
-    try {
-      localStorage.setItem('calendar_pomo_secs', Number(window.secs || 0));
-    } catch (e) {}
-  });
-  /* =========================
-      ANALOG CLOCK LOGIC
-      ========================= */
-  const clock = document.getElementById('analogClock');
-  const toggleClock = document.getElementById('toggleClock');
-  const closeClockBtn = document.getElementById('closeClockBtn');
-  const CLOCK_VIS_KEY = 'show_analog_clock';
-
-  const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
-  const showClock = savedClock !== 'false';
-  clock.style.display = showClock ? 'block' : 'none';
-  if (toggleClock) toggleClock.checked = showClock;
-
-  function updateClockVisibility(visible) {
-    clock.style.display = visible ? 'block' : 'none';
-    localStorage.setItem(CLOCK_VIS_KEY, visible);
-    if (toggleClock) toggleClock.checked = visible;
-  }
-
-  if (toggleClock) {
-    toggleClock.onchange = () => updateClockVisibility(toggleClock.checked);
-  }
-
-  if (closeClockBtn) {
-    closeClockBtn.onclick = (e) => {
-      e.stopPropagation();
-      updateClockVisibility(false);
-    };
-  }
-
-  const hourHand = document.getElementById('hourHand');
-  const minuteHand = document.getElementById('minuteHand');
-  const secondHand = document.getElementById('secondHand');
-  const clockDay = document.getElementById('clockDay');
-  const clockNum = document.getElementById('clockNum');
-
-  function updateAnalogClock() {
-    const now = new Date();
-    const sec = now.getSeconds();
-    const min = now.getMinutes();
-    const hr = now.getHours() % 12;
-
-    hourHand.style.transform = `translateX(-50%) rotate(${hr * 30 + min * 0.5}deg)`;
-    minuteHand.style.transform = `translateX(-50%) rotate(${min * 6}deg)`;
-    secondHand.style.transform = `translateX(-50%) rotate(${sec * 6}deg)`;
-
-    clockDay.textContent = now.toLocaleDateString(undefined, { weekday: 'short' });
-    clockNum.textContent = now.getDate();
-  }
-  setInterval(updateAnalogClock, 1000);
-  updateAnalogClock();
-
-  /* =========================
-      FLOATING POMO LOGIC
-      ========================= */
-  const floatingPomo = document.getElementById('floatingPomo');
-  const toggleFloatingPomo = document.getElementById('toggleFloatingPomo');
-  const closePomoBtn = document.getElementById('closePomoBtn');
-  const POMO_VIS_KEY = 'show_floating_pomo';
-
-  const savedPomoVis = localStorage.getItem(POMO_VIS_KEY);
-  const showPomo = savedPomoVis !== 'false';
-  floatingPomo.style.display = showPomo ? 'flex' : 'none';
-  if (toggleFloatingPomo) toggleFloatingPomo.checked = showPomo;
-
-  function updatePomoVisibility(visible) {
-    floatingPomo.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(POMO_VIS_KEY, visible);
-    if (toggleFloatingPomo) toggleFloatingPomo.checked = visible;
-  }
-
-  if (toggleFloatingPomo) {
-    toggleFloatingPomo.onchange = () => updatePomoVisibility(toggleFloatingPomo.checked);
-  }
-
-  if (closePomoBtn) {
-    closePomoBtn.onclick = (e) => {
-      e.stopPropagation();
-      updatePomoVisibility(false);
-    };
-  }
-
-  function makeDraggable(el) {
-    let isDragging = false;
-    let startX, startY, startLeft, startTop;
-
-    const startDrag = (e) => {
-      if (e.target.tagName === 'BUTTON') return;
-      isDragging = true;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      startX = clientX;
-      startY = clientY;
-      startLeft = el.offsetLeft;
-      startTop = el.offsetTop;
-      el.style.right = 'auto';
-      el.style.bottom = 'auto';
-    };
-
-    const moveDrag = (e) => {
-      if (!isDragging) return;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      el.style.left = startLeft + (clientX - startX) + 'px';
-      el.style.top = startTop + (clientY - startY) + 'px';
-    };
-
-    const endDrag = () => isDragging = false;
-
-    el.addEventListener('mousedown', startDrag);
-    el.addEventListener('touchstart', startDrag);
-    window.addEventListener('mousemove', moveDrag);
-    window.addEventListener('touchmove', moveDrag);
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('touchend', endDrag);
-  }
-
-  makeDraggable(clock);
-  makeDraggable(floatingPomo);
 </script>
 </body>
 </html>
