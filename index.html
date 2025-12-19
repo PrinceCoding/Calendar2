@@ -2240,16 +2240,23 @@
   let userName = 'User' + Math.floor(Math.random() * 1000);
 
   // Backend Configuration
-  // Change this to your WebSocket server URL
-  const BACKEND_URL = 'ws://localhost:3000';
+  // Change this to your WebSocket server URL (set to null to disable backend)
+  const BACKEND_URL = null; // Set to 'ws://localhost:3000' or your server URL to enable backend
   
   // WebSocket Connection Manager
   function connectToBackend(sessionCode) {
+    // Skip connection if no backend URL configured
+    if (!BACKEND_URL) {
+      console.log('Backend disabled - running in offline mode');
+      return;
+    }
+    
     try {
       ws = new WebSocket(BACKEND_URL);
       
       ws.onopen = () => {
         console.log('Connected to backend');
+        addSystemMessage('✓ Connected to server');
         // Join the session
         ws.send(JSON.stringify({
           type: 'join',
@@ -2269,17 +2276,17 @@
       
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        addSystemMessage('⚠️ Connection error. Running in offline mode.');
+        // Silent fail - don't show error message
       };
       
       ws.onclose = () => {
         console.log('Disconnected from backend');
-        addSystemMessage('Disconnected from server');
+        // Don't show disconnect message automatically
         ws = null;
       };
     } catch (error) {
       console.error('Failed to connect:', error);
-      addSystemMessage('⚠️ Could not connect to server. Running in offline mode.');
+      // Silent fail - offline mode
     }
   }
   
