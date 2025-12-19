@@ -1161,6 +1161,9 @@
 
   // --- Sync Logic ---
   let unsubscribeNote = null;
+  let unsubscribePomo = null;
+  let pomoSaveTimer = null;
+  function setPomoSyncStatus(text){ const el = document.getElementById('pomoSyncStatus'); if (el) el.textContent = text; else setSyncStatus(text); }
   onAuthStateChanged(auth, user => {
     if (user) {
       loggedOutUI.style.display = 'none';
@@ -1187,12 +1190,58 @@
         console.error('Firestore Error:', err);
         setSyncStatus('Sync Error: Permission Denied');
       });
+
+      // --- Pomodoro Sync ---
+      const pomoRef = doc(db, 'user_pomodoro', user.uid);
+      if (unsubscribePomo) unsubscribePomo();
+      unsubscribePomo = onSnapshot(pomoRef, snap => {
+        if (snap.exists()) {
+          const data = snap.data();
+          const remoteSecs = typeof data.secs === 'number' ? data.secs : Number(localStorage.getItem('calendar_pomo_secs')) || window.secs || 0;
+          const remoteDuration = typeof data.duration === 'number' ? data.duration : Number(localStorage.getItem('pomo_duration_minutes')) || window.defaultPomoMinutes || 60;
+          const remoteRunning = !!data.running;
+
+          // Apply remote state
+          window.secs = remoteSecs;
+          window.defaultPomoMinutes = remoteDuration;
+          const pomoDurInput = document.getElementById('pomoDurationInput');
+          if (pomoDurInput) pomoDurInput.value = remoteDuration;
+          if (typeof updatePomoDisplay === 'function') updatePomoDisplay();
+
+          if (remoteRunning && !window.timer) {
+            window.timer = setInterval(() => {
+              if (!window.secs) return clearInterval(window.timer);
+              window.secs--;
+              updatePomoDisplay();
+            }, 1000);
+            document.getElementById('pomoStart').textContent = '⏸';
+            document.getElementById('floatingPomoStart').textContent = '⏸';
+          } else if (!remoteRunning && window.timer) {
+            clearInterval(window.timer);
+            window.timer = null;
+            document.getElementById('pomoStart').textContent = '▶';
+            document.getElementById('floatingPomoStart').textContent = '▶';
+          }
+
+          setPomoSyncStatus('Pomodoro Cloud Synced');
+        } else {
+          const localSecs = Number(localStorage.getItem('calendar_pomo_secs')) || window.secs;
+          const localDuration = Number(localStorage.getItem('pomo_duration_minutes')) || window.defaultPomoMinutes;
+          setDoc(pomoRef, { secs: localSecs, duration: localDuration, running: !!window.timer, updatedAt: serverTimestamp() })
+            .then(() => setPomoSyncStatus('Pomodoro cloud started'));
+        }
+      }, err => {
+        console.error('Pomodoro Sync Error:', err);
+        setPomoSyncStatus('Pomo Sync Error');
+      });
     } else {
       loggedOutUI.style.display = 'block';
       loggedInUI.style.display = 'none';
       setSyncStatus('Not signed in (Local mode)');
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
+      if (unsubscribePomo) { unsubscribePomo(); unsubscribePomo = null; }
       notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
+      setPomoSyncStatus('Not signed in (Local mode)');
     }
   });
 
@@ -1218,6 +1267,39 @@
   window.addEventListener('offline', () => setSyncStatus('Offline — saved locally'));
   window.addEventListener('online', () => setSyncStatus('Online'));
 
+  // --- Pomodoro Cloud Save Handlers ---
+  const POMO_STATE_KEY = 'calendar_pomo_state';
+  function savePomoToCloudDebounced() {
+    if (!auth.currentUser) return;
+    clearTimeout(pomoSaveTimer);
+    pomoSaveTimer = setTimeout(async () => {
+      try {
+        const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
+        await setDoc(pomoRef, { secs: Number(window.secs || 0), duration: Number(window.defaultPomoMinutes || Number(localStorage.getItem('pomo_duration_minutes')) || 60), running: !!window.timer, updatedAt: serverTimestamp() }, { merge: true });
+        setPomoSyncStatus('Pomodoro saved');
+      } catch (err) {
+        console.error('Pomodoro save failed', err);
+        setPomoSyncStatus('Pomo save failed');
+      }
+    }, 800);
+  }
+
+  const startBtn = document.getElementById('pomoStart');
+  const floatingStartBtn = document.getElementById('floatingPomoStart');
+  const resetBtn = document.getElementById('pomoReset');
+  const floatingResetBtn = document.getElementById('floatingPomoReset');
+
+  if (startBtn) startBtn.addEventListener('click', savePomoToCloudDebounced);
+  if (floatingStartBtn) floatingStartBtn.addEventListener('click', savePomoToCloudDebounced);
+  if (resetBtn) resetBtn.addEventListener('click', () => { savePomoToCloudDebounced(); localStorage.setItem('calendar_pomo_secs', window.secs); });
+  if (floatingResetBtn) floatingResetBtn.addEventListener('click', () => { savePomoToCloudDebounced(); localStorage.setItem('calendar_pomo_secs', window.secs); });
+  if (pomoDurationInput) pomoDurationInput.addEventListener('change', savePomoToCloudDebounced);
+
+  window.addEventListener('beforeunload', () => {
+    try {
+      localStorage.setItem('calendar_pomo_secs', Number(window.secs || 0));
+    } catch (e) {}
+  });
   /* =========================
       ANALOG CLOCK LOGIC
       ========================= */
@@ -1304,4 +1386,39 @@
     let isDragging = false;
     let startX, startY, startLeft, startTop;
 
-    el.addEventListener('mousedown
+    const startDrag = (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      isDragging = true;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      startX = clientX;
+      startY = clientY;
+      startLeft = el.offsetLeft;
+      startTop = el.offsetTop;
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+    };
+
+    const moveDrag = (e) => {
+      if (!isDragging) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      el.style.left = startLeft + (clientX - startX) + 'px';
+      el.style.top = startTop + (clientY - startY) + 'px';
+    };
+
+    const endDrag = () => isDragging = false;
+
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('touchmove', moveDrag);
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+  }
+
+  makeDraggable(clock);
+  makeDraggable(floatingPomo);
+</script>
+</body>
+</html>
