@@ -1039,7 +1039,7 @@
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
   /* =========================
-      POMODORO SYNC LOGIC
+      POMODORO CLOUD LOGIC
       ========================= */
   const POMO_KEY = 'pomo_duration_minutes';
   let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
@@ -1052,20 +1052,21 @@
   const pomoDurationInput = document.getElementById('pomoDurationInput');
   pomoDurationInput.value = defaultPomoMinutes;
 
-  function updatePomoDisplay(seconds) {
-    const minStr = String(Math.floor(seconds/60)).padStart(2,'0');
-    const secStr = String(seconds%60).padStart(2,'0');
+  function updatePomoDisplay(secondsToShow) {
+    const minStr = String(Math.floor(secondsToShow/60)).padStart(2,'0');
+    const secStr = String(secondsToShow%60).padStart(2,'0');
     const timeText = `${minStr}:${secStr}`;
     if(pomoTime) pomoTime.textContent = timeText;
     if(floatingPomoTime) floatingPomoTime.textContent = timeText;
   }
 
-  function startLocalTimer() {
+  function startLocalPomoTicker() {
     if (timer) clearInterval(timer);
     timer = setInterval(() => {
       if (secs <= 0) {
         clearInterval(timer);
         timer = null;
+        updatePomoDisplay(0);
         return;
       }
       secs--;
@@ -1075,7 +1076,7 @@
     document.getElementById('floatingPomoStart').textContent = '⏸';
   }
 
-  function stopLocalTimer() {
+  function stopLocalPomoTicker() {
     clearInterval(timer);
     timer = null;
     document.getElementById('pomoStart').textContent = '▶';
@@ -1085,6 +1086,7 @@
   async function pushPomoState(running, overrideSecs = null) {
     if (!auth.currentUser) return;
     const s = overrideSecs !== null ? overrideSecs : secs;
+    // Rule 1: Strict Paths
     const pomoRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'pomodoro', 'state');
     try {
       await setDoc(pomoRef, {
@@ -1096,21 +1098,20 @@
     } catch (err) { console.error("Pomo push error", err); }
   }
 
-  function togglePomo() {
+  function handlePomoToggle() {
     if (!auth.currentUser) {
-      // Local mode fallback
-      if (timer) { stopLocalTimer(); } else { startLocalTimer(); }
+      if (timer) { stopLocalPomoTicker(); } else { startLocalPomoTicker(); }
       return;
     }
     pushPomoState(!isCloudRunning);
   }
 
-  function resetPomo() {
+  function handlePomoReset() {
     const resetSecs = defaultPomoMinutes * 60;
     if (!auth.currentUser) {
       secs = resetSecs;
       updatePomoDisplay(secs);
-      stopLocalTimer();
+      stopLocalPomoTicker();
       return;
     }
     pushPomoState(false, resetSecs);
@@ -1123,19 +1124,19 @@
     if (!auth.currentUser) {
       secs = val * 60;
       updatePomoDisplay(secs);
-      stopLocalTimer();
+      stopLocalPomoTicker();
     } else {
       pushPomoState(false, val * 60);
     }
   };
 
-  document.getElementById('pomoStart').onclick = togglePomo;
-  document.getElementById('floatingPomoStart').onclick = togglePomo;
-  document.getElementById('pomoReset').onclick = resetPomo;
-  document.getElementById('floatingPomoReset').onclick = resetPomo;
+  document.getElementById('pomoStart').onclick = handlePomoToggle;
+  document.getElementById('floatingPomoStart').onclick = handlePomoToggle;
+  document.getElementById('pomoReset').onclick = handlePomoReset;
+  document.getElementById('floatingPomoReset').onclick = handlePomoReset;
 
   /* =========================
-      AUTH & NOTES SYNC
+      AUTH & DATA SYNC
       ========================= */
   const handleAuthError = (err) => {
     console.error(err);
@@ -1161,12 +1162,13 @@
 
   resetPasswordBtn.onclick = async () => {
     const email = emailInput.value.trim();
-    if(!email) return setSyncStatus('Enter email');
+    if(!email) return setSyncStatus('Enter email first');
     try { await sendPasswordResetEmail(auth, email); setSyncStatus('Reset link sent'); } catch (err) { handleAuthError(err); }
   };
 
   logoutBtn.onclick = () => signOut(auth);
 
+  // Initial Startup
   const initAuth = async () => {
     try {
       await setPersistence(auth, browserLocalPersistence);
@@ -1189,7 +1191,7 @@
       userEmailDisplay.textContent = `Logged in as: ${user.email || 'Anonymous'}`;
       setSyncStatus('Cloud Sync Active');
 
-      // Notes Sync
+      // Notes Sync (Rule 1: Path)
       const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'current');
       if (unsubNotes) unsubNotes();
       unsubNotes = onSnapshot(noteRef, snap => {
@@ -1198,7 +1200,7 @@
         }
       }, err => setSyncStatus('Notes Sync Error'));
 
-      // Pomodoro Sync
+      // Pomodoro Sync (Rule 1: Path)
       const pomoRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pomodoro', 'state');
       if (unsubPomo) unsubPomo();
       unsubPomo = onSnapshot(pomoRef, snap => {
@@ -1209,24 +1211,26 @@
           pomoDurationInput.value = defaultPomoMinutes;
           
           if (isCloudRunning && data.timestamp) {
+            // Real-time synchronization logic:
+            // Calculate time passed since the state was pushed to the cloud
             const serverTime = data.timestamp.toMillis();
-            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
-            secs = Math.max(0, data.secs - elapsed);
-            startLocalTimer();
+            const elapsedSincePush = Math.floor((Date.now() - serverTime) / 1000);
+            secs = Math.max(0, data.secs - elapsedSincePush);
+            startLocalPomoTicker();
           } else {
             secs = data.secs;
             updatePomoDisplay(secs);
-            stopLocalTimer();
+            stopLocalPomoTicker();
           }
         }
       });
-
     } else {
       loggedOutUI.style.display = 'block';
       loggedInUI.style.display = 'none';
       setSyncStatus('Local Mode');
       if (unsubNotes) unsubNotes();
       if (unsubPomo) unsubPomo();
+      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
     }
   });
 
@@ -1276,9 +1280,11 @@
     const s = now.getSeconds();
     const m = now.getMinutes();
     const h = now.getHours() % 12;
+
     hourHand.style.transform = `translateX(-50%) rotate(${h * 30 + m * 0.5}deg)`;
     minuteHand.style.transform = `translateX(-50%) rotate(${m * 6}deg)`;
     secondHand.style.transform = `translateX(-50%) rotate(${s * 6}deg)`;
+
     clockDay.textContent = now.toLocaleDateString(undefined, { weekday: 'short' });
     clockNum.textContent = now.getDate();
   }
@@ -1306,6 +1312,7 @@
   function makeDraggable(el) {
     let isDragging = false;
     let startX, startY, startLeft, startTop;
+
     el.addEventListener('mousedown', e => {
       if (e.target.tagName === 'BUTTON') return;
       isDragging = true;
@@ -1313,15 +1320,21 @@
       startLeft = el.offsetLeft; startTop = el.offsetTop;
       el.style.right = 'auto'; el.style.bottom = 'auto';
     });
+
     window.addEventListener('mousemove', e => {
       if (!isDragging) return;
       el.style.left = startLeft + (e.clientX - startX) + 'px';
       el.style.top = startTop + (e.clientY - startY) + 'px';
     });
+
     window.addEventListener('mouseup', () => isDragging = false);
   }
+
   makeDraggable(clock);
   makeDraggable(floatingPomo);
+
+  window.addEventListener('offline', () => setSyncStatus('Offline — saved locally'));
+  window.addEventListener('online', () => setSyncStatus('Online'));
 </script>
 </body>
 </html>
