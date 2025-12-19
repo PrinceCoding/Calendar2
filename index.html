@@ -860,10 +860,14 @@
     }
   };
 
-  // Handle redirect result
-  try {
-    await getRedirectResult(auth);
-  } catch (e) {}
+  // Handle redirect result (Safari-safe)
+  (async () => {
+    try {
+      await getRedirectResult(auth);
+    } catch (e) {
+      // ignore
+    }
+  })();
 
   let unsub = null;
   onAuthStateChanged(auth, user => {
