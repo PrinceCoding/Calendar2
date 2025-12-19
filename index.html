@@ -826,7 +826,7 @@
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Your Firebase config (from project settings)
@@ -843,6 +843,9 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
+
+// Auto anonymous login for seamless sync (especially on iOS)
+signInAnonymously(auth).catch(() => {});
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
@@ -872,6 +875,10 @@
   }
 
   googleLoginBtn.onclick = async () => {
+    // If anonymous, upgrade to Google account
+    if (auth.currentUser?.isAnonymous) {
+      setSyncStatus('Upgrading account…');
+    }
     if (isSigningIn) return;
     try {
       if (!auth.currentUser) {
@@ -945,12 +952,14 @@
   // Listen for auth changes and sync notes
   let unsubscribeNote = null;
   onAuthStateChanged(auth, user => {
+    // Anonymous users are allowed for sync
     if (user) {
-      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || 'you') + ')';
-      setSyncStatus('Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
+      const isAnon = user.isAnonymous;
+      googleLoginBtn.textContent = user.isAnonymous ? '🔐 Upgrade account' : 'Sign out (' + (user.displayName || 'you') + ')';
+      setSyncStatus(user.isAnonymous ? 'Synced anonymously (local + cloud)' : 'Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
       retrySignInBtn.style.display = 'none';
 
-      const noteRef = doc(db, 'user_notes', user.uid);
+      const noteRef = doc(db, 'user_notes', user.uid); // works for anonymous + Google users
 
       if (unsubscribeNote) unsubscribeNote();
       unsubscribeNote = onSnapshot(noteRef, snap => {
