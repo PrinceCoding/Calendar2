@@ -1009,7 +1009,7 @@
   } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-  // Firebase environment configuration
+  // Firebase configuration
   const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
     apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
     authDomain: "calendar-599ac.firebaseapp.com",
@@ -1043,49 +1043,49 @@
       ========================= */
   const POMO_KEY = 'pomo_duration_minutes';
   let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
-  let secs = defaultPomoMinutes * 60;
-  let timer = null;
-  let isCloudRunning = false;
+  let secsRemaining = defaultPomoMinutes * 60;
+  let timerInterval = null;
+  let isTimerRunning = false;
 
-  const pomoTime = document.getElementById('pomoTime');
-  const floatingPomoTime = document.getElementById('floatingPomoTime');
+  const pomoTimeDisplay = document.getElementById('pomoTime');
+  const floatingPomoTimeDisplay = document.getElementById('floatingPomoTime');
   const pomoDurationInput = document.getElementById('pomoDurationInput');
   pomoDurationInput.value = defaultPomoMinutes;
 
-  function updatePomoDisplay(secondsToShow) {
-    const minStr = String(Math.floor(secondsToShow/60)).padStart(2,'0');
-    const secStr = String(secondsToShow%60).padStart(2,'0');
+  function updatePomoUI(seconds) {
+    const minStr = String(Math.floor(seconds/60)).padStart(2,'0');
+    const secStr = String(seconds%60).padStart(2,'0');
     const timeText = `${minStr}:${secStr}`;
-    if(pomoTime) pomoTime.textContent = timeText;
-    if(floatingPomoTime) floatingPomoTime.textContent = timeText;
+    if(pomoTimeDisplay) pomoTimeDisplay.textContent = timeText;
+    if(floatingPomoTimeDisplay) floatingPomoTimeDisplay.textContent = timeText;
   }
 
-  function startLocalPomoTicker() {
-    if (timer) clearInterval(timer);
-    timer = setInterval(() => {
-      if (secs <= 0) {
-        clearInterval(timer);
-        timer = null;
-        updatePomoDisplay(0);
+  function startLocalTicker() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      if (secsRemaining <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updatePomoUI(0);
         return;
       }
-      secs--;
-      updatePomoDisplay(secs);
+      secsRemaining--;
+      updatePomoUI(secsRemaining);
     }, 1000);
     document.getElementById('pomoStart').textContent = '⏸';
     document.getElementById('floatingPomoStart').textContent = '⏸';
   }
 
-  function stopLocalPomoTicker() {
-    clearInterval(timer);
-    timer = null;
+  function stopLocalTicker() {
+    clearInterval(timerInterval);
+    timerInterval = null;
     document.getElementById('pomoStart').textContent = '▶';
     document.getElementById('floatingPomoStart').textContent = '▶';
   }
 
-  async function pushPomoState(running, overrideSecs = null) {
+  async function pushPomoStateToCloud(running, overrideSecs = null) {
     if (!auth.currentUser) return;
-    const s = overrideSecs !== null ? overrideSecs : secs;
+    const s = overrideSecs !== null ? overrideSecs : secsRemaining;
     const pomoRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'pomodoro', 'state');
     try {
       await setDoc(pomoRef, {
@@ -1097,23 +1097,23 @@
     } catch (err) { console.error("Pomo push error", err); }
   }
 
-  function handlePomoToggle() {
+  function handleToggle() {
     if (!auth.currentUser) {
-      if (timer) { stopLocalPomoTicker(); } else { startLocalPomoTicker(); }
+      if (timerInterval) { stopLocalTicker(); } else { startLocalTicker(); }
       return;
     }
-    pushPomoState(!isCloudRunning);
+    pushPomoStateToCloud(!isTimerRunning);
   }
 
-  function handlePomoReset() {
-    const resetSecs = defaultPomoMinutes * 60;
+  function handleReset() {
+    const resetVal = defaultPomoMinutes * 60;
     if (!auth.currentUser) {
-      secs = resetSecs;
-      updatePomoDisplay(secs);
-      stopLocalPomoTicker();
+      secsRemaining = resetVal;
+      updatePomoUI(secsRemaining);
+      stopLocalTicker();
       return;
     }
-    pushPomoState(false, resetSecs);
+    pushPomoStateToCloud(false, resetVal);
   }
 
   pomoDurationInput.onchange = () => {
@@ -1121,18 +1121,18 @@
     defaultPomoMinutes = val;
     localStorage.setItem(POMO_KEY, val);
     if (!auth.currentUser) {
-      secs = val * 60;
-      updatePomoDisplay(secs);
-      stopLocalPomoTicker();
+      secsRemaining = val * 60;
+      updatePomoUI(secsRemaining);
+      stopLocalTicker();
     } else {
-      pushPomoState(false, val * 60);
+      pushPomoStateToCloud(false, val * 60);
     }
   };
 
-  document.getElementById('pomoStart').onclick = handlePomoToggle;
-  document.getElementById('floatingPomoStart').onclick = handlePomoToggle;
-  document.getElementById('pomoReset').onclick = handlePomoReset;
-  document.getElementById('floatingPomoReset').onclick = handlePomoReset;
+  document.getElementById('pomoStart').onclick = handleToggle;
+  document.getElementById('floatingPomoStart').onclick = handleToggle;
+  document.getElementById('pomoReset').onclick = handleReset;
+  document.getElementById('floatingPomoReset').onclick = handleReset;
 
   /* =========================
       AUTH & DATA SYNC
@@ -1197,7 +1197,7 @@
       userEmailDisplay.textContent = `Logged in as: ${user.email || 'Guest'}`;
       setSyncStatus('Cloud Synced');
 
-      // Notes Basic Sync Logic (Restored)
+      // Notes Basic Sync Logic
       const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'main');
       if (unsubNotes) unsubNotes();
       unsubNotes = onSnapshot(noteRef, snap => {
@@ -1206,36 +1206,35 @@
           if (document.activeElement !== notesEditor) {
             notesEditor.innerHTML = data.content || '';
           }
-          setSyncStatus('Cloud Synced');
         } else {
           const local = localStorage.getItem(NOTES_KEY) || '';
-          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
-            .then(() => setSyncStatus('Cloud Initialized'));
+          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() });
         }
       }, err => {
         console.error("Firestore note sync error:", err);
         setSyncStatus('Sync Error: Access Denied');
       });
 
-      // Pomodoro Sync
+      // Pomodoro Cross-Device Sync
       const pomoRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pomodoro', 'state');
       if (unsubPomo) unsubPomo();
       unsubPomo = onSnapshot(pomoRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
-          isCloudRunning = data.isRunning;
+          isTimerRunning = data.isRunning;
           defaultPomoMinutes = data.defaultPomoMinutes || 60;
           pomoDurationInput.value = defaultPomoMinutes;
           
-          if (isCloudRunning && data.timestamp) {
+          if (isTimerRunning && data.timestamp) {
+            // Real-time synchronization logic using server timestamp
             const serverTime = data.timestamp.toMillis();
             const elapsedSincePush = Math.floor((Date.now() - serverTime) / 1000);
-            secs = Math.max(0, data.secs - elapsedSincePush);
-            startLocalPomoTicker();
+            secsRemaining = Math.max(0, data.secs - elapsedSincePush);
+            startLocalTicker();
           } else {
-            secs = data.secs;
-            updatePomoDisplay(secs);
-            stopLocalPomoTicker();
+            secsRemaining = data.secs;
+            updatePomoUI(secsRemaining);
+            stopLocalTicker();
           }
         }
       });
@@ -1249,7 +1248,7 @@
     }
   });
 
-  // Notes Auto-save (Basic Method)
+  // Notes Auto-save
   let saveTimer = null;
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
@@ -1260,7 +1259,7 @@
         try {
           const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'main');
           await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
-          setSyncStatus('All changes saved');
+          setSyncStatus('Cloud Synced');
         } catch (e) {
           setSyncStatus('Cloud save error');
         }
