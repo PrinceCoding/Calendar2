@@ -824,10 +824,10 @@
 
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-import {
+  import {
   getAuth,
   GoogleAuthProvider,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   setPersistence,
@@ -891,31 +891,29 @@ import {
   }
 
   googleLoginBtn.onclick = async () => {
-  // HARD SAFARI GUARD: block in file:// or in-app browsers
   if (location.protocol === 'file:') {
-    setSyncStatus('Login blocked: open this app via https:// in Safari');
+    setSyncStatus('Login blocked: open via http://localhost or https://');
     return;
   }
 
   if (isSigningIn) return;
   try {
-    if (!auth.currentUser) {
-      isSigningIn = true;
-      googleLoginBtn.disabled = true;
-      retrySignInBtn.style.display = 'none';
+    isSigningIn = true;
+    googleLoginBtn.disabled = true;
+    retrySignInBtn.style.display = 'none';
+
+    await setPersistence(auth, browserLocalPersistence);
+
+    if (isIOS() || isSafari()) {
       setSyncStatus('Redirecting to Google…');
-
-      // REQUIRED for iOS / iPadOS Safari
-      await setPersistence(auth, browserLocalPersistence);
-
-      // Safari blocks popups → ALWAYS use redirect
       await signInWithRedirect(auth, provider);
     } else {
-      await signOut(auth);
+      setSyncStatus('Opening Google popup…');
+      await signInWithPopup(auth, provider);
     }
   } catch (err) {
-    console.error('iOS/Safari sign-in error', err);
-    setSyncStatus('Login failed. Open this page directly in Safari and try again.');
+    console.error('Sign-in error', err);
+    setSyncStatus('Login failed: ' + (err.code || err.message));
     retrySignInBtn.style.display = 'inline-block';
   } finally {
     isSigningIn = false;
