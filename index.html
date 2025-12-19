@@ -84,6 +84,12 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      pointer-events: none;
+    }
+
     /* =========================
        HEADER
        ========================= */
@@ -514,7 +520,10 @@
 
 <section class="notes">
   <div class="notes-header">
-    <h2>Notes</h2>
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <h2 style="margin:0">Notes</h2>
+      <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
+    </div>
     <div class="notes-tools">
       <button data-cmd="bold"><b>B</b></button>
       <button data-cmd="italic"><i>I</i></button>
@@ -817,7 +826,7 @@
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Your Firebase config (from project settings)
@@ -836,23 +845,109 @@
   const provider = new GoogleAuthProvider();
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const syncStatus = document.getElementById('syncStatus');
+  function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
-  // Toggle sign in / sign out
+  // Create an inline Retry button (hidden by default)
+  const retrySignInBtn = document.createElement('button');
+  retrySignInBtn.id = 'retrySignInBtn';
+  retrySignInBtn.className = 'theme-btn';
+  retrySignInBtn.style.display = 'none';
+  retrySignInBtn.style.marginLeft = '0.5rem';
+  retrySignInBtn.textContent = 'Retry';
+  googleLoginBtn.parentNode.insertBefore(retrySignInBtn, googleLoginBtn.nextSibling);
+  retrySignInBtn.onclick = () => googleLoginBtn.click();
+
+  // Toggle sign in / sign out (prevent duplicate popup requests)
+  let isSigningIn = false;
+
+  function isIOS() {
+    // iPadOS may report "MacIntel" — detect touch-capable Mac to catch iPadOS
+    return /iPad|iPhone/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function isSafari() {
+    // Basic Safari detection (not Chrome / Android)
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }
+
   googleLoginBtn.onclick = async () => {
+    if (isSigningIn) return; // guard against duplicate clicks
     try {
-      if (!auth.currentUser) await signInWithPopup(auth, provider);
-      else await signOut(auth);
+      if (!auth.currentUser) {
+        isSigningIn = true;
+        retrySignInBtn.style.display = 'none';
+        googleLoginBtn.disabled = true;
+        setSyncStatus('Signing in...');
+
+        // Try to persist auth state in localStorage
+        try {
+          await setPersistence(auth, browserLocalPersistence);
+        } catch (pErr) {
+          console.warn('Could not set local persistence', pErr);
+        }
+
+        // Use redirect on iOS, popup elsewhere
+        if (isIOS()) {
+          await signInWithRedirect(auth, provider);
+        } else {
+          try {
+            await signInWithPopup(auth, provider);
+          } catch (err) {
+            if (err && (err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-blocked')) {
+              setSyncStatus('Popup blocked — redirecting to sign-in...');
+              await signInWithRedirect(auth, provider);
+            } else {
+              throw err;
+            }
+          }
+        }
+      } else {
+        retrySignInBtn.style.display = 'none';
+        await signOut(auth);
+      }
     } catch (err) {
       console.error('Auth error', err);
-      alert('Auth error: ' + err.message);
+      setSyncStatus('Sign-in failed: ' + (err.message || err.code || ''));
+      retrySignInBtn.style.display = 'inline-block';
+    } finally {
+      isSigningIn = false;
+      googleLoginBtn.disabled = false;
     }
   };
+
+  // Process redirect sign-in result (used on iOS where popups may not work)
+  (async () => {
+    try {
+      const redirectResult = await getRedirectResult(auth);
+      if (redirectResult && redirectResult.user) {
+        // onAuthStateChanged will also fire, but set a helpful status now
+        setSyncStatus('Signed in (via redirect) — syncing');
+        retrySignInBtn.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('Redirect sign-in error', err);
+      const code = err && err.code ? err.code : 'unknown';
+      const msg = err && err.message ? err.message : '';
+      if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') {
+        let help = 'Sign-in cancelled';
+        if (isIOS() && isSafari()) help += ' — Safari may block third-party cookies or cross-site tracking. Open Settings → Safari and disable "Prevent Cross-Site Tracking", or open this page directly in Safari and try again.';
+        setSyncStatus(help);
+        retrySignInBtn.style.display = 'inline-block';
+      } else {
+        setSyncStatus(`Sign-in redirect failed: ${code} ${msg}`);
+        retrySignInBtn.style.display = 'inline-block';
+      }
+    }
+  })();
 
   // Listen for auth changes and sync notes
   let unsubscribeNote = null;
   onAuthStateChanged(auth, user => {
     if (user) {
       googleLoginBtn.textContent = 'Sign out (' + (user.displayName || 'you') + ')';
+      setSyncStatus('Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
+      retrySignInBtn.style.display = 'none';
 
       const noteRef = doc(db, 'user_notes', user.uid);
 
@@ -861,17 +956,22 @@
         if (snap.exists()) {
           const data = snap.data();
           notesEditor.innerHTML = data.content || '';
+          setSyncStatus('Synced');
         } else {
           // If doc doesn't exist and local content exists, seed it
           const local = localStorage.getItem(NOTES_KEY) || '';
-          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
+            .then(()=> setSyncStatus('Synced (seeded)'))
+            .catch(err => { console.error('Seed failed', err); setSyncStatus('Sync error: ' + (err.message || err.code || '')); });
         }
-      });
+      }, err => { console.error('Snapshot error', err); setSyncStatus('Sync error: ' + (err.message || err.code || '')); });
     } else {
       googleLoginBtn.textContent = '🔐 Google Login';
+      setSyncStatus('Not signed in (local only)');
+      retrySignInBtn.style.display = 'none';
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       // revert to local copy if signed out
-      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || '';
+      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
     }
   });
 
@@ -884,14 +984,23 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         try {
+          setSyncStatus('Saving...');
           const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
           await setDoc(noteRef, { userId: auth.currentUser.uid, content: html, updatedAt: serverTimestamp() }, { merge: true });
+          setSyncStatus('All changes saved at ' + new Date().toLocaleTimeString());
         } catch (err) {
           console.error('Failed to save to Firestore', err);
+          setSyncStatus('Save failed: ' + (err.message || err.code || ''));
         }
       }, 700);
+    } else {
+      setSyncStatus('Not signed in (local only)');
     }
   });
+
+  // Update sync status when network changes
+  window.addEventListener('offline', () => setSyncStatus('Offline — changes saved locally'));
+  window.addEventListener('online', () => setSyncStatus('Online'));
 </script>
 </body>
 </html>
