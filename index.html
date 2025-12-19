@@ -826,7 +826,8 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
   import {
-    getAuth,
+    initializeAuth,
+    indexedDBLocalPersistence,
     GoogleAuthProvider,
     signInWithPopup,
     signInWithRedirect,
@@ -849,7 +850,11 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  // IMPORTANT: iOS / iPadOS Safari requires IndexedDB persistence
+  // browserLocalPersistence often fails silently on Safari
+  const auth = initializeAuth(app, {
+    persistence: indexedDBLocalPersistence
+  });
 
   // SAFARI FIX: ensure authDomain matches current origin
   if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
@@ -903,7 +908,8 @@
     googleLoginBtn.disabled = true;
     retrySignInBtn.style.display = 'none';
 
-    await setPersistence(auth, browserLocalPersistence);
+    // Persistence already set via initializeAuth for Safari safety
+    // await setPersistence(auth, browserLocalPersistence);
 
     if (isIOS() || isSafari()) {
       setSyncStatus('Redirecting to Google…');
