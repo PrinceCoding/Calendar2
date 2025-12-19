@@ -439,6 +439,7 @@
         display: none;
       }
     }
+
 </style>
 </head>
 <body>
@@ -469,7 +470,7 @@
      SETTINGS PAGE (OVERLAY)
      ========================= -->
 <div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
-    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);">
+    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 85vh; overflow-y: auto;">
     <h2 style="margin-top:0">Settings</h2>
 
     <!-- Appearance -->
@@ -494,8 +495,27 @@
     <!-- Account -->
     <div class="month" style="margin-bottom:1rem;">
       <h3>Account</h3>
-      <button id="googleLoginBtn" class="today-btn" style="position:static; width: 100%; display: flex; justify-content: center;">🔐 Google Login</button>
-      <p style="font-size:0.75rem;color:var(--muted); margin-top: 10px;">Sync notes across devices</p>
+      
+      <div id="authForms" style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
+        <div id="emailPassFields" style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <input id="emailInput" type="email" placeholder="Email" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem; background: rgba(255,255,255,0.5); color: var(--text);">
+          <input id="passwordInput" type="password" placeholder="Password" style="width:100%; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem; background: rgba(255,255,255,0.5); color: var(--text);">
+          <div style="display: flex; gap: 0.5rem;">
+            <button id="emailLoginBtn" class="nav-btn" style="flex: 1; width: auto; font-size: 0.75rem;">Login</button>
+            <button id="emailSignupBtn" class="nav-btn" style="flex: 1; width: auto; font-size: 0.75rem;">Sign Up</button>
+          </div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <hr style="flex: 1; border: 0; border-top: 1px solid var(--border);">
+          <span style="font-size: 0.65rem; color: var(--muted);">OR</span>
+          <hr style="flex: 1; border: 0; border-top: 1px solid var(--border);">
+        </div>
+
+        <button id="googleLoginBtn" class="today-btn" style="position:static; width: 100%; display: flex; justify-content: center;">🔐 Google Login</button>
+      </div>
+
+      <p style="font-size:0.75rem;color:var(--muted)">Sync notes across devices</p>
     </div>
 
     <!-- About -->
@@ -582,10 +602,7 @@
 
   function updateTime() {
     const d = new Date();
-    const dtText = document.getElementById('dtText');
-    if (dtText) {
-      dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
-    }
+    dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
   }
 
   toolButtons.forEach(b => b.onclick = () => document.execCommand(b.dataset.cmd));
@@ -596,6 +613,7 @@
 
   renderCalendar(shownYear);
 
+  // Font size controls
   const fontButtons = document.querySelectorAll('.font-btn');
   fontButtons.forEach(btn => {
     btn.onclick = () => {
@@ -604,31 +622,15 @@
       localStorage.setItem('fontSize', size);
     };
   });
-
   const savedFontSize = localStorage.getItem('fontSize');
   if (savedFontSize) {
     document.documentElement.style.fontSize = savedFontSize + '%';
   }
 
-  settingsBtn.onclick = () => {
-    settingsPage.style.display = 'block';
-  };
-
-  closeSettings.onclick = () => {
-    settingsPage.style.display = 'none';
-  };
-
-  settingsPage.addEventListener('click', (e) => {
-    if (e.target === settingsPage) {
-      settingsPage.style.display = 'none';
-    }
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && settingsPage.style.display === 'block') {
-      settingsPage.style.display = 'none';
-    }
-  });
+  settingsBtn.onclick = () => { settingsPage.style.display = 'block'; };
+  closeSettings.onclick = () => { settingsPage.style.display = 'none'; };
+  settingsPage.addEventListener('click', (e) => { if (e.target === settingsPage) settingsPage.style.display = 'none'; });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && settingsPage.style.display === 'block') settingsPage.style.display = 'none'; });
 
   monthToggleBtn.onclick = () => {
     if (monthViewIndex === null) {
@@ -660,40 +662,32 @@
 
   const pomoDurationInput = document.getElementById('pomoDurationInput');
   pomoDurationInput.value = defaultPomoMinutes;
-
   pomoDurationInput.onchange = () => {
     const val = Math.max(1, Number(pomoDurationInput.value) || 60);
     defaultPomoMinutes = val;
     localStorage.setItem(POMO_KEY, val);
     secs = val * 60;
-    const pomoTime = document.getElementById('pomoTime');
-    if (pomoTime) pomoTime.textContent = String(val).padStart(2,'0') + ':00';
+    pomoTime.textContent = String(val).padStart(2,'0') + ':00';
     clearInterval(timer);
     timer = null;
-    const pomoStart = document.getElementById('pomoStart');
-    if (pomoStart) pomoStart.textContent = '▶';
+    pomoStart.textContent = '▶';
   };
   pomoStart.onclick = () => {
-    const pomoStart = document.getElementById('pomoStart');
-    const pomoTime = document.getElementById('pomoTime');
     if (timer) { clearInterval(timer); timer = null; pomoStart.textContent = '▶'; return; }
     pomoStart.textContent = '⏸';
     timer = setInterval(() => {
       if (!secs) return clearInterval(timer);
-      secs--; 
-      if (pomoTime) pomoTime.textContent = String(Math.floor(secs/60)).padStart(2,'0')+":"+String(secs%60).padStart(2,'0');
+      secs--; pomoTime.textContent = String(Math.floor(secs/60)).padStart(2,'0')+":"+String(secs%60).padStart(2,'0');
     },1000);
   };
-
   pomoReset.onclick = () => {
-    const pomoStart = document.getElementById('pomoStart');
-    const pomoTime = document.getElementById('pomoTime');
     clearInterval(timer);
     timer = null;
     secs = defaultPomoMinutes * 60;
-    if (pomoTime) pomoTime.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00';
-    if (pomoStart) pomoStart.textContent = '▶';
+    pomoTime.textContent = String(defaultPomoMinutes).padStart(2,'0') + ':00';
+    pomoStart.textContent = '▶';
   };
+
   prev.onclick = () => {
     if (monthViewIndex !== null) {
       monthViewIndex = (monthViewIndex + 11) % 12;
@@ -713,17 +707,15 @@
     }
   };
   todayBtn.onclick = () => {
-    if (monthViewIndex === null) {
-      shownYear = CURRENT_YEAR;
-      renderCalendar(shownYear);
-      return;
-    }
     shownYear = CURRENT_YEAR;
-    monthViewIndex = TODAY_MONTH;
-    monthToggleBtn.textContent = '🗓 Year';
-    yearEl.textContent = `${MONTHS[TODAY_MONTH]} ${shownYear}`;
+    if (monthViewIndex !== null) {
+      monthViewIndex = TODAY_MONTH;
+      monthToggleBtn.textContent = '🗓 Year';
+      yearEl.textContent = `${MONTHS[TODAY_MONTH]} ${shownYear}`;
+    }
     renderCalendar(shownYear);
   };
+
   const themes = [
     { name: '🍎 macOS', class: '' },
     { name: '🌙 Dark', class: 'dark' },
@@ -732,7 +724,6 @@
     { name: '🌅 Solar', class: 'theme-solar' }
   ];
   let themeIndex = 0;
-
   themeBtn.onclick = () => {
     document.body.classList.remove('dark','theme-ocean','theme-forest','theme-solar');
     themeIndex = (themeIndex + 1) % themes.length;
@@ -743,7 +734,6 @@
 
   const layoutBtn = document.getElementById('layoutBtn');
   let currentLayout = 1;
-
   layoutBtn.onclick = () => {
     const main = document.getElementById('mainLayout');
     if (currentLayout === 1) {
@@ -762,12 +752,7 @@
 
   const handle = document.getElementById('resizeHandle');
   let isResizing = false;
-
-  handle.addEventListener('mousedown', () => {
-    isResizing = true;
-    document.body.style.cursor = 'col-resize';
-  });
-
+  handle.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; });
   window.addEventListener('mousemove', (e) => {
     if (!isResizing || !document.body.classList.contains('layout-2')) return;
     const main = document.getElementById('mainLayout');
@@ -777,7 +762,6 @@
     const leftFr = Math.max(1, Math.min(4, (leftWidth / total) * 3));
     main.style.gridTemplateColumns = `${leftFr}fr 8px ${4 - leftFr}fr`;
   });
-
   window.addEventListener('mouseup', () => {
     if (!isResizing) return;
     isResizing = false;
@@ -787,7 +771,6 @@
       localStorage.setItem('layout2_split_sizes', main.style.gridTemplateColumns);
     }
   });
-
   handle.addEventListener('dblclick', () => {
     if (!document.body.classList.contains('layout-2')) return;
     const main = document.getElementById('mainLayout');
@@ -799,21 +782,12 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
   import { 
-    getAuth, 
-    GoogleAuthProvider, 
-    signInWithPopup, 
-    signInWithRedirect, 
-    getRedirectResult, 
-    setPersistence, 
-    browserLocalPersistence, 
-    signOut, 
-    onAuthStateChanged,
-    signInAnonymously,
-    signInWithCustomToken
+    getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, 
+    getRedirectResult, setPersistence, browserLocalPersistence, signOut, 
+    onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword 
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  // Environment variables
   const firebaseConfig = {
     apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
     authDomain: "calendar-599ac.firebaseapp.com",
@@ -822,7 +796,6 @@
     messagingSenderId: "89812638572",
     appId: "1:89812638572:web:f02d7309367576a619b149"
   };
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-app-v1';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -830,137 +803,148 @@
   const provider = new GoogleAuthProvider();
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const emailLoginBtn = document.getElementById('emailLoginBtn');
+  const emailSignupBtn = document.getElementById('emailSignupBtn');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const emailPassFields = document.getElementById('emailPassFields');
   const syncStatus = document.getElementById('syncStatus');
-  const notesEditor = document.getElementById('notesEditor');
-  const NOTES_KEY = 'calendar_notes_rich';
-
+  
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
+
+  const retrySignInBtn = document.createElement('button');
+  retrySignInBtn.id = 'retrySignInBtn';
+  retrySignInBtn.className = 'theme-btn';
+  retrySignInBtn.style.display = 'none';
+  retrySignInBtn.style.marginLeft = '0.5rem';
+  retrySignInBtn.textContent = 'Retry';
+  googleLoginBtn.parentNode.insertBefore(retrySignInBtn, googleLoginBtn.nextSibling);
+  retrySignInBtn.onclick = () => googleLoginBtn.click();
 
   let isSigningIn = false;
 
   function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return /iPad|iPhone/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
-  // --- Auth Initialization (Move Persistence Here) ---
-  const initAuth = async () => {
+  // --- Email/Password Handlers ---
+  emailLoginBtn.onclick = async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    if (!email || !password) return setSyncStatus('Enter email & password');
     try {
-      // Set persistence once at startup so it doesn't block the popup later
+      setSyncStatus('Logging in...');
       await setPersistence(auth, browserLocalPersistence);
-      
-      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        await signInWithCustomToken(auth, __initial_auth_token);
-      } else if (!auth.currentUser) {
-        // Optional: sign in anonymously to allow for initial data structure
-        // await signInAnonymously(auth); 
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      setSyncStatus('Error: ' + err.code);
+    }
+  };
+
+  emailSignupBtn.onclick = async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    if (!email || !password) return setSyncStatus('Enter email & password');
+    try {
+      setSyncStatus('Signing up...');
+      await setPersistence(auth, browserLocalPersistence);
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      setSyncStatus('Error: ' + err.code);
+    }
+  };
+
+  // --- Google Auth Handler ---
+  googleLoginBtn.onclick = async () => {
+    if (isSigningIn) return;
+    try {
+      if (!auth.currentUser) {
+        isSigningIn = true;
+        retrySignInBtn.style.display = 'none';
+        googleLoginBtn.disabled = true;
+        setSyncStatus('Signing in...');
+
+        try { await setPersistence(auth, browserLocalPersistence); } catch (e) {}
+
+        if (isIOS()) {
+          await signInWithRedirect(auth, provider);
+        } else {
+          try {
+            await signInWithPopup(auth, provider);
+          } catch (err) {
+            if (err && (err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-blocked')) {
+              setSyncStatus('Popup blocked — redirecting...');
+              await signInWithRedirect(auth, provider);
+            } else { throw err; }
+          }
+        }
+      } else {
+        await signOut(auth);
       }
     } catch (err) {
-      console.error('Initialization error:', err);
-    }
-  };
-  initAuth();
-
-  // --- Google Login Handler (Immediate Action for Safari) ---
-  googleLoginBtn.onclick = () => {
-    if (isSigningIn) return;
-    
-    // If logged in, sign out
-    if (auth.currentUser && !auth.currentUser.isAnonymous) {
-      signOut(auth);
-      return;
-    }
-
-    isSigningIn = true;
-    googleLoginBtn.disabled = true;
-    setSyncStatus('Connecting to Google...');
-
-    // CRITICAL: Call the auth method IMMEDIATELY to satisfy Safari's popup block detection.
-    // For iOS/iPadOS iframes, redirect is the most reliable path.
-    if (isIOS()) {
-      signInWithRedirect(auth, provider);
-    } else {
-      // signInWithPopup opens in a new tab/window
-      signInWithPopup(auth, provider)
-        .then(() => {
-          isSigningIn = false;
-          googleLoginBtn.disabled = false;
-        })
-        .catch(err => {
-          console.warn('Popup blocked or failed, falling back to redirect...', err);
-          if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
-            signInWithRedirect(auth, provider);
-          } else {
-            setSyncStatus('Login failed.');
-            isSigningIn = false;
-            googleLoginBtn.disabled = false;
-          }
-        });
+      setSyncStatus('Login failed: ' + (err.code || 'error'));
+      retrySignInBtn.style.display = 'inline-block';
+    } finally {
+      isSigningIn = false;
+      googleLoginBtn.disabled = false;
     }
   };
 
-  // Handle Return from Redirect
   (async () => {
     try {
-      const result = await getRedirectResult(auth);
-      if (result?.user) setSyncStatus('Welcome back!');
-    } catch (err) {
-      console.error('Redirect result error', err);
-    }
+      const redirectResult = await getRedirectResult(auth);
+      if (redirectResult && redirectResult.user) setSyncStatus('Signed in — syncing');
+    } catch (err) {}
   })();
 
+  // Listen for auth changes
   let unsubscribeNote = null;
-  
   onAuthStateChanged(auth, user => {
-    if (user && !user.isAnonymous) {
-      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.email?.split('@')[0] || 'User') + ')';
-      setSyncStatus('Signed in — syncing');
+    if (user) {
+      googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.email || 'you') + ')';
+      emailPassFields.style.display = 'none';
+      setSyncStatus('Signed in as ' + (user.displayName || user.email || 'you') + ' — syncing');
+      retrySignInBtn.style.display = 'none';
 
-      // RULE 1: Strict Paths
-      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'notes');
-
+      const noteRef = doc(db, 'user_notes', user.uid);
       if (unsubscribeNote) unsubscribeNote();
       unsubscribeNote = onSnapshot(noteRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
-          // Only update if editor is not being actively typed in to prevent cursor jumping
-          if (document.activeElement !== notesEditor) {
+          if (notesEditor.innerHTML !== data.content) {
             notesEditor.innerHTML = data.content || '';
           }
-          setSyncStatus('Cloud Synced');
+          setSyncStatus('Synced');
         } else {
-          const local = localStorage.getItem(NOTES_KEY) || '';
-          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
-            .then(() => setSyncStatus('Cloud Synced (New Doc)'));
+          const local = localStorage.getItem('calendar_notes_rich') || '';
+          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
+            .then(()=> setSyncStatus('Synced (seeded)'));
         }
-      }, err => { 
-        console.error('Sync error', err); 
-        setSyncStatus('Sync error: Permission Denied');
-      });
+      }, err => setSyncStatus('Sync error: ' + err.code));
     } else {
       googleLoginBtn.textContent = '🔐 Google Login';
-      googleLoginBtn.disabled = false;
-      isSigningIn = false;
-      setSyncStatus('Local mode (Not signed in)');
+      emailPassFields.style.display = 'flex';
+      setSyncStatus('Not signed in (local only)');
+      retrySignInBtn.style.display = 'none';
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
-      notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
+      notesEditor.innerHTML = localStorage.getItem('calendar_notes_rich') || ''; 
     }
   });
 
+  // Debounced auto-save
   let saveTimer = null;
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
-    localStorage.setItem(NOTES_KEY, html);
-    if (auth.currentUser && !auth.currentUser.isAnonymous) {
+    localStorage.setItem('calendar_notes_rich', html);
+    if (auth.currentUser) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         try {
-          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'settings', 'notes');
-          await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
-          setSyncStatus('All changes saved');
-        } catch (err) {
-          setSyncStatus('Auto-save failed');
-        }
-      }, 1000);
+          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
+          await setDoc(noteRef, { userId: auth.currentUser.uid, content: html, updatedAt: serverTimestamp() }, { merge: true });
+          setSyncStatus('Saved at ' + new Date().toLocaleTimeString());
+        } catch (err) { setSyncStatus('Failed to save'); }
+      }, 700);
     }
   });
 
