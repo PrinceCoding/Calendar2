@@ -439,6 +439,7 @@
         display: none;
       }
     }
+    }
 
 </style>
 </head>
@@ -469,8 +470,8 @@
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
-<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);pointer-events:auto;">
-    <div class="settings-content" style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);pointer-events:auto;">
+<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
+    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float);">
     <h2 style="margin-top:0">Settings</h2>
 
     <!-- Appearance -->
@@ -825,18 +826,7 @@
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import {
-    initializeAuth,
-    indexedDBLocalPersistence,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
-    setPersistence,
-    browserLocalPersistence,
-    signOut,
-    onAuthStateChanged
-  } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Your Firebase config (from project settings)
@@ -850,23 +840,9 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  // IMPORTANT: iOS / iPadOS Safari requires IndexedDB persistence
-  // browserLocalPersistence often fails silently on Safari
-  const auth = initializeAuth(app, {
-    persistence: indexedDBLocalPersistence
-  });
-
-  // SAFARI FIX: ensure authDomain matches current origin
-  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-    console.warn('Firebase Auth requires HTTPS on iOS Safari');
-  }
+  const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
-
-  // IMPORTANT for iOS Safari: force account chooser & correct redirect origin
-  provider.setCustomParameters({
-    prompt: 'select_account'
-  });
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
@@ -895,54 +871,108 @@
     return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
-  // HARD BIND + DEBUG (guarantees handler attaches)
-googleLoginBtn.addEventListener('click', async (e) => {
-  e.stopPropagation();
-  
+  googleLoginBtn.onclick = async () => {
+    if (isSigningIn) return; // guard against duplicate clicks
+    try {
+      if (!auth.currentUser) {
+        isSigningIn = true;
+        retrySignInBtn.style.display = 'none';
+        googleLoginBtn.disabled = true;
+        setSyncStatus('Signing in...');
 
-  if (location.protocol === 'file:') {
-    setSyncStatus('Login blocked: open via http://localhost or https://');
-    return;
-  }
+        // Try to persist auth state in localStorage (works around some Safari cookie restrictions)
+        try {
+          await setPersistence(auth, browserLocalPersistence);
+        } catch (pErr) {
+          console.warn('Could not set local persistence', pErr);
+        }
 
-  if (isSigningIn) return;
-  try {
-    isSigningIn = true;
-    googleLoginBtn.disabled = true;
-    retrySignInBtn.style.display = 'none';
+        // On iOS/iPadOS Safari, popups and third-party cookies are often blocked — use redirect flow
+        if (isIOS()) {
+          await signInWithRedirect(auth, provider);
+        } else {
+          try {
+            await signInWithPopup(auth, provider);
+          } catch (err) {
+            // If popups are blocked or not supported, fall back to redirect
+            // Handle explicit 'popup-blocked' error as well.
+            if (err && (err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-blocked')) {
+              setSyncStatus('Popup blocked — redirecting to sign-in...');
+              try {
+                await signInWithRedirect(auth, provider);
+              } catch (rerr) {
+                console.error('Redirect fallback failed after popup-blocked', rerr);
+                // Rethrow so outer catch can show retry/help
+                throw rerr;
+              }
+            } else {
+              throw err;
+            }
+          }
+        }
+      } else {
+        retrySignInBtn.style.display = 'none';
+        await signOut(auth);
+      }
+    } catch (err) {
+      console.error('Auth error', err);
+      const code = err && err.code ? err.code : 'unknown';
+      const msg = err && err.message ? err.message : '';
 
-    if (isIOS() || isSafari()) {
-      setSyncStatus('Redirecting to Google…');
-      await signInWithRedirect(auth, provider);
-    } else {
-      setSyncStatus('Opening Google popup…');
-      await signInWithPopup(auth, provider);
+      if (code === 'auth/popup-blocked') {
+        // Popup blocked — try redirect fallback automatically and show guidance if it fails
+        let help = 'Popup blocked — attempting redirect. If this repeats, open this page in Safari and allow popups or disable "Prevent Cross-Site Tracking" in Settings → Safari.';
+        setSyncStatus(help);
+        try {
+          await signInWithRedirect(auth, provider);
+          return; // redirect will navigate away
+        } catch (rerr) {
+          console.error('Redirect fallback failed after popup-blocked', rerr);
+          setSyncStatus('Redirect fallback failed: ' + ((rerr && rerr.message) || (rerr && rerr.code) || ''));
+          retrySignInBtn.style.display = 'inline-block';
+        }
+
+      } else if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') {
+        let help = 'Sign-in cancelled';
+        if (isIOS() && isSafari()) help += ' — Safari may block third-party cookies or cross-site tracking. Disable "Prevent Cross-Site Tracking" in Settings → Safari or open this page directly in Safari.';
+        setSyncStatus(help);
+        retrySignInBtn.style.display = 'inline-block';
+      } else {
+        setSyncStatus('Sign-in failed: ' + (msg || code));
+        alert('Auth error: ' + (msg || code));
+        retrySignInBtn.style.display = 'inline-block';
+      }
+    } finally {
+      isSigningIn = false;
+      googleLoginBtn.disabled = false;
+      // keep retry visible if flow failed
     }
-  } catch (err) {
-    console.error('Sign-in error', err);
-    setSyncStatus('Login failed: ' + (err.code || err.message));
-    retrySignInBtn.style.display = 'inline-block';
-  } finally {
-    isSigningIn = false;
-    googleLoginBtn.disabled = false;
-  }
-});
+  };
 
   // Process redirect sign-in result (used on iOS where popups may not work)
-  // Handle redirect result (MANDATORY for iOS Safari)
-(async () => {
-  try {
-    const result = await getRedirectResult(auth);
-    if (result && result.user) {
-      setSyncStatus('Signed in — syncing notes');
-      retrySignInBtn.style.display = 'none';
+  (async () => {
+    try {
+      const redirectResult = await getRedirectResult(auth);
+      if (redirectResult && redirectResult.user) {
+        // onAuthStateChanged will also fire, but set a helpful status now
+        setSyncStatus('Signed in (via redirect) — syncing');
+        retrySignInBtn.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('Redirect sign-in error', err);
+      const code = err && err.code ? err.code : 'unknown';
+      const msg = err && err.message ? err.message : '';
+      if (code === 'auth/cancelled-popup-request' || code === 'auth/popup-closed-by-user') {
+        let help = 'Sign-in cancelled';
+        if (isIOS() && isSafari()) help += ' — Safari may block third-party cookies or cross-site tracking. Open Settings → Safari and disable "Prevent Cross-Site Tracking", or open this page directly in Safari and try again.';
+        setSyncStatus(help);
+        retrySignInBtn.style.display = 'inline-block';
+      } else {
+        setSyncStatus(`Sign-in redirect failed: ${code} ${msg}`);
+        retrySignInBtn.style.display = 'inline-block';
+      }
     }
-  } catch (err) {
-    console.error('Redirect result error', err);
-    setSyncStatus('Redirect login failed. Try again in Safari.');
-    retrySignInBtn.style.display = 'inline-block';
-  }
-})();
+  })();
 
   // Listen for auth changes and sync notes
   let unsubscribeNote = null;
