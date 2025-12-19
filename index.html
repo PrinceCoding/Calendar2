@@ -451,17 +451,31 @@
       display: flex;
       gap: 5px;
     }
+    .phone-input-group select,
     .phone-input-group input {
-      flex: 1;
       padding: 6px 10px;
       border-radius: 8px;
       border: 1px solid var(--border);
       font-size: 0.8rem;
       background: rgba(255,255,255,0.5);
       color: var(--text);
+      outline: none;
     }
+    .phone-input-group select {
+      width: 75px;
+    }
+    .phone-input-group input {
+      flex: 1;
+    }
+    body.dark .phone-input-group select,
     body.dark .phone-input-group input {
       background: rgba(0,0,0,0.2);
+    }
+    
+    #recaptcha-container {
+      margin: 5px 0;
+      transform: scale(0.9);
+      transform-origin: left center;
     }
 </style>
 </head>
@@ -525,7 +539,19 @@
         <p style="font-size:0.75rem;color:var(--muted); margin-bottom: 5px;">Login with Phone Number</p>
         <div class="phone-auth-container">
           <div class="phone-input-group" id="phoneNumberInputGroup">
-            <input type="tel" id="phoneNumber" placeholder="+1 1234567890">
+            <select id="countryCode">
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+91">🇮🇳 +91</option>
+              <option value="+61">🇦🇺 +61</option>
+              <option value="+81">🇯🇵 +81</option>
+              <option value="+49">🇩🇪 +49</option>
+              <option value="+33">🇫🇷 +33</option>
+              <option value="+7">🇷🇺 +7</option>
+              <option value="+86">🇨🇳 +86</option>
+              <option value="+55">🇧🇷 +55</option>
+            </select>
+            <input type="tel" id="phoneNumber" placeholder="1234567890">
             <button id="sendSmsBtn" class="theme-btn" style="position: static; font-size: 0.7rem;">Send Code</button>
           </div>
           <div id="recaptcha-container"></div>
@@ -844,29 +870,25 @@
     signOut, 
     onAuthStateChanged,
     RecaptchaVerifier,
-    signInWithPhoneNumber
+    signInWithPhoneNumber,
+    signInWithCustomToken,
+    signInAnonymously
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
-    authDomain: "calendar-599ac.firebaseapp.com",
-    projectId: "calendar-599ac",
-    storageBucket: "calendar-599ac.firebasestorage.app",
-    messagingSenderId: "89812638572",
-    appId: "1:89812638572:web:f02d7309367576a619b149"
-  };
-
+  const firebaseConfig = JSON.parse(__firebase_config);
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-calendar-app';
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
   const phoneLoginArea = document.getElementById('phoneLoginArea');
   const sendSmsBtn = document.getElementById('sendSmsBtn');
   const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  const countryCodeSelect = document.getElementById('countryCode');
   const phoneNumberInput = document.getElementById('phoneNumber');
   const otpCodeInput = document.getElementById('otpCode');
   const otpInputGroup = document.getElementById('otpInputGroup');
@@ -892,25 +914,36 @@
 
   // --- Phone Login Logic ---
   
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-          // reCAPTCHA solved
-        }
-      }, auth);
+  const clearRecaptcha = () => {
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (e) {}
+      window.recaptchaVerifier = null;
     }
+    const container = document.getElementById('recaptcha-container');
+    if (container) container.innerHTML = '';
+  };
+
+  const setupRecaptcha = () => {
+    clearRecaptcha();
+    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+      'size': 'invisible'
+    }, auth);
   };
 
   sendSmsBtn.onclick = async () => {
-    const number = phoneNumberInput.value.trim();
-    if (!number) return alert('Please enter a phone number including country code (e.g. +1)');
+    const rawNumber = phoneNumberInput.value.trim();
+    if (!rawNumber) return alert('Please enter a phone number');
+    
+    const countryCode = countryCodeSelect.value;
+    const fullNumber = countryCode + rawNumber;
     
     try {
+      sendSmsBtn.disabled = true;
       setupRecaptcha();
       setSyncStatus('Sending SMS...');
-      confirmationResult = await signInWithPhoneNumber(auth, number, window.recaptchaVerifier);
+      confirmationResult = await signInWithPhoneNumber(auth, fullNumber, window.recaptchaVerifier);
       setSyncStatus('SMS Sent');
       otpInputGroup.style.display = 'flex';
       phoneNumberInputGroup.style.display = 'none';
@@ -918,11 +951,8 @@
       console.error('SMS Error:', err);
       setSyncStatus('SMS failed');
       alert('Error: ' + err.message);
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => {
-          grecaptcha.reset(widgetId);
-        });
-      }
+      clearRecaptcha();
+      sendSmsBtn.disabled = false;
     }
   };
 
@@ -941,7 +971,7 @@
     }
   };
 
-  // --- Google Login Logic ---
+  // --- Auth Lifecycle ---
 
   googleLoginBtn.onclick = async () => {
     if (isSigningIn) return;
@@ -951,12 +981,6 @@
         retrySignInBtn.style.display = 'none';
         googleLoginBtn.disabled = true;
         setSyncStatus('Signing in...');
-
-        try {
-          await setPersistence(auth, browserLocalPersistence);
-        } catch (pErr) {
-          console.warn('Could not set local persistence', pErr);
-        }
 
         if (isIOS()) {
           await signInWithRedirect(auth, provider);
@@ -978,7 +1002,6 @@
       }
     } catch (err) {
       console.error('Auth error', err);
-      const code = err?.code || 'unknown';
       setSyncStatus('Sign-in failed');
       retrySignInBtn.style.display = 'inline-block';
     } finally {
@@ -987,49 +1010,49 @@
     }
   };
 
-  (async () => {
-    try {
-      const redirectResult = await getRedirectResult(auth);
-      if (redirectResult?.user) {
-        setSyncStatus('Signed in — syncing');
-        retrySignInBtn.style.display = 'none';
-      }
-    } catch (err) {
-      console.error('Redirect error', err);
+  const initAuth = async () => {
+    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+      await signInWithCustomToken(auth, __initial_auth_token);
+    } else if (!auth.currentUser) {
+      await signInAnonymously(auth);
     }
-  })();
+  };
+
+  initAuth();
 
   let unsubscribeNote = null;
   onAuthStateChanged(auth, user => {
-    if (user) {
+    if (user && !user.isAnonymous) {
       googleLoginBtn.textContent = 'Sign out (' + (user.displayName || user.phoneNumber || 'User') + ')';
-      setSyncStatus('Signed in as ' + (user.displayName || user.phoneNumber || user.email) + ' — syncing');
+      setSyncStatus('Signed in — syncing');
       retrySignInBtn.style.display = 'none';
       phoneLoginArea.style.display = 'none';
 
-      const noteRef = doc(db, 'user_notes', user.uid);
+      // RULE 1: Strict Paths
+      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'main');
 
       if (unsubscribeNote) unsubscribeNote();
       unsubscribeNote = onSnapshot(noteRef, snap => {
         if (snap.exists()) {
           const data = snap.data();
-          if (notesEditor.innerHTML !== data.content) {
+          if (notesEditor.innerHTML !== data.content && !notesEditor.matches(':focus')) {
             notesEditor.innerHTML = data.content || '';
           }
           setSyncStatus('Synced');
         } else {
           const local = localStorage.getItem('calendar_notes_rich') || '';
-          setDoc(noteRef, { userId: user.uid, content: local, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-            .then(()=> setSyncStatus('Synced (seeded)'))
-            .catch(err => { console.error('Seed failed', err); });
+          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
+            .then(()=> setSyncStatus('Synced (new doc)'))
+            .catch(err => { console.error('Doc creation failed', err); });
         }
       }, err => { console.error('Snapshot error', err); });
     } else {
       googleLoginBtn.textContent = '🔐 Google Login';
-      setSyncStatus('Not signed in (local only)');
+      setSyncStatus(user?.isAnonymous ? 'Guest Mode (local only)' : 'Not signed in');
       retrySignInBtn.style.display = 'none';
       phoneLoginArea.style.display = 'block';
       phoneNumberInputGroup.style.display = 'flex';
+      sendSmsBtn.disabled = false;
       otpInputGroup.style.display = 'none';
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       notesEditor.innerHTML = localStorage.getItem('calendar_notes_rich') || ''; 
@@ -1040,13 +1063,13 @@
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
     localStorage.setItem('calendar_notes_rich', html);
-    if (auth.currentUser) {
+    if (auth.currentUser && !auth.currentUser.isAnonymous) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         try {
           setSyncStatus('Saving...');
-          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
-          await setDoc(noteRef, { userId: auth.currentUser.uid, content: html, updatedAt: serverTimestamp() }, { merge: true });
+          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'main');
+          await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
           setSyncStatus('All changes saved');
         } catch (err) {
           console.error('Save failed', err);
@@ -1054,7 +1077,7 @@
         }
       }, 700);
     } else {
-      setSyncStatus('Not signed in (local only)');
+      setSyncStatus('Guest Mode (Local Only)');
     }
   });
 
