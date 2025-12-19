@@ -939,7 +939,11 @@
       timer = null; 
       ps.textContent = '▶'; 
       fps.textContent = '▶';
-      savePomoToCloudDebounced();
+      // Immediately sync paused state to cloud
+      if (auth && auth.currentUser) {
+        const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
+        setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: false, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Pause sync error:', err));
+      }
       return; 
     }
     ps.textContent = '⏸';
@@ -950,10 +954,16 @@
       updatePomoDisplay();
     }, 1000);
     
+    // Immediately sync running state to cloud
+    if (auth && auth.currentUser) {
+      const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
+      setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Start sync error:', err));
+    }
+    
     // Save running state and sync seconds every 2 seconds while timer is active
     if (syncPomoInterval) clearInterval(syncPomoInterval);
     syncPomoInterval = setInterval(() => {
-      if (timer && auth.currentUser) {
+      if (timer && auth && auth.currentUser) {
         const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
         setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Real-time sync error:', err));
       }
