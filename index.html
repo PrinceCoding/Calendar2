@@ -439,7 +439,6 @@
         display: none;
       }
     }
-    }
 
 </style>
 </head>
@@ -850,8 +849,19 @@ import {
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+
+  // SAFARI FIX: ensure authDomain matches current origin
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    console.warn('Firebase Auth requires HTTPS on iOS Safari');
+    setSyncStatus('Login requires HTTPS on iOS Safari');
+  }
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
+
+  // IMPORTANT for iOS Safari: force account chooser & correct redirect origin
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  });
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
@@ -881,6 +891,12 @@ import {
   }
 
   googleLoginBtn.onclick = async () => {
+  // HARD SAFARI GUARD: block in file:// or in-app browsers
+  if (location.protocol === 'file:') {
+    setSyncStatus('Login blocked: open this app via https:// in Safari');
+    return;
+  }
+
   if (isSigningIn) return;
   try {
     if (!auth.currentUser) {
