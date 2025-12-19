@@ -857,9 +857,23 @@
 
 <!-- Firebase: Auth + Firestore notes -->
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged, signInWithPhoneNumber, RecaptchaVerifier, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
-  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+  import { 
+    getAuth, 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    signInWithRedirect, 
+    getRedirectResult, 
+    setPersistence, 
+    browserLocalPersistence, 
+    signOut, 
+    onAuthStateChanged, 
+    signInWithPhoneNumber, 
+    RecaptchaVerifier, 
+    signInAnonymously, 
+    signInWithCustomToken 
+  } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
   const firebaseConfig = JSON.parse(__firebase_config);
   const app = initializeApp(firebaseConfig);
@@ -886,10 +900,12 @@
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
-  // --- Initial Auth Persistence ---
+  // --- Initial Auth Startup ---
   const initAuth = async () => {
     try {
+      // Set persistence first globally
       await setPersistence(auth, browserLocalPersistence);
+      
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
       } else if (!auth.currentUser) {
@@ -915,8 +931,16 @@
     if (!rawNumber) return alert('Please enter a phone number');
     
     try {
+      sendSmsBtn.disabled = true;
       clearRecaptcha();
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'normal' });
+      
+      // Standard reCAPTCHA construction for Firebase v9+
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'normal'
+      });
+      
+      await window.recaptchaVerifier.render();
+      
       setSyncStatus('Sending SMS...');
       confirmationResult = await signInWithPhoneNumber(auth, codePrefix + rawNumber, window.recaptchaVerifier);
       setSyncStatus('SMS Sent');
@@ -928,6 +952,7 @@
       setSyncStatus('SMS failed');
       alert('Error: ' + err.message);
       clearRecaptcha();
+      sendSmsBtn.disabled = false;
     }
   };
 
@@ -945,37 +970,39 @@
     }
   };
 
-  // --- Google Login Handler ---
-  googleLoginBtn.onclick = async () => {
+  // --- Google Login Handler (Optimized for Safari) ---
+  googleLoginBtn.onclick = () => {
     if (isSigningIn) return;
-    try {
-      if (!auth.currentUser || auth.currentUser.isAnonymous) {
-        isSigningIn = true;
-        googleLoginBtn.disabled = true;
-        setSyncStatus('Redirecting...');
+    
+    if (auth.currentUser && !auth.currentUser.isAnonymous) {
+      signOut(auth);
+      return;
+    }
 
-        // CRITICAL: Call the auth method IMMEDIATELY to satisfy Safari's popup block detection.
-        // Redirect is used for iOS/iPadOS as popups are almost always blocked in iframes.
-        if (isIOS()) {
-          await signInWithRedirect(auth, provider);
-        } else {
-          try {
-            await signInWithPopup(auth, provider);
-          } catch (err) {
-            if (err.code === 'auth/operation-not-supported-in-this-environment' || err.code === 'auth/popup-blocked') {
-              await signInWithRedirect(auth, provider);
-            } else { throw err; }
+    isSigningIn = true;
+    googleLoginBtn.disabled = true;
+    setSyncStatus('Connecting...');
+
+    // CRITICAL: Safari blocks popups/redirects if we await anything before calling them.
+    // For iOS/iPadOS iframes, signInWithRedirect is the most reliable path.
+    if (isIOS()) {
+      signInWithRedirect(auth, provider);
+    } else {
+      signInWithPopup(auth, provider)
+        .then(() => {
+          isSigningIn = false;
+          googleLoginBtn.disabled = false;
+        })
+        .catch(err => {
+          console.warn('Popup blocked or failed, falling back to redirect', err);
+          if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
+            signInWithRedirect(auth, provider);
+          } else {
+            setSyncStatus('Login error');
+            isSigningIn = false;
+            googleLoginBtn.disabled = false;
           }
-        }
-      } else {
-        await signOut(auth);
-      }
-    } catch (err) {
-      console.error('Auth error', err);
-      setSyncStatus('Login failed');
-    } finally {
-      isSigningIn = false;
-      googleLoginBtn.disabled = false;
+        });
     }
   };
 
@@ -983,7 +1010,7 @@
   (async () => {
     try {
       const result = await getRedirectResult(auth);
-      if (result?.user) setSyncStatus('Signed in via redirect!');
+      if (result?.user) setSyncStatus('Welcome back!');
     } catch (err) { console.error('Redirect result error', err); }
   })();
 
@@ -1010,14 +1037,20 @@
         } else {
           const local = localStorage.getItem(NOTES_KEY) || '';
           setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
-            .then(() => setSyncStatus('Cloud Synced (New)'));
+            .then(() => setSyncStatus('Cloud Synced (New Doc)'));
         }
-      }, err => { console.error('Sync error', err); });
+      }, err => { 
+        console.error('Sync error', err); 
+        setSyncStatus('Sync Error: Permission Denied');
+      });
     } else {
       googleLoginBtn.textContent = '🔐 Google Login';
+      googleLoginBtn.disabled = false;
+      isSigningIn = false;
       setSyncStatus(user?.isAnonymous ? 'Guest Mode (local only)' : 'Not signed in');
       phoneLoginArea.style.display = 'block';
       phoneInputGroup.style.display = 'flex';
+      sendSmsBtn.disabled = false;
       otpInputGroup.style.display = 'none';
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || ''; 
