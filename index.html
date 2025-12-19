@@ -810,7 +810,7 @@
 <!-- Firebase: Auth + Firestore notes (stores one note per user, keyed by uid) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+  import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Your Firebase config (from project settings)
@@ -827,8 +827,10 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
+  const appleProvider = new OAuthProvider('apple.com');
 
   const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const appleLoginBtn = document.getElementById('appleLoginBtn');
   const syncStatus = document.getElementById('syncStatus');
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
@@ -856,6 +858,7 @@
   }
 
   googleLoginBtn.onclick = async () => {
+
     if (isSigningIn) return; // guard against duplicate clicks
     try {
       if (!auth.currentUser) {
@@ -930,6 +933,23 @@
       isSigningIn = false;
       googleLoginBtn.disabled = false;
       // keep retry visible if flow failed
+    }
+  };
+
+  // Apple Sign-In
+  appleLoginBtn.onclick = async () => {
+    try {
+      setSyncStatus('Signing in with Apple…');
+      try { await setPersistence(auth, browserLocalPersistence); } catch(e){}
+
+      if (isIOS() || isSafari()) {
+        await signInWithRedirect(auth, appleProvider);
+      } else {
+        await signInWithPopup(auth, appleProvider);
+      }
+    } catch (err) {
+      console.error('Apple sign-in error', err);
+      setSyncStatus('Apple Sign-In failed: ' + (err.code || err.message));
     }
   };
 
