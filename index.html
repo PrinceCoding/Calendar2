@@ -1001,23 +1001,16 @@
 
 <!-- Firebase Module -->
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
   import { 
     getAuth, setPersistence, browserLocalPersistence, signOut, onAuthStateChanged,
     signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail,
     signInAnonymously, signInWithCustomToken
-  } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
-  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+  } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-  // Firebase environment config
-  const firebaseConfig = {
-    apiKey: "AIzaSyA05Vxw3kSZ8xAHUBppMh5p7VwBZ-47kmM",
-    authDomain: "calendar-599ac.firebaseapp.com",
-    projectId: "calendar-599ac",
-    storageBucket: "calendar-599ac.firebasestorage.app",
-    messagingSenderId: "89812638572",
-    appId: "1:89812638572:web:f02d7309367576a619b149"
-  };
+  // Firebase configuration
+  const firebaseConfig = JSON.parse(__firebase_config);
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -1086,7 +1079,6 @@
   async function pushPomoState(running, overrideSecs = null) {
     if (!auth.currentUser) return;
     const s = overrideSecs !== null ? overrideSecs : secs;
-    // Rule 1: Strict Paths
     const pomoRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'pomodoro', 'state');
     try {
       await setDoc(pomoRef, {
@@ -1168,7 +1160,6 @@
 
   logoutBtn.onclick = () => signOut(auth);
 
-  // Initial Startup
   const initAuth = async () => {
     try {
       await setPersistence(auth, browserLocalPersistence);
@@ -1189,18 +1180,30 @@
       loggedOutUI.style.display = 'none';
       loggedInUI.style.display = 'block';
       userEmailDisplay.textContent = `Logged in as: ${user.email || 'Anonymous'}`;
-      setSyncStatus('Cloud Sync Active');
+      setSyncStatus('Cloud Synced');
 
-      // Notes Sync (Rule 1: Path)
-      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'current');
+      // Notes Basic Sync Logic (Restored)
+      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'notes', 'main');
       if (unsubNotes) unsubNotes();
       unsubNotes = onSnapshot(noteRef, snap => {
-        if (snap.exists() && document.activeElement !== notesEditor) {
-          notesEditor.innerHTML = snap.data().content || '';
+        if (snap.exists()) {
+          const data = snap.data();
+          if (document.activeElement !== notesEditor) {
+            notesEditor.innerHTML = data.content || '';
+          }
+          setSyncStatus('Cloud Synced');
+        } else {
+          // Reverting to basic seeding method
+          const local = localStorage.getItem(NOTES_KEY) || '';
+          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
+            .then(() => setSyncStatus('Cloud Initialized'));
         }
-      }, err => setSyncStatus('Notes Sync Error'));
+      }, err => {
+        console.error(err);
+        setSyncStatus('Sync Error: Check Permissions');
+      });
 
-      // Pomodoro Sync (Rule 1: Path)
+      // Pomodoro Sync
       const pomoRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pomodoro', 'state');
       if (unsubPomo) unsubPomo();
       unsubPomo = onSnapshot(pomoRef, snap => {
@@ -1211,8 +1214,6 @@
           pomoDurationInput.value = defaultPomoMinutes;
           
           if (isCloudRunning && data.timestamp) {
-            // Real-time synchronization logic:
-            // Calculate time passed since the state was pushed to the cloud
             const serverTime = data.timestamp.toMillis();
             const elapsedSincePush = Math.floor((Date.now() - serverTime) / 1000);
             secs = Math.max(0, data.secs - elapsedSincePush);
@@ -1234,7 +1235,7 @@
     }
   });
 
-  // Notes Auto-save
+  // Notes Auto-save (Basic Method)
   let saveTimer = null;
   notesEditor.addEventListener('input', () => {
     const html = notesEditor.innerHTML;
@@ -1242,8 +1243,13 @@
     if (auth.currentUser) {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
-        const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'current');
-        await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
+        try {
+          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'notes', 'main');
+          await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
+          setSyncStatus('All changes saved');
+        } catch (e) {
+          setSyncStatus('Cloud save error');
+        }
       }, 800);
     }
   });
@@ -1280,11 +1286,9 @@
     const s = now.getSeconds();
     const m = now.getMinutes();
     const h = now.getHours() % 12;
-
     hourHand.style.transform = `translateX(-50%) rotate(${h * 30 + m * 0.5}deg)`;
     minuteHand.style.transform = `translateX(-50%) rotate(${m * 6}deg)`;
     secondHand.style.transform = `translateX(-50%) rotate(${s * 6}deg)`;
-
     clockDay.textContent = now.toLocaleDateString(undefined, { weekday: 'short' });
     clockNum.textContent = now.getDate();
   }
@@ -1312,7 +1316,6 @@
   function makeDraggable(el) {
     let isDragging = false;
     let startX, startY, startLeft, startTop;
-
     el.addEventListener('mousedown', e => {
       if (e.target.tagName === 'BUTTON') return;
       isDragging = true;
@@ -1320,16 +1323,13 @@
       startLeft = el.offsetLeft; startTop = el.offsetTop;
       el.style.right = 'auto'; el.style.bottom = 'auto';
     });
-
     window.addEventListener('mousemove', e => {
       if (!isDragging) return;
       el.style.left = startLeft + (e.clientX - startX) + 'px';
       el.style.top = startTop + (e.clientY - startY) + 'px';
     });
-
     window.addEventListener('mouseup', () => isDragging = false);
   }
-
   makeDraggable(clock);
   makeDraggable(floatingPomo);
 
