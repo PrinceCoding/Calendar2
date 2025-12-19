@@ -2236,113 +2236,14 @@
   let currentSessionCode = null;
   let participants = ['You'];
   let chatHistory = [];
-  let ws = null;
   let userName = 'User' + Math.floor(Math.random() * 1000);
+  let firebaseInitialized = false;
+  let database = null;
+  let messagesRef = null;
+  let participantsRef = null;
 
-  // Backend Configuration
-  // Change this to your WebSocket server URL (set to null to disable backend)
-  const BACKEND_URL = null; // Set to 'ws://localhost:3000' or your server URL to enable backend
-  
-  // WebSocket Connection Manager
-  function connectToBackend(sessionCode) {
-    // Skip connection if no backend URL configured
-    if (!BACKEND_URL) {
-      console.log('Backend disabled - running in offline mode');
-      return;
-    }
-    
-    try {
-      ws = new WebSocket(BACKEND_URL);
-      
-      ws.onopen = () => {
-        console.log('Connected to backend');
-        addSystemMessage('✓ Connected to server');
-        // Join the session
-        ws.send(JSON.stringify({
-          type: 'join',
-          sessionCode: sessionCode,
-          userName: userName
-        }));
-      };
-      
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          handleBackendMessage(data);
-        } catch (e) {
-          console.error('Error parsing message:', e);
-        }
-      };
-      
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        // Silent fail - don't show error message
-      };
-      
-      ws.onclose = () => {
-        console.log('Disconnected from backend');
-        // Don't show disconnect message automatically
-        ws = null;
-      };
-    } catch (error) {
-      console.error('Failed to connect:', error);
-      // Silent fail - offline mode
-    }
-  }
-  
-  // Handle messages from backend
-  function handleBackendMessage(data) {
-    switch (data.type) {
-      case 'session_created':
-        currentSessionCode = data.sessionCode;
-        sessionCodeEl.textContent = currentSessionCode;
-        break;
-        
-      case 'joined':
-        addSystemMessage(`✓ Connected to session ${data.sessionCode}`);
-        if (data.participants) {
-          participants = data.participants;
-          updateParticipants();
-        }
-        break;
-        
-      case 'user_joined':
-        if (!participants.includes(data.userName)) {
-          participants.push(data.userName);
-          updateParticipants();
-          addSystemMessage(`${data.userName} joined the session`);
-        }
-        break;
-        
-      case 'user_left':
-        participants = participants.filter(p => p !== data.userName);
-        updateParticipants();
-        addSystemMessage(`${data.userName} left the session`);
-        break;
-        
-      case 'message':
-        receiveMessage(data.userName, data.message);
-        break;
-        
-      case 'participants_update':
-        participants = data.participants;
-        updateParticipants();
-        break;
-        
-      case 'error':
-        addSystemMessage(`⚠️ Error: ${data.message}`);
-        break;
-    }
-  }
-  
-  // Send message to backend
-  function sendToBackend(type, payload) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type, ...payload }));
-      return true;
-    }
-    return false;
-  }
+  // Firebase will be initialized from the module script below
+  // The initGroupStudyFirebase function will be called after Firebase is ready
 
   // Generate random session code
   function generateSessionCode() {
@@ -2385,9 +2286,6 @@
     sessionInfo.textContent = '✓ Session created! Share the code with others.';
     sessionInfo.style.color = 'var(--today)';
     
-    // Connect to backend
-    connectToBackend(currentSessionCode);
-    
     setTimeout(() => {
       enterGroupMode();
       groupStudyModal.style.display = 'none';
@@ -2416,9 +2314,6 @@
     joinInfo.textContent = '✓ Joining session...';
     joinInfo.style.color = 'var(--today)';
     
-    // Connect to backend
-    connectToBackend(currentSessionCode);
-    
     setTimeout(() => {
       enterGroupMode();
       groupStudyModal.style.display = 'none';
@@ -2433,6 +2328,11 @@
     studyModeBtn.classList.add('group-active');
     floatingChat.style.display = 'flex';
     chatSessionInfo.textContent = `Session: ${currentSessionCode}`;
+    
+    // Store for Firebase access
+    window.currentSessionCode = currentSessionCode;
+    window.userName = userName;
+    window.isGroupMode = true;
   }
 
   // Exit group mode
@@ -2442,11 +2342,15 @@
     studyModeBtn.classList.remove('group-active');
     floatingChat.style.display = 'none';
     
-    // Disconnect from backend
-    if (ws) {
-      sendToBackend('leave', { sessionCode: currentSessionCode, userName: userName });
-      ws.close();
-      ws = null;
+    // Disconnect from Firebase
+    if (firebaseInitialized && database && currentSessionCode) {
+      // Remove user from participants
+      if (participantsRef) {
+        participantsRef.child(userName).remove();
+      }
+      // Unsubscribe from listeners
+      if (messagesRef) messagesRef.off();
+      if (participantsRef) participantsRef.off();
     }
     
     currentSessionCode = null;
@@ -2483,13 +2387,9 @@
     chatInput.value = '';
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
-    // Send to backend
-    if (!sendToBackend('message', {
-      sessionCode: currentSessionCode,
-      userName: userName,
-      message: text
-    })) {
-      addSystemMessage('⚠️ Message not sent - not connected to server');
+    // Send to Firebase
+    if (window.sendFirebaseMessage) {
+      window.sendFirebaseMessage(text);
     }
   }
 
@@ -3216,6 +3116,7 @@
     signInWithCustomToken
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+  import { getDatabase, ref, push, onValue, set, onChildAdded, remove, onDisconnect } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js';
 
   // Firebase config
   const firebaseConfig = {
@@ -3224,6 +3125,7 @@
     projectId: 'calendar-599ac',
     storageBucket: 'calendar-599ac.firebasestorage.app',
     messagingSenderId: '89812638572',
+    databaseURL: 'https://calendar-group-study-default-rtdb.firebaseio.com/',
     appId: '1:89812638572:web:f02d7309367576a619b149'
   };
 
@@ -3231,6 +3133,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const rtdb = getDatabase(app);
 
   // Expose for non-module script usage
   window.auth = auth;
@@ -3238,6 +3141,16 @@
   window.doc = doc;
   window.setDoc = setDoc;
   window.serverTimestamp = serverTimestamp;
+  
+  // Expose Realtime Database for group study
+  window.firebaseRTDB = rtdb;
+  window.firebaseRef = ref;
+  window.firebasePush = push;
+  window.firebaseSet = set;
+  window.firebaseOnValue = onValue;
+  window.firebaseOnChildAdded = onChildAdded;
+  window.firebaseRemove = remove;
+  window.firebaseOnDisconnect = onDisconnect;
 
   // UI elements
   const loginBtn = document.getElementById('loginBtn');
@@ -3441,6 +3354,110 @@
 
   window.addEventListener('offline', () => setSyncStatus('Offline — saved locally'));
   window.addEventListener('online', () => setSyncStatus('Online'));
+  
+  // =========================
+  // GROUP STUDY FIREBASE INTEGRATION
+  // =========================
+  
+  // Initialize group study with Firebase
+  function initGroupStudyFirebase() {
+    if (!window.firebaseRTDB) {
+      console.error('Firebase Realtime Database not initialized');
+      return;
+    }
+    
+    window.groupStudyDB = window.firebaseRTDB;
+    window.enterGroupMode = enterGroupMode;
+  }
+  
+  // Enter group mode with Firebase
+  function enterGroupMode() {
+    if (!window.currentSessionCode) return;
+    
+    const sessionCode = window.currentSessionCode;
+    const userName = window.userName || 'User' + Math.floor(Math.random() * 1000);
+    window.userName = userName;
+    
+    // Update UI
+    const studyModeBtn = document.getElementById('studyModeBtn');
+    const floatingChat = document.getElementById('floatingChat');
+    const chatSessionInfo = document.getElementById('chatSessionInfo');
+    
+    if (studyModeBtn) {
+      studyModeBtn.textContent = '👥 Group Study';
+      studyModeBtn.classList.add('group-active');
+    }
+    if (floatingChat) floatingChat.style.display = 'flex';
+    if (chatSessionInfo) chatSessionInfo.textContent = `Session: ${sessionCode}`;
+    
+    window.isGroupMode = true;
+    
+    // Setup Firebase references
+    const messagesPath = `groupStudy/${sessionCode}/messages`;
+    const participantsPath = `groupStudy/${sessionCode}/participants/${userName}`;
+    
+    const messagesRef = window.firebaseRef(window.groupStudyDB, messagesPath);
+    const participantsRef = window.firebaseRef(window.groupStudyDB, participantsPath);
+    
+    // Mark user as online
+    window.firebaseSet(participantsRef, {
+      name: userName,
+      joinedAt: Date.now(),
+      online: true
+    });
+    
+    // Auto remove on disconnect
+    window.firebaseOnDisconnect(participantsRef).remove();
+    
+    // Listen for new messages
+    window.firebaseOnChildAdded(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.userName !== userName) {
+        // Received message from another user
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          const msgDiv = document.createElement('div');
+          msgDiv.className = 'chat-message received';
+          msgDiv.innerHTML = `<div class="chat-message-sender">${data.userName}</div>${data.message}`;
+          chatMessages.appendChild(msgDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      }
+    });
+    
+    // Listen for participants
+    const allParticipantsRef = window.firebaseRef(window.groupStudyDB, `groupStudy/${sessionCode}/participants`);
+    window.firebaseOnValue(allParticipantsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const participantNames = Object.keys(data);
+        const participantCount = document.getElementById('participantCount');
+        const participantList = document.getElementById('participantList');
+        
+        if (participantCount) participantCount.textContent = participantNames.length;
+        if (participantList) participantList.textContent = participantNames.join(', ');
+      }
+    });
+    
+    // Store refs for cleanup
+    window.currentMessagesRef = messagesRef;
+    window.currentParticipantsRef = participantsRef;
+  }
+  
+  // Send message via Firebase
+  window.sendFirebaseMessage = function(text) {
+    if (!window.currentSessionCode || !window.currentMessagesRef) return;
+    
+    window.firebasePush(window.currentMessagesRef, {
+      userName: window.userName,
+      message: text,
+      timestamp: Date.now()
+    });
+  };
+  
+  // Initialize after DOM is ready
+  setTimeout(initGroupStudyFirebase, 100);
+  
 </script>
 </body>
 </html>
