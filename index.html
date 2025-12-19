@@ -774,6 +774,13 @@
 </main>
 
 <script>
+  // Global Firebase references (will be populated by Firebase module)
+  let auth = null;
+  let db = null;
+  let doc = null;
+  let setDoc = null;
+  let serverTimestamp = null;
+
   const calEl = document.getElementById('calendar');
   const settingsBtn = document.getElementById('settingsBtn');
   const settingsPage = document.getElementById('settingsPage');
@@ -940,9 +947,9 @@
       ps.textContent = '▶'; 
       fps.textContent = '▶';
       // Immediately sync paused state to cloud
-      if (auth && auth.currentUser) {
-        const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
-        setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: false, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Pause sync error:', err));
+      if (window.auth && window.auth.currentUser) {
+        const pomoRef = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
+        window.setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: false, updatedAt: window.serverTimestamp() }, { merge: true }).catch(err => console.error('Pause sync error:', err));
       }
       return; 
     }
@@ -955,17 +962,17 @@
     }, 1000);
     
     // Immediately sync running state to cloud
-    if (auth && auth.currentUser) {
-      const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
-      setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Start sync error:', err));
+    if (window.auth && window.auth.currentUser) {
+      const pomoRef = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
+      window.setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: window.serverTimestamp() }, { merge: true }).catch(err => console.error('Start sync error:', err));
     }
     
     // Save running state and sync seconds every 2 seconds while timer is active
     if (syncPomoInterval) clearInterval(syncPomoInterval);
     syncPomoInterval = setInterval(() => {
-      if (timer && auth && auth.currentUser) {
-        const pomoRef = doc(db, 'user_pomodoro', auth.currentUser.uid);
-        setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: serverTimestamp() }, { merge: true }).catch(err => console.error('Real-time sync error:', err));
+      if (timer && window.auth && window.auth.currentUser) {
+        const pomoRef = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
+        window.setDoc(pomoRef, { secs: Number(secs || 0), duration: Number(defaultPomoMinutes || 60), running: true, updatedAt: window.serverTimestamp() }, { merge: true }).catch(err => console.error('Real-time sync error:', err));
       }
     }, 2000);
   }
@@ -1109,9 +1116,15 @@
     appId: "1:89812638572:web:f02d7309367576a619b149"
   };
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-notes-v1';
+  const authObj = getAuth(app);
+  const dbObj = getFirestore(app);
+  
+  // Expose to global scope for Pomodoro sync
+  window.auth = authObj;
+  window.db = dbObj;
+  window.doc = doc;
+  window.setDoc = setDoc;
+  window.serverTimestamp = serverTimestamp;
 
   const loginBtn = document.getElementById('loginBtn');
   const signupBtn = document.getElementById('signupBtn');
@@ -1125,6 +1138,10 @@
   const syncStatus = document.getElementById('syncStatus');
   const notesEditor = document.getElementById('notesEditor');
   const NOTES_KEY = 'calendar_notes_rich';
+  
+  const auth = authObj;
+  const db = dbObj;
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'calendar-notes-v1';
 
   function setSyncStatus(text){ if (syncStatus) syncStatus.textContent = text; }
 
