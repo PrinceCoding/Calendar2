@@ -930,7 +930,7 @@
       setSyncStatus('Signed in — syncing');
 
       // RULE 1: Strict path structure
-      const noteRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'main_note');
+      const noteRef = doc(db, 'user_notes', user.uid);
 
       if (unsubscribeNote) unsubscribeNote();
       unsubscribeNote = onSnapshot(noteRef, snap => {
@@ -969,7 +969,7 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         try {
-          const noteRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'data', 'main_note');
+          const noteRef = doc(db, 'user_notes', auth.currentUser.uid);
           await setDoc(noteRef, { content: html, updatedAt: serverTimestamp() }, { merge: true });
           setSyncStatus('All changes saved');
         } catch (err) {
