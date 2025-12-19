@@ -476,27 +476,11 @@
 
     <!-- Appearance -->
     <div class="month" style="margin-bottom:1rem;">
-      <h3>Appearance</h3>
-      <p style="font-size:0.8rem;color:var(--muted)">Theme</p>
-      <div id="settingsThemes" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
-
-      <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem">Font Size</p>
-      <button class="font-btn" data-size="90">A−</button>
-      <button class="font-btn" data-size="100">A</button>
-      <button class="font-btn" data-size="110">A+</button>
-    </div>
-
-    <!-- Pomodoro -->
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Pomodoro</h3>
-      <p style="font-size:0.75rem;color:var(--muted)">Session length (minutes)</p>
-      <input id="pomoDurationInput" type="number" min="1" style="width:80px;padding:4px 6px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem;" />
-    </div>
-
-    <!-- Account -->
-    <div class="month" style="margin-bottom:1rem;">
       <h3>Account</h3>
-      <button id="googleLoginBtn" class="today-btn" style="position:static">🔐 Google Login</button>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button id="googleLoginBtn" class="today-btn" style="position:static">🔐 Google Login</button>
+        <button id="appleLoginBtn" class="today-btn" style="position:static;background:#000;color:#fff"> Sign in with Apple</button>
+      </div>
       <p style="font-size:0.75rem;color:var(--muted)">Sync notes across devices</p>
     </div>
 
