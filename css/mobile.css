@@ -1,0 +1,66 @@
+/* =========================
+   iPHONE / MOBILE ADJUSTMENTS
+   ========================= */
+@media (max-width: 480px) {
+  header {
+    padding: 0.7rem 0.6rem 0.8rem;
+  }
+
+  .dynamic-island {
+    font-size: 0.7rem;
+    padding: 0 0.6rem;
+    height: 30px;
+  }
+
+  .today-btn,
+  .theme-btn {
+    position: static;
+    height: 28px;
+    font-size: 0.7rem;
+    padding: 0 0.6rem;
+  }
+
+  header > div:first-child {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav {
+    margin-top: 0.4rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  .calendar {
+    grid-template-columns: 1fr;
+    padding: 0.6rem;
+  }
+
+  .month {
+    padding: 0.6rem;
+  }
+
+  .month h2 {
+    font-size: 0.9rem;
+  }
+
+  .weekdays div {
+    font-size: 0.55rem;
+  }
+
+  .days div {
+    font-size: 0.7rem;
+    padding: 0.3rem 0;
+  }
+
+  .notes {
+    margin: 0.6rem;
+  }
+
+  .notes-editor {
+    min-height: 140px;
+    font-size: 0.8rem;
+  }
+}

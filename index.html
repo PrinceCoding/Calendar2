@@ -8,1501 +8,34 @@
   <!-- =========================
         STYLES (CSS)
         ========================= -->
-  <style>
-    /* =========================
-        macOS SYSTEM THEME
-        ========================= */
-    :root {
-      --bg: #f5f5f7;
-      --card: rgba(255,255,255,0.75);
-      --text: #1d1d1f;
-      --muted: #6e6e73;
-      --primary: #007aff;
-      --today: #34c759;
-      --border: rgba(0,0,0,0.08);
-      --shadow-soft: 0 1px 2px rgba(0,0,0,0.08);
-      --shadow-float: 0 8px 24px rgba(0,0,0,0.12);
-    }
-
-    body.dark {
-      --bg: #0f1115;
-      --card: rgba(28,28,30,0.75);
-      --text: #f5f5f7;
-      --muted: #9a9aa0;
-      --primary: #0a84ff;
-      --today: #30d158;
-      --border: rgba(255,255,255,0.12);
-    }
-
-    /* Ocean theme */
-    body.theme-ocean {
-      --bg: #ecfeff;
-      --card: rgba(255,255,255,0.8);
-      --text: #164e63;
-      --muted: #155e75;
-      --primary: #06b6d4;
-      --today: #22d3ee;
-      --border: rgba(22,78,99,0.15);
-    }
-
-    /* Forest theme */
-    body.theme-forest {
-      --bg: #f0fdf4;
-      --card: rgba(255,255,255,0.8);
-      --text: #14532d;
-      --muted: #166534;
-      --primary: #16a34a;
-      --today: #22c55e;
-      --border: rgba(20,83,45,0.15);
-    }
-
-    /* Solar theme */
-    body.theme-solar {
-      --bg: #fff7ed;
-      --card: rgba(255,255,255,0.85);
-      --text: #7c2d12;
-      --muted: #a16207;
-      --primary: #f97316;
-      --today: #fb923c;
-      --border: rgba(124,45,18,0.15);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button {
-      border: none;
-      background: none;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    /* =========================
-        HEADER
-        ========================= */
-    header {
-      position: relative;
-      padding: 0.9rem 1rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .date-time {
-      height: 32px;
-      padding: 0 0.9rem;
-      border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: var(--card);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-      white-space: nowrap;
-    }
-
-    .pomo-btn {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      background: rgba(0,0,0,0.08);
-      color: var(--text);
-      font-size: 0.65rem;
-      display: grid;
-      place-items: center;
-    }
-
-    .today-btn,
-    .theme-btn {
-      height: 32px;
-      padding: 0 0.9rem;
-      border-radius: 10px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .today-btn {
-      position: absolute;
-      top: 0.9rem;
-      left: 9rem;
-      background: linear-gradient(180deg, #34c759, #28b84e);
-      color: #fff;
-    }
-
-    .theme-btn {
-      position: absolute;
-      top: 0.9rem;
-      right: 1rem;
-      background: var(--card);
-      color: var(--text);
-    }
-
-    h1 {
-      margin: 0.6rem 0 0.2rem;
-      font-size: 1.7rem;
-      font-weight: 600;
-    }
-
-    .nav {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .nav-btn {
-      height: 28px;
-      width: 28px;
-      border-radius: 8px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft);
-      color: var(--text);
-      font-size: 0.8rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    body.dark .nav-btn {
-      background: rgba(44,44,46,0.85);
-      color: #f5f5f7;
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-
-    /* =========================
-        CALENDAR
-        ========================= */
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 0.8rem;
-      padding: 0.8rem 1rem 1rem;
-    }
-
-    .month {
-      background: var(--card);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 0.75rem;
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-    }
-
-    .month h2 {
-      margin: 0.2rem 0 0.6rem;
-      text-align: center;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .weekdays,
-    .days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      gap: 0.25rem;
-    }
-
-    .weekdays div {
-      font-size: 0.6rem;
-      color: var(--muted);
-    }
-
-    .days div {
-      font-size: 0.75rem;
-      padding: 0.35rem 0;
-      border-radius: 8px;
-      transition: background 0.15s ease;
-    }
-
-    .days div:hover {
-      background: rgba(0,0,0,0.06);
-    }
-
-    .today {
-      background: var(--today);
-      color: #fff;
-      font-weight: 600;
-    }
-
-    /* =========================
-        NOTES
-        ========================= */
-    .notes {
-      margin: 0.6rem 1rem 1rem;
-      background: var(--card);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 0.75rem;
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-    }
-
-    .notes-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .notes h2 {
-      margin: 0;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .notes-tools button {
-      height: 26px;
-      padding: 0 0.5rem;
-      border-radius: 7px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .notes-tools button.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-
-    body.dark .notes-tools button {
-      background: rgba(44,44,46,0.85);
-      color: #f5f5f7;
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-
-    .notes-editor {
-      width: 100%;
-      min-height: 120px;
-      padding: 0.6rem;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      font-size: 0.8rem;
-      background: rgba(255,255,255,0.5);
-      color: var(--text);
-      outline: none;
-    }
-
-    body.dark .notes-editor {
-      background: rgba(0,0,0,0.25);
-    }
-
-    footer {
-      text-align: center;
-      font-size: 0.65rem;
-      color: var(--muted);
-      padding-bottom: 0.6rem;
-    }
-
-    /* Auth Input Styles */
-    .auth-input {
-      width: 100%;
-      height: 34px;
-      padding: 0 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      font-size: 0.8rem;
-      margin-bottom: 8px;
-      background: rgba(255,255,255,0.4);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .auth-input:focus {
-      border-color: var(--primary);
-    }
-    body.dark .auth-input {
-      background: rgba(0,0,0,0.2);
-    }
-
-  /* =========================
-   iPHONE / MOBILE ADJUSTMENTS
-   ========================= */
-@media (max-width: 480px) {
-  header {
-    padding: 0.7rem 0.6rem 0.8rem;
-  }
-
-  .date-time {
-    font-size: 0.7rem;
-    padding: 0 0.6rem;
-    height: 30px;
-  }
-
-  .today-btn,
-  .theme-btn {
-    position: static;
-    height: 28px;
-    font-size: 0.7rem;
-    padding: 0 0.6rem;
-  }
-
-  header > div:first-child {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav {
-    margin-top: 0.4rem;
-  }
-
-  h1 {
-    font-size: 1.3rem;
-  }
-
-  .calendar {
-    grid-template-columns: 1fr;
-    padding: 0.6rem;
-  }
-
-  .month {
-    padding: 0.6rem;
-  }
-
-  .month h2 {
-    font-size: 0.9rem;
-  }
-
-  .weekdays div {
-    font-size: 0.55rem;
-  }
-
-  .days div {
-    font-size: 0.7rem;
-    padding: 0.3rem 0;
-  }
-
-  .notes {
-    margin: 0.6rem;
-  }
-
-  .notes-editor {
-    min-height: 140px;
-    font-size: 0.8rem;
-  }
-}
-
-    /* =========================
-        LAYOUT 2 (CALENDAR + NOTES SIDE BY SIDE)
-        ========================= */
-    body.layout-2 main {
-      display: grid;
-      grid-template-columns: 2.2fr 8px 1fr;
-      gap: 0;
-      padding: 0 1rem 1rem;
-      align-items: stretch;
-    }
-
-    body.layout-2 .calendar {
-      padding: 0;
-    }
-
-    body.layout-2 .notes {
-      margin: 0;
-      height: fit-content;
-      position: sticky;
-      top: 1rem;
-    }
-
-    /* Resize handle */
-    .resize-handle {
-      cursor: col-resize;
-      background: linear-gradient(to right, transparent, rgba(0,0,0,0.12), transparent);
-    }
-
-    body.dark .resize-handle {
-      background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
-    }
-
-    /* =========================
-        LAYOUT 2 – MOBILE FIX (PHONE)
-        ========================= */
-    @media (max-width: 768px) {
-      body.layout-2 main {
-        display: block; /* stop grid */
-        padding: 0.6rem;
-      }
-
-      body.layout-2 .calendar {
-        padding: 0;
-      }
-
-      body.layout-2 .notes {
-        position: relative;
-        margin: 0.8rem 0 0;
-        max-height: none;
-      }
-
-      .resize-handle {
-        display: none;
-      }
-    }
-
-/* =========================
-        FLOATING ANALOG CLOCK
-        ========================= */
-    .analog-clock {
-      position: fixed;
-      bottom: 1.2rem;
-      right: 1.2rem;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      cursor: grab;
-      z-index: 999;
-    }
-    .analog-clock:active { cursor: grabbing; }
-    .clock-face { position: relative; width: 100%; height: 100%; }
-    .hour-marks {
-      position: absolute;
-      inset: 6px;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .hour-marks span {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 2px;
-      height: 6px;
-      background: var(--muted);
-      transform-origin: center calc(60px - 6px);
-    }
-    .hour-marks span:nth-child(1) { transform: rotate(0deg); }
-    .hour-marks span:nth-child(2) { transform: rotate(30deg); }
-    .hour-marks span:nth-child(3) { transform: rotate(60deg); }
-    .hour-marks span:nth-child(4) { transform: rotate(90deg); }
-    .hour-marks span:nth-child(5) { transform: rotate(120deg); }
-    .hour-marks span:nth-child(6) { transform: rotate(150deg); }
-    .hour-marks span:nth-child(7) { transform: rotate(180deg); }
-    .hour-marks span:nth-child(8) { transform: rotate(210deg); }
-    .hour-marks span:nth-child(9) { transform: rotate(240deg); }
-    .hour-marks span:nth-child(10){ transform: rotate(270deg); }
-    .hour-marks span:nth-child(11){ transform: rotate(300deg); }
-    .hour-marks span:nth-child(12){ transform: rotate(330deg); }
-    .hand {
-      position: absolute;
-      left: 50%;
-      bottom: 50%;
-      transform-origin: bottom center;
-      background: var(--text);
-      border-radius: 2px;
-    }
-    .hand.hour { width: 4px; height: 32px; }
-    .hand.minute { width: 3px; height: 44px; }
-    .hand.second { width: 2px; height: 50px; background: var(--primary); }
-    .clock-center {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: var(--text);
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .clock-date {
-      position: absolute;
-      top: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.55rem;
-      font-weight: 600;
-      color: var(--text);
-      background: rgba(0,0,0,0.04);
-      border: 1px solid var(--border);
-      letter-spacing: 0.3px;
-      pointer-events: none;
-      line-height: 1.05;
-    }
-    body.dark .clock-date {
-      background: rgba(255,255,255,0.08);
-    }
-    .clock-date div {
-      display: block;
-    }
-
-    /* =========================
-        FLOATING POMODORO
-        ========================= */
-    .floating-pomo {
-      position: fixed;
-      bottom: 10rem;
-      right: 1.2rem;
-      padding: 0.6rem 1rem;
-      border-radius: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      cursor: grab;
-      z-index: 998;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      user-select: none;
-    }
-    .floating-pomo:active { cursor: grabbing; }
-    .pomo-content { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; font-size: 0.9rem; }
-    .pomo-controls { display: flex; gap: 0.3rem; }
-
-    /* =========================
-        FLOATING TODO LIST
-        ========================= */
-    .floating-todo {
-      position: fixed;
-      bottom: 1.2rem;
-      left: 1.2rem;
-      width: 280px;
-      max-height: 400px;
-      padding: 0.8rem;
-      border-radius: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      cursor: grab;
-      z-index: 997;
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-    }
-    .floating-todo:active { cursor: grabbing; }
-    .todo-header {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.6rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      cursor: grab;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .todo-header:active {
-      cursor: grabbing;
-    }
-    .todo-input-container {
-      display: flex;
-      gap: 0.4rem;
-      margin-bottom: 0.6rem;
-      touch-action: auto;
-      pointer-events: auto;
-    }
-    .todo-input {
-      flex: 1;
-      height: 28px;
-      padding: 0 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 0.75rem;
-      background: rgba(255,255,255,0.5);
-      color: var(--text);
-      outline: none;
-      touch-action: auto;
-      -webkit-user-select: text;
-      user-select: text;
-    }
-    body.dark .todo-input {
-      background: rgba(0,0,0,0.25);
-    }
-    .todo-add-btn {
-      height: 28px;
-      width: 28px;
-      border-radius: 8px;
-      background: var(--primary);
-      color: white;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .todo-list {
-      overflow-y: auto;
-      max-height: 280px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .todo-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.5rem;
-      border-radius: 8px;
-      background: rgba(0,0,0,0.04);
-      font-size: 0.75rem;
-      transition: background 0.15s;
-    }
-    body.dark .todo-item {
-      background: rgba(255,255,255,0.08);
-    }
-    .todo-item:hover {
-      background: rgba(0,0,0,0.08);
-    }
-    body.dark .todo-item:hover {
-      background: rgba(255,255,255,0.12);
-    }
-    .todo-checkbox {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .todo-text {
-      flex: 1;
-      word-break: break-word;
-    }
-    .todo-text.completed {
-      text-decoration: line-through;
-      opacity: 0.5;
-    }
-    .todo-delete {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      background: rgba(255,59,48,0.1);
-      color: #ff3b30;
-      font-size: 0.65rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .todo-item:hover .todo-delete {
-      opacity: 1;
-    }
-    .todo-delete:hover {
-      background: #ff3b30;
-      color: white;
-    }
-
-    /* =========================
-        FLOATING CALCULATOR WIDGET
-        ========================= */
-    .floating-calculator {
-      position: fixed;
-      bottom: 1.2rem;
-      right: 5rem;
-      width: 280px;
-      padding: 0.8rem;
-      border-radius: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      cursor: grab;
-      z-index: 997;
-      display: none;
-      flex-direction: column;
-      user-select: none;
-    }
-    .floating-calculator:active { cursor: grabbing; }
-    .calc-header {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.6rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      cursor: grab;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .calc-header:active { cursor: grabbing; }
-    .calc-display {
-      width: 100%;
-      height: 60px;
-      padding: 0.8rem;
-      margin-bottom: 0.6rem;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.05);
-      border: 1px solid var(--border);
-      font-size: 1.5rem;
-      font-weight: 500;
-      text-align: right;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: var(--text);
-    }
-    body.dark .calc-display {
-      background: rgba(255,255,255,0.05);
-    }
-    .calc-buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-    }
-    .calc-btn {
-      height: 48px;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.04);
-      border: 1px solid var(--border);
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    body.dark .calc-btn {
-      background: rgba(255,255,255,0.06);
-    }
-    .calc-btn:hover {
-      background: rgba(0,0,0,0.08);
-      transform: scale(1.02);
-    }
-    body.dark .calc-btn:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    .calc-btn:active {
-      transform: scale(0.98);
-    }
-    .calc-btn.operator {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    .calc-btn.operator:hover {
-      opacity: 0.9;
-      background: var(--primary);
-    }
-    .calc-btn.equals {
-      grid-column: span 2;
-      background: var(--today);
-      color: white;
-      border-color: var(--today);
-    }
-    .calc-btn.equals:hover {
-      opacity: 0.9;
-      background: var(--today);
-    }
-    .calc-btn.clear {
-      background: rgba(255,59,48,0.1);
-      color: #ff3b30;
-      border-color: rgba(255,59,48,0.3);
-    }
-    .calc-btn.clear:hover {
-      background: rgba(255,59,48,0.2);
-    }
-
-    /* =========================
-        FLOATING EVENTS WIDGET
-        ========================= */
-    .floating-events {
-      position: fixed;
-      bottom: 1.2rem;
-      left: 20rem;
-      width: 320px;
-      max-height: 450px;
-      padding: 0.8rem;
-      border-radius: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-soft), var(--shadow-float);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      cursor: grab;
-      z-index: 996;
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-    }
-    .floating-events:active { cursor: grabbing; }
-    .events-header {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.6rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: grab;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .events-header:active {
-      cursor: grabbing;
-    }
-    .events-input-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 0.6rem;
-      touch-action: auto;
-      pointer-events: auto;
-    }
-    .events-input-row {
-      display: flex;
-      gap: 0.4rem;
-    }
-    .event-date-input {
-      width: 110px;
-      height: 28px;
-      padding: 0 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 0.75rem;
-      background: rgba(255,255,255,0.5);
-      color: var(--text);
-      outline: none;
-      touch-action: auto;
-      -webkit-user-select: text;
-      user-select: text;
-    }
-    body.dark .event-date-input {
-      background: rgba(0,0,0,0.25);
-    }
-    .event-text-input {
-      flex: 1;
-      height: 28px;
-      padding: 0 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 0.75rem;
-      background: rgba(255,255,255,0.5);
-      color: var(--text);
-      outline: none;
-      touch-action: auto;
-      -webkit-user-select: text;
-      user-select: text;
-    }
-    body.dark .event-text-input {
-      background: rgba(0,0,0,0.25);
-    }
-    .event-add-btn {
-      height: 28px;
-      padding: 0 0.8rem;
-      border-radius: 8px;
-      background: var(--primary);
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .events-list {
-      overflow-y: auto;
-      max-height: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .event-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      padding: 0.5rem;
-      border-radius: 8px;
-      background: rgba(0,0,0,0.04);
-      font-size: 0.75rem;
-      transition: background 0.15s;
-      position: relative;
-    }
-    body.dark .event-item {
-      background: rgba(255,255,255,0.08);
-    }
-    .event-item:hover {
-      background: rgba(0,0,0,0.08);
-    }
-    body.dark .event-item:hover {
-      background: rgba(255,255,255,0.12);
-    }
-    .event-date-badge {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      background: var(--primary);
-      color: white;
-      font-size: 0.65rem;
-      font-weight: 600;
-      width: fit-content;
-    }
-    .event-text {
-      word-break: break-word;
-      line-height: 1.4;
-    }
-    .event-delete {
-      position: absolute;
-      top: 0.3rem;
-      right: 0.3rem;
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      background: rgba(255,59,48,0.1);
-      color: #ff3b30;
-      font-size: 0.65rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .event-item:hover .event-delete {
-      opacity: 1;
-    }
-    .event-delete:hover {
-      background: #ff3b30;
-      color: white;
-    }
-    .event-dot {
-      position: absolute;
-      bottom: 2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--primary);
-      pointer-events: none;
-    }
-    .days div {
-      position: relative;
-    }
-    .selected-date-badge {
-      font-size: 0.7rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    .show-all-btn {
-      display: none;
-      padding: 0.3rem 0.6rem;
-      border-radius: 6px;
-      background: var(--primary);
-      color: white;
-      font-size: 0.65rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .show-all-btn:hover {
-      opacity: 0.8;
-    }
-
-    /* =========================
-        CLOSE BUTTON FOR WIDGETS
-        ========================= */
-    .close-widget-btn {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #ff3b30;
-      color: white;
-      font-size: 10px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      z-index: 1000;
-    }
-    .analog-clock:hover .close-widget-btn,
-    .floating-pomo:hover .close-widget-btn,
-    .floating-todo:hover .close-widget-btn,
-    .floating-events:hover .close-widget-btn,
-    .floating-calculator:hover .close-widget-btn {
-      opacity: 1;
-    }
-    .close-widget-btn:hover {
-      background: #d70015;
-      transform: scale(1.1);
-    }
-
-    /* =========================
-        APP LAUNCHER
-        ========================= */
-    .app-launcher-btn {
-      position: fixed;
-      top: 1.2rem;
-      left: 1.2rem;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), #0051d5);
-      color: white;
-      font-size: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow-float), 0 4px 12px rgba(0,122,255,0.3);
-      cursor: pointer;
-      z-index: 1001;
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: none;
-    }
-    .app-launcher-btn:hover {
-      transform: scale(1.05);
-      box-shadow: var(--shadow-float), 0 6px 16px rgba(0,122,255,0.4);
-    }
-    .app-launcher-btn:active {
-      transform: scale(0.95);
-    }
-    .app-drawer {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .app-drawer-content {
-      position: absolute;
-      top: 5rem;
-      left: 1.2rem;
-      width: 280px;
-      max-height: 400px;
-      background: var(--card);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow-float), 0 12px 32px rgba(0,0,0,0.2);
-      padding: 0.8rem;
-      animation: slideUp 0.2s ease;
-    }
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .app-drawer-header {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 0.8rem;
-      padding-bottom: 0.6rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .app-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .app-item {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 0.6rem 0.8rem;
-      border-radius: 10px;
-      background: rgba(0,0,0,0.04);
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-    body.dark .app-item {
-      background: rgba(255,255,255,0.06);
-    }
-    .app-item:hover {
-      background: rgba(0,0,0,0.08);
-    }
-    body.dark .app-item:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    .app-icon {
-      font-size: 1.5rem;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      background: linear-gradient(135deg, var(--primary), #0051d5);
-      flex-shrink: 0;
-    }
-    .app-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-    }
-    .app-name {
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-    .app-desc {
-      font-size: 0.65rem;
-      color: var(--muted);
-    }
-    .app-toggle {
-      width: 44px;
-      height: 24px;
-      border-radius: 12px;
-      background: rgba(0,0,0,0.1);
-      position: relative;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    body.dark .app-toggle {
-      background: rgba(255,255,255,0.1);
-    }
-    .app-toggle.active {
-      background: var(--primary);
-    }
-    .app-toggle::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: white;
-      transition: transform 0.2s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .app-toggle.active::after {
-      transform: translateX(20px);
-    }
-
-    /* =========================
-        GROUP STUDY FEATURE
-        ========================= */
-    .study-toggle-btn {
-      position: absolute;
-      top: 3.5rem;
-      right: 1rem;
-      height: 42px;
-      padding: 0 1.5rem;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(14px) saturate(180%);
-      transition: all 0.2s;
-    }
-    .study-toggle-btn.active {
-      background: linear-gradient(180deg, #007aff, #0066dd);
-      color: #fff;
-      border-color: #0066dd;
-    }
-
-    .study-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(8px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-    }
-    .study-modal-content {
-      background: var(--card);
-      backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: var(--shadow-float);
-    }
-    .study-modal-header {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-    .study-tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid var(--border);
-    }
-    .study-tab {
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      background: none;
-      color: var(--muted);
-      border: none;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      cursor: pointer;
-    }
-    .study-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-    .study-tab-content {
-      display: none;
-    }
-    .study-tab-content.active {
-      display: block;
-    }
-    .session-code-box {
-      background: rgba(0,0,0,0.05);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      margin: 1rem 0;
-    }
-    .session-code-text {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 0.15rem;
-      color: var(--primary);
-      font-family: 'Courier New', monospace;
-    }
-    .code-input-box {
-      width: 100%;
-      padding: 0.7rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      text-align: center;
-      letter-spacing: 0.1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--card);
-      color: var(--text);
-      font-family: 'Courier New', monospace;
-      text-transform: uppercase;
-    }
-    .study-btn {
-      width: 100%;
-      padding: 0.7rem;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border-radius: 8px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    .study-btn.secondary {
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      margin-top: 0.5rem;
-    }
-    .study-info {
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 0.5rem;
-    }
-
-    .chat-widget {
-      position: fixed;
-      bottom: 1.2rem;
-      right: 1.2rem;
-      width: 320px;
-      height: 450px;
-      background: var(--card);
-      backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow-float);
-      display: none;
-      flex-direction: column;
-      z-index: 9999;
-    }
-    .chat-header {
-      padding: 0.8rem 1rem;
-      border-bottom: 1px solid var(--border);
-      font-weight: 600;
-      font-size: 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .chat-session-code {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-    .chat-messages-container {
-      flex: 1;
-      padding: 0.8rem;
-      overflow-y: auto;
-    }
-    .chat-footer {
-      padding: 0.6rem 0.8rem;
-      border-top: 1px solid var(--border);
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-    .chat-input-area {
-      padding: 0.8rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: 0.5rem;
-    }
-    .chat-input-field {
-      flex: 1;
-      padding: 0.6rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--card);
-      color: var(--text);
-      font-size: 0.8rem;
-    }
-    .chat-send-button {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: var(--primary);
-      color: #fff;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-    }
-    body.dark .session-code-box {
-      background: rgba(255,255,255,0.08);
-    }
-</style>
+  <link rel="stylesheet" href="css/themes.css?v=2">
+  <link rel="stylesheet" href="css/base.css?v=2">
+  <link rel="stylesheet" href="css/header.css?v=2">
+  <link rel="stylesheet" href="css/calendar.css?v=2">
+  <link rel="stylesheet" href="css/notes.css?v=2">
+  <link rel="stylesheet" href="css/clock.css?v=2">
+  <link rel="stylesheet" href="css/pomodoro.css?v=2">
+  <link rel="stylesheet" href="css/todo.css?v=2">
+  <link rel="stylesheet" href="css/calculator.css?v=2">
+  <link rel="stylesheet" href="css/events.css?v=2">
+  <link rel="stylesheet" href="css/app-launcher.css?v=2">
+  <link rel="stylesheet" href="css/widgets.css?v=2">
+  <link rel="stylesheet" href="css/mobile.css?v=2">
 </head>
 <body>
 
 <header>
-  <button id="studyToggleBtn" class="study-toggle-btn">👤 Solo Study</button>
-  
   <div style="display:inline-flex;align-items:center;gap:0.4rem;">
-    <div class="date-time"><span id="dtText"></span></div>
-    <div class="date-time">🍅 <span id="pomoTime">60:00</span>
+    <div class="dynamic-island"><span id="dtText"></span></div>
+    <div class="dynamic-island">🍅 <span id="pomoTime">60:00</span>
       <button id="pomoStart" class="pomo-btn">▶</button>
       <button id="pomoReset" class="pomo-btn">⟳</button>
     </div>
   </div>
 
-  <button id="todayBtn" class="today-btn">📍 Today</button>
   <button id="themeBtn" class="theme-btn">🍎 macOS</button>
-  <button id="layoutBtn" class="theme-btn" style="right:5.5rem;">🗂 Layout 1</button>
-  <button id="settingsBtn" class="theme-btn" style="right:15.5rem;">⚙️ Settings</button>
-  <button id="monthToggleBtn" class="theme-btn" style="right:10.5rem;">📅 Month</button>
-
-  <div class="nav">
-    <button id="prev" class="nav-btn">◀</button>
-    <h1 id="year"></h1>
-    <button id="next" class="nav-btn">▶</button>
-  </div>
+  <button id="settingsBtn" class="theme-btn" style="right:5.5rem;">⚙️ Settings</button>
 </header>
-
-<!-- Study Session Modal -->
-<div id="studyModal" class="study-modal">
-  <div class="study-modal-content">
-    <div class="study-modal-header">👥 Group Study</div>
-    
-    <div class="study-tabs">
-      <button class="study-tab active" data-tab="create">Create</button>
-      <button class="study-tab" data-tab="join">Join</button>
-    </div>
-
-    <!-- Create Tab -->
-    <div class="study-tab-content active" data-content="create">
-      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 1rem;">Share this code with others:</p>
-      <div class="session-code-box">
-        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.4rem;">Session Code</div>
-        <div class="session-code-text" id="generatedCode">------</div>
-      </div>
-      <button id="createSessionBtn" class="study-btn">🚀 Create Session</button>
-      <button id="copySessionCodeBtn" class="study-btn secondary" style="display:none;">📋 Copy Code</button>
-      <div class="study-info" id="createInfo"></div>
-    </div>
-
-    <!-- Join Tab -->
-    <div class="study-tab-content" data-content="join">
-      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 1rem;">Enter the session code:</p>
-      <input type="text" id="joinCodeInput" class="code-input-box" placeholder="Enter Code" maxlength="6" />
-      <button id="joinSessionBtn" class="study-btn">✓ Join Session</button>
-      <div class="study-info" id="joinInfo"></div>
-    </div>
-
-    <button id="closeStudyModal" class="study-btn secondary">Close</button>
-  </div>
-</div>
-
-<!-- Chat Widget -->
-<div id="chatWidget" class="chat-widget">
-  <div class="chat-header">
-    <div>
-      <div>💬 Group Chat</div>
-      <div class="chat-session-code" id="chatSessionCode">Session: ------</div>
-    </div>
-    <button id="closeChatBtn" style="width:24px;height:24px;border:none;background:rgba(0,0,0,0.1);border-radius:50%;cursor:pointer;">✕</button>
-  </div>
-  <div id="matrixChatMessages" class="chat-messages-container">
-    <div style="text-align:center;color:var(--muted);font-size:0.75rem;margin-top:2rem;">
-      Welcome! 🎉<br>Start chatting with your study partners.
-    </div>
-  </div>
-  <div class="chat-footer">
-    👥 <span id="participantCount">1</span> • <span id="participantNames">Just you</span>
-  </div>
-  <div class="chat-input-area">
-    <input type="text" id="chatMessageInput" class="chat-input-field" placeholder="Type a message..." />
-    <button id="sendChatBtn" class="chat-send-button">➤</button>
-  </div>
-</div>
 
 <!-- Floating Analog Clock -->
 <div id="analogClock" class="analog-clock">
@@ -1536,6 +69,7 @@
 <!-- Floating Todo List -->
 <div id="floatingTodo" class="floating-todo">
   <button id="closeTodoBtn" class="close-widget-btn" title="Close Todo">✕</button>
+  <div class="resize-handle"></div>
   <div class="todo-header">📝 To-Do List</div>
   <div class="todo-input-container">
     <input type="text" id="todoInput" class="todo-input" placeholder="Add a task..." />
@@ -1547,6 +81,7 @@
 <!-- Floating Calculator Widget -->
 <div id="floatingCalculator" class="floating-calculator">
   <button id="closeCalculatorBtn" class="close-widget-btn" title="Close Calculator">✕</button>
+  <div class="resize-handle"></div>
   <div class="calc-header">🔢 Calculator</div>
   <div id="calcDisplay" class="calc-display">0</div>
   <div class="calc-buttons">
@@ -1579,6 +114,7 @@
 <!-- Floating Events Widget -->
 <div id="floatingEvents" class="floating-events">
   <button id="closeEventsBtn" class="close-widget-btn" title="Close Events">✕</button>
+  <div class="resize-handle"></div>
   <div class="events-header">
     <span>📅 Events</span>
     <span id="selectedDateBadge" class="selected-date-badge" style="cursor:pointer" title="Click to show all events"></span>
@@ -1602,6 +138,14 @@
   <div class="app-drawer-content">
     <div class="app-drawer-header">🚀 Apps</div>
     <div class="app-list">
+      <div class="app-item" data-app="calendar">
+        <div class="app-icon">📆</div>
+        <div class="app-info">
+          <div class="app-name">Calendar</div>
+          <div class="app-desc">Full year view</div>
+        </div>
+        <div class="app-toggle" id="toggleCalendarApp"></div>
+      </div>
       <div class="app-item" data-app="clock">
         <div class="app-icon">🕐</div>
         <div class="app-info">
@@ -1629,7 +173,7 @@
       <div class="app-item" data-app="events">
         <div class="app-icon">📅</div>
         <div class="app-info">
-          <div class="app-name">Events Calendar</div>
+          <div class="app-name">Events</div>
           <div class="app-desc">Track events</div>
         </div>
         <div class="app-toggle" id="toggleEventsApp"></div>
@@ -1642,6 +186,14 @@
         </div>
         <div class="app-toggle" id="toggleCalculatorApp"></div>
       </div>
+      <div class="app-item" data-app="notes">
+        <div class="app-icon">📝</div>
+        <div class="app-info">
+          <div class="app-name">Notes</div>
+          <div class="app-desc">Quick notes</div>
+        </div>
+        <div class="app-toggle" id="toggleNotesApp"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1649,7 +201,7 @@
 <!-- =========================
      SETTINGS PAGE (OVERLAY)
      ========================= -->
-<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
+<div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
     <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 90vh; overflow-y: auto;">
     <h2 style="margin-top:0">Settings</h2>
 
@@ -1710,11 +262,26 @@
 
 <main id="mainLayout">
 
-<div id="calendar" class="calendar"></div>
+<!-- Floating Calendar Widget -->
+<div id="floatingCalendar" class="floating-calendar">
+  <button id="closeCalendarBtn" class="close-widget-btn" title="Close Calendar">✕</button>
+  <div class="resize-handle"></div>
+  <div class="calendar-header">
+    <h1 class="calendar-title" id="year">Calendar 2025</h1>
+    <div class="calendar-controls">
+      <button id="todayBtn" class="calendar-today-btn">📍 Today</button>
+      <button id="monthToggleBtn" class="calendar-month-btn">📅 Year View</button>
+      <button id="prev" class="calendar-nav-btn">◀</button>
+      <button id="next" class="calendar-nav-btn">▶</button>
+    </div>
+  </div>
+  <div id="calendar" class="calendar"></div>
+</div>
 
-  <div id="resizeHandle" class="resize-handle"></div>
-
-<section class="notes">
+<!-- Floating Notes Widget -->
+<div id="floatingNotes" class="floating-notes">
+  <button id="closeNotesBtn" class="close-widget-btn" title="Close Notes">✕</button>
+  <div class="resize-handle"></div>
   <div class="notes-header">
     <div style="display:flex;align-items:center;gap:0.6rem;">
       <h2 style="margin:0">Notes</h2>
@@ -1728,9 +295,7 @@
     </div>
   </div>
   <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
-</section>
-
-<footer>Highlighted date = Today</footer>
+</div>
 
 </main>
 
@@ -1877,11 +442,11 @@
   monthToggleBtn.onclick = () => {
     if (monthViewIndex === null) {
       monthViewIndex = TODAY_MONTH;
-      monthToggleBtn.textContent = '🗓 Year';
+      monthToggleBtn.textContent = '� Year View';
       yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
     } else {
       monthViewIndex = null;
-      monthToggleBtn.textContent = '📅 Month';
+      monthToggleBtn.textContent = '📅 Month View';
       yearEl.textContent = `Calendar ${shownYear}`;
     }
     renderCalendar(shownYear);
@@ -1891,7 +456,7 @@
     const h = e.target.closest('h2[data-month]');
     if (!h) return;
     monthViewIndex = Number(h.dataset.month);
-    monthToggleBtn.textContent = '🗓 Year';
+    monthToggleBtn.textContent = '📅 Year View';
     yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
     renderCalendar(shownYear);
   });
@@ -2016,11 +581,32 @@
     syncToCloud(false, { remaining: secs, startedAt: null });
   };
   
-  document.getElementById('pomoStart').onclick = togglePomo;
-  document.getElementById('floatingPomoStart').onclick = togglePomo;
+  const pomoStartBtn = document.getElementById('pomoStart');
+  const floatingPomoStartBtn = document.getElementById('floatingPomoStart');
+  const pomoResetBtn = document.getElementById('pomoReset');
+  const floatingPomoResetBtn = document.getElementById('floatingPomoReset');
+  
+  console.log('Pomodoro buttons:', { pomoStartBtn, floatingPomoStartBtn, pomoResetBtn, floatingPomoResetBtn });
+  
+  if (pomoStartBtn) {
+    pomoStartBtn.onclick = togglePomo;
+    pomoStartBtn.style.pointerEvents = 'auto';
+  }
+  if (floatingPomoStartBtn) {
+    floatingPomoStartBtn.onclick = togglePomo;
+    floatingPomoStartBtn.style.pointerEvents = 'auto';
+  }
+  if (pomoResetBtn) {
+    pomoResetBtn.onclick = resetPomo;
+    pomoResetBtn.style.pointerEvents = 'auto';
+  }
+  if (floatingPomoResetBtn) {
+    floatingPomoResetBtn.onclick = resetPomo;
+    floatingPomoResetBtn.style.pointerEvents = 'auto';
+  }
 
-  document.getElementById('pomoReset').onclick = resetPomo;
-  document.getElementById('floatingPomoReset').onclick = resetPomo;
+  // Initialize pomodoro display
+  updatePomoDisplay();
 
   // Expose handler for Firebase snapshot updates
   window.applyRemoteState = (data) => {
@@ -2104,55 +690,17 @@
     themeBtn.textContent = t.name;
   };
 
-  const layoutBtn = document.getElementById('layoutBtn');
-  let currentLayout = 1;
-  layoutBtn.onclick = () => {
-    const main = document.getElementById('mainLayout');
-    if (currentLayout === 1) {
-      currentLayout = 2;
-      document.body.classList.add('layout-2');
-      layoutBtn.textContent = '🗂 Layout 2';
-      const saved = localStorage.getItem('layout2_split_sizes');
-      if (saved) main.style.gridTemplateColumns = saved;
-    } else {
-      currentLayout = 1;
-      document.body.classList.remove('layout-2');
-      layoutBtn.textContent = '🗂 Layout 1';
-      main.style.gridTemplateColumns = '';
-    }
-  };
-
-  const handle = document.getElementById('resizeHandle');
-  let isResizing = false;
-  handle.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'col-resize'; });
-  window.addEventListener('mousemove', (e) => {
-    if (!isResizing || !document.body.classList.contains('layout-2')) return;
-    const main = document.getElementById('mainLayout');
-    const rect = main.getBoundingClientRect();
-    const leftWidth = e.clientX - rect.left;
-    const total = rect.width;
-    const leftFr = Math.max(1, Math.min(4, (leftWidth / total) * 3));
-    main.style.gridTemplateColumns = `${leftFr}fr 8px ${4 - leftFr}fr`;
-  });
-  window.addEventListener('mouseup', () => {
-    if (!isResizing) return;
-    isResizing = false;
-    document.body.style.cursor = '';
-    const main = document.getElementById('mainLayout');
-    if (document.body.classList.contains('layout-2')) {
-      localStorage.setItem('layout2_split_sizes', main.style.gridTemplateColumns);
-    }
-  });
-
   // =========================
   // APP LAUNCHER & DRAWER
   // =========================
   const appLauncherBtn = document.getElementById('appLauncherBtn');
   const appDrawer = document.getElementById('appDrawer');
+  const toggleCalendarApp = document.getElementById('toggleCalendarApp');
   const toggleClockApp = document.getElementById('toggleClockApp');
   const togglePomoApp = document.getElementById('togglePomoApp');
   const toggleTodoApp = document.getElementById('toggleTodoApp');
   const toggleEventsApp = document.getElementById('toggleEventsApp');
+  const toggleNotesApp = document.getElementById('toggleNotesApp');
 
   // Open/close app drawer
   if (appLauncherBtn) {
@@ -2191,11 +739,25 @@
   const closeTodoBtn = document.getElementById('closeTodoBtn');
   const floatingEvents = document.getElementById('floatingEvents');
   const closeEventsBtn = document.getElementById('closeEventsBtn');
+  const floatingCalendar = document.getElementById('floatingCalendar');
+  const closeCalendarBtn = document.getElementById('closeCalendarBtn');
+  const floatingNotes = document.getElementById('floatingNotes');
+  const closeNotesBtn = document.getElementById('closeNotesBtn');
 
   const CLOCK_VIS_KEY = 'show_analog_clock';
   const POMO_VIS_KEY = 'show_floating_pomo';
   const TODO_VIS_KEY = 'show_floating_todo';
   const EVENTS_VIS_KEY = 'show_floating_events';
+  const CALENDAR_VIS_KEY = 'show_floating_calendar';
+  const NOTES_VIS_KEY = 'show_floating_notes';
+
+  function updateCalendarVisibility(visible) {
+    if (!floatingCalendar) return;
+    floatingCalendar.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(CALENDAR_VIS_KEY, String(visible));
+    if (toggleCalendarApp) toggleCalendarApp.classList.toggle('active', !!visible);
+  }
+  window.updateCalendarVisibility = updateCalendarVisibility;
 
   function updateClockVisibility(visible) {
     if (!clock) return;
@@ -2226,8 +788,19 @@
   }
   window.updateEventsVisibility = updateEventsVisibility;
 
+  function updateNotesVisibility(visible) {
+    if (!floatingNotes) return;
+    floatingNotes.style.display = visible ? 'flex' : 'none';
+    localStorage.setItem(NOTES_VIS_KEY, String(visible));
+    if (toggleNotesApp) toggleNotesApp.classList.toggle('active', !!visible);
+  }
+
   // Init states from localStorage
   (function initWidgetVisibility() {
+    const savedCalendar = localStorage.getItem(CALENDAR_VIS_KEY);
+    const showCalendar = savedCalendar === null ? true : savedCalendar !== 'false';
+    updateCalendarVisibility(showCalendar);
+
     const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
     const showClock = savedClock === null ? true : savedClock !== 'false';
     updateClockVisibility(showClock);
@@ -2243,9 +816,21 @@
     const savedEventsVis = localStorage.getItem(EVENTS_VIS_KEY);
     const showEvents = savedEventsVis === null ? true : savedEventsVis !== 'false';
     updateEventsVisibility(showEvents);
+
+    const savedNotesVis = localStorage.getItem(NOTES_VIS_KEY);
+    const showNotes = savedNotesVis === null ? true : savedNotesVis !== 'false';
+    updateNotesVisibility(showNotes);
   })();
 
   // App toggle click handlers
+  if (toggleCalendarApp) {
+    toggleCalendarApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(CALENDAR_VIS_KEY) !== 'false';
+      updateCalendarVisibility(!isVisible);
+    };
+  }
+
   if (toggleClockApp) {
     toggleClockApp.onclick = (e) => {
       e.stopPropagation();
@@ -2274,12 +859,22 @@
       updateEventsVisibility(!isVisible);
     };
   }
+  if (toggleNotesApp) {
+    toggleNotesApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = localStorage.getItem(NOTES_VIS_KEY) !== 'false';
+      updateNotesVisibility(!isVisible);
+    };
+  }
 
   // Close buttons
+  if (closeCalendarBtn) closeCalendarBtn.onclick = (e) => { e.stopPropagation(); updateCalendarVisibility(false); };
   if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
   if (closePomoBtn) closePomoBtn.onclick = (e) => { e.stopPropagation(); updatePomoVisibility(false); };
   if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
   if (closeEventsBtn) closeEventsBtn.onclick = (e) => { e.stopPropagation(); updateEventsVisibility(false); };
+  if (closeNotesBtn) closeNotesBtn.onclick = (e) => { e.stopPropagation(); updateNotesVisibility(false); };
+
 
   // =========================
   // CALCULATOR WIDGET
@@ -2343,6 +938,11 @@
 
   // Keyboard support
   document.addEventListener('keydown', (e) => {
+    // Don't intercept keys if user is typing in an input field or contenteditable
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+      return;
+    }
+    
     if (floatingCalculator.style.display !== 'flex') return;
     const key = e.key;
     if (/[0-9\+\-\*\/\.\(\)]/.test(key)) {
@@ -2409,41 +1009,36 @@
   }
   
   function saveWidgetPosition(el, id) {
-    if (!el) return;
+    if (!el || !id) return;
     const positions = JSON.parse(localStorage.getItem(WIDGET_POSITIONS_KEY) || '{}');
     positions[id] = {
       left: el.style.left,
       top: el.style.top,
-      width: window.innerWidth,
-      height: window.innerHeight
+      width: el.style.width || '',
+      height: el.style.height || '',
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight
     };
     localStorage.setItem(WIDGET_POSITIONS_KEY, JSON.stringify(positions));
   }
   
   function restoreWidgetPosition(el, id) {
-    if (!el) return;
+    if (!el || !id) return;
     const positions = JSON.parse(localStorage.getItem(WIDGET_POSITIONS_KEY) || '{}');
     const saved = positions[id];
     
     if (saved && saved.left && saved.top) {
-      // Scale position if viewport size changed
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const savedVw = saved.width || vw;
-      const savedVh = saved.height || vh;
-      
-      const scaleX = vw / savedVw;
-      const scaleY = vh / savedVh;
-      
-      const newLeft = parseFloat(saved.left) * scaleX;
-      const newTop = parseFloat(saved.top) * scaleY;
-      
-      el.style.left = newLeft + 'px';
-      el.style.top = newTop + 'px';
+      // Restore position
+      el.style.left = saved.left;
+      el.style.top = saved.top;
       el.style.right = 'auto';
       el.style.bottom = 'auto';
       
-      // Ensure it's still visible after scaling
+      // Restore size if saved
+      if (saved.width) el.style.width = saved.width;
+      if (saved.height) el.style.height = saved.height;
+      
+      // Ensure it's still visible
       constrainWidgetToViewport(el);
     }
   }
@@ -2454,7 +1049,9 @@
       { el: floatingPomo, id: 'floatingPomo' },
       { el: floatingTodo, id: 'floatingTodo' },
       { el: floatingEvents, id: 'floatingEvents' },
-      { el: floatingCalculator, id: 'floatingCalculator' }
+      { el: floatingCalculator, id: 'floatingCalculator' },
+      { el: floatingCalendar, id: 'floatingCalendar' },
+      { el: floatingNotes, id: 'floatingNotes' }
     ];
     
     widgets.forEach(({ el, id }) => {
@@ -2524,18 +1121,82 @@
     window.addEventListener('touchend', endDrag);
   }
 
+  // Make widgets resizable
+  function makeResizable(el, widgetId = null) {
+    if (!el) return;
+    const handle = el.querySelector('.resize-handle');
+    if (!handle) return;
+
+    let isResizing = false;
+    let startX, startY, startWidth, startHeight;
+
+    const getPoint = (evt) => {
+      if (evt.touches && evt.touches.length) return { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+      return { x: evt.clientX, y: evt.clientY };
+    };
+
+    const startResize = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      isResizing = true;
+      const p = getPoint(e);
+      startX = p.x;
+      startY = p.y;
+      startWidth = el.offsetWidth;
+      startHeight = el.offsetHeight;
+      document.body.style.cursor = 'nwse-resize';
+      document.body.style.userSelect = 'none';
+    };
+
+    const moveResize = (e) => {
+      if (!isResizing) return;
+      e.preventDefault();
+      const p = getPoint(e);
+      const newWidth = Math.max(250, startWidth + (p.x - startX));
+      const newHeight = Math.max(200, startHeight + (p.y - startY));
+      el.style.width = newWidth + 'px';
+      el.style.height = newHeight + 'px';
+    };
+
+    const endResize = () => {
+      if (!isResizing) return;
+      isResizing = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      if (widgetId) saveWidgetPosition(el, widgetId);
+    };
+
+    handle.addEventListener('mousedown', startResize);
+    handle.addEventListener('touchstart', startResize, { passive: false });
+    window.addEventListener('mousemove', moveResize);
+    window.addEventListener('touchmove', moveResize, { passive: false });
+    window.addEventListener('mouseup', endResize);
+    window.addEventListener('touchend', endResize);
+  }
+
   // Restore saved positions
   restoreWidgetPosition(clock, 'analogClock');
   restoreWidgetPosition(floatingPomo, 'floatingPomo');
   restoreWidgetPosition(floatingTodo, 'floatingTodo');
   restoreWidgetPosition(floatingEvents, 'floatingEvents');
   restoreWidgetPosition(floatingCalculator, 'floatingCalculator');
+  restoreWidgetPosition(floatingCalendar, 'floatingCalendar');
+  restoreWidgetPosition(floatingNotes, 'floatingNotes');
 
   makeDraggable(clock, null, 'analogClock');
   makeDraggable(floatingPomo, null, 'floatingPomo');
   makeDraggable(floatingTodo, '.todo-header', 'floatingTodo');
   makeDraggable(floatingEvents, '.events-header', 'floatingEvents');
   makeDraggable(floatingCalculator, '.calc-header', 'floatingCalculator');
+  makeDraggable(floatingCalendar, '.calendar-header', 'floatingCalendar');
+  makeDraggable(floatingNotes, '.notes-header', 'floatingNotes');
+
+  // Make widgets resizable
+  makeResizable(floatingTodo, 'floatingTodo');
+  makeResizable(floatingEvents, 'floatingEvents');
+  makeResizable(floatingCalculator, 'floatingCalculator');
+  makeResizable(floatingCalendar, 'floatingCalendar');
+  makeResizable(floatingNotes, 'floatingNotes');
 
   // Handle viewport resize and orientation change
   let resizeTimeout;
@@ -2650,11 +1311,19 @@
 
   window.applyRemoteTodos = (data) => {
     try {
-      if (!data) return;
-      if (data.by && data.by === deviceId) return;
+      if (!data) {
+        console.log('[TODO] No data received');
+        return;
+      }
+      console.log('[TODO] Received data:', data);
+      // Don't skip if from same device - we need to load on page refresh
+      // if (data.by && data.by === deviceId) return;
       if (Array.isArray(data.items)) {
         todos = data.items;
+        console.log('[TODO] Loaded', todos.length, 'todos from Firebase');
         renderTodos();
+      } else {
+        console.warn('[TODO] data.items is not an array:', data.items);
       }
     } catch (e) {
       console.error('[TODO] applyRemoteTodos error:', e);
@@ -2797,13 +1466,21 @@
 
   window.applyRemoteEvents = (data) => {
     try {
-      if (!data) return;
-      if (data.by && data.by === deviceId) return;
+      if (!data) {
+        console.log('[EVENTS] No data received');
+        return;
+      }
+      console.log('[EVENTS] Received data:', data);
+      // Don't skip if from same device - we need to load on page refresh
+      // if (data.by && data.by === deviceId) return;
       if (Array.isArray(data.items)) {
         events = data.items;
+        console.log('[EVENTS] Loaded', events.length, 'events from Firebase');
         // Preserve current filter when receiving remote updates
         renderEvents(selectedCalendarDate);
         renderCalendar(shownYear);
+      } else {
+        console.warn('[EVENTS] data.items is not an array:', data.items);
       }
     } catch (e) {
       console.error('[EVENTS] applyRemoteEvents error:', e);
@@ -2929,6 +1606,8 @@
   // Realtime sync
   let unsubscribeNote = null;
   let unsubscribePomo = null;
+  let unsubscribeEvents = null;
+  let unsubscribeTodo = null;
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -2984,42 +1663,52 @@
 
       // Todo listener
       const todoRef = doc(db, 'user_todos', user.uid);
-      let unsubscribeTodo = null;
       if (unsubscribeTodo) unsubscribeTodo();
+      console.log('[TODO] Setting up Firebase listener for user:', user.uid);
       unsubscribeTodo = onSnapshot(todoRef, (snap) => {
+        console.log('[TODO] Snapshot received, exists:', snap.exists());
         if (snap.exists()) {
           const data = snap.data();
+          console.log('[TODO] Snapshot data:', data);
           if (window.applyRemoteTodos) {
             window.applyRemoteTodos(data);
           }
         } else {
+          console.log('[TODO] No todos document found, creating empty one');
           setDoc(todoRef, {
             items: [],
             updatedAt: serverTimestamp()
           }).catch(err => console.error('[FIREBASE] Initial todo set error:', err));
         }
       }, (err) => {
-        console.error('Todo listener error:', err);
+        console.error('[TODO] Listener error:', err);
+        console.error('[TODO] Error code:', err.code);
+        console.error('[TODO] Error message:', err.message);
       });
 
       // Events listener
       const eventsRef = doc(db, 'user_events', user.uid);
-      let unsubscribeEvents = null;
       if (unsubscribeEvents) unsubscribeEvents();
+      console.log('[EVENTS] Setting up Firebase listener for user:', user.uid);
       unsubscribeEvents = onSnapshot(eventsRef, (snap) => {
+        console.log('[EVENTS] Snapshot received, exists:', snap.exists());
         if (snap.exists()) {
           const data = snap.data();
+          console.log('[EVENTS] Snapshot data:', data);
           if (window.applyRemoteEvents) {
             window.applyRemoteEvents(data);
           }
         } else {
+          console.log('[EVENTS] No events document found, creating empty one');
           setDoc(eventsRef, {
             items: [],
             updatedAt: serverTimestamp()
           }).catch(err => console.error('[FIREBASE] Initial events set error:', err));
         }
       }, (err) => {
-        console.error('Events listener error:', err);
+        console.error('[EVENTS] Listener error:', err);
+        console.error('[EVENTS] Error code:', err.code);
+        console.error('[EVENTS] Error message:', err.message);
       });
 
     } else {
@@ -3028,6 +1717,8 @@
       setSyncStatus('Not signed in (Local mode)');
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       if (unsubscribePomo) { unsubscribePomo(); unsubscribePomo = null; }
+      if (unsubscribeTodo) { unsubscribeTodo(); unsubscribeTodo = null; }
+      if (unsubscribeEvents) { unsubscribeEvents(); unsubscribeEvents = null; }
       if (notesEditor) notesEditor.innerHTML = localStorage.getItem(NOTES_KEY_CLOUD) || '';
     }
   });
@@ -3055,297 +1746,14 @@
 
   window.addEventListener('offline', () => setSyncStatus('Offline — saved locally'));
   window.addEventListener('online', () => setSyncStatus('Online'));
-  
-  // =========================
-  // GROUP STUDY UI HANDLERS
-  // =========================
-  
-  const studyToggleBtn = document.getElementById('studyToggleBtn');
-  const studyModal = document.getElementById('studyModal');
-  const createSessionBtn = document.getElementById('createSessionBtn');
-  const joinSessionBtn = document.getElementById('joinSessionBtn');
-  const copySessionCodeBtn = document.getElementById('copySessionCodeBtn');
-  const closeStudyModal = document.getElementById('closeStudyModal');
-  const chatWidget = document.getElementById('chatWidget');
-  const closeChatBtn = document.getElementById('closeChatBtn');
-  const sendChatBtn = document.getElementById('sendChatBtn');
-  const chatMessageInput = document.getElementById('chatMessageInput');
-  
-  let currentStudyMode = 'solo';
-  let currentSessionCode = null;
-  let peer = null;
-  let connections = [];
-  let myUserId = null;
-  
-  // Get user display name (email or name)
-  function getUserDisplayName() {
-    // Try to get from Firebase auth if logged in
-    if (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.email) {
-      return auth.currentUser.email;
-    }
-    
-    // Otherwise use random anonymous name
-    return 'User' + Math.floor(Math.random() * 10000);
-  }
-  
-  // Generate random session code
-  function generateSessionCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
-  }
-  
-  // Initialize PeerJS
-  function initPeer(sessionCode, isHost) {
-    myUserId = getUserDisplayName();
-    const peerId = `study-${sessionCode.toLowerCase()}-${isHost ? 'host' : myUserId}`;
-    
-    peer = new Peer(peerId, {
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' }
-        ]
-      }
-    });
-    
-    peer.on('open', (id) => {
-      console.log('Connected with ID:', id);
-      addChatSystemMessage('✓ Connected to chat');
-      
-      // If not host, connect to host
-      if (!isHost) {
-        const hostId = `study-${sessionCode.toLowerCase()}-host`;
-        setTimeout(() => {
-          const conn = peer.connect(hostId);
-          setupConnection(conn);
-        }, 1000);
-      }
-    });
-    
-    peer.on('connection', (conn) => {
-      console.log('New peer connected');
-      setupConnection(conn);
-      addChatSystemMessage('Someone joined the session');
-    });
-    
-    peer.on('error', (err) => {
-      console.error('Peer error:', err);
-      addChatSystemMessage('⚠️ Running in offline mode');
-    });
-  }
-  
-  function setupConnection(conn) {
-    connections.push(conn);
-    
-    conn.on('open', () => {
-      console.log('Connection established');
-      updateParticipantCount();
-    });
-    
-    conn.on('data', (data) => {
-      if (data.type === 'message') {
-        displayReceivedMessage(data.userId, data.text);
-      }
-    });
-    
-    conn.on('close', () => {
-      connections = connections.filter(c => c !== conn);
-      updateParticipantCount();
-      addChatSystemMessage('Someone left the session');
-    });
-  }
-  
-  function broadcastMessage(text) {
-    if (!myUserId) myUserId = getUserDisplayName();
-    const message = {
-      type: 'message',
-      userId: myUserId,
-      text: text
-    };
-    
-    connections.forEach(conn => {
-      if (conn.open) {
-        conn.send(message);
-      }
-    });
-  }
-  
-  function displayReceivedMessage(userId, text) {
-    const chatContainer = document.getElementById('matrixChatMessages');
-    if (!chatContainer) return;
-    
-    const msgDiv = document.createElement('div');
-    msgDiv.style.cssText = 'padding:0.5rem;margin:0.3rem 0;background:rgba(0,0,0,0.05);border-radius:8px;';
-    msgDiv.innerHTML = `<strong style="color:var(--primary);">${userId}:</strong> ${escapeHtml(text)}`;
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-  
-  function addChatSystemMessage(text) {
-    const chatContainer = document.getElementById('matrixChatMessages');
-    if (!chatContainer) return;
-    
-    const msgDiv = document.createElement('div');
-    msgDiv.style.cssText = 'text-align:center;color:var(--muted);font-size:0.75rem;padding:0.3rem;';
-    msgDiv.textContent = text;
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-  
-  function updateParticipantCount() {
-    const count = connections.filter(c => c.open).length + 1;
-    const countEl = document.getElementById('participantCount');
-    if (countEl) countEl.textContent = count;
-  }
-  
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  
-  // Toggle study mode
-  studyToggleBtn.onclick = () => {
-    if (currentStudyMode === 'solo') {
-      studyModal.style.display = 'flex';
-    } else {
-      if (confirm('Leave group study session?')) {
-        exitGroupMode();
-      }
-    }
-  };
-  
-  // Study tabs
-  document.querySelectorAll('.study-tab').forEach(tab => {
-    tab.onclick = () => {
-      const tabName = tab.dataset.tab;
-      document.querySelectorAll('.study-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.study-tab-content').forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
-    };
-  });
-  
-  // Create session
-  createSessionBtn.onclick = () => {
-    currentSessionCode = generateSessionCode();
-    document.getElementById('generatedCode').textContent = currentSessionCode;
-    copySessionCodeBtn.style.display = 'block';
-    document.getElementById('createInfo').textContent = '✓ Session created! Share the code.';
-    document.getElementById('createInfo').style.color = 'var(--today)';
-    
-    enterGroupMode();
-    studyModal.style.display = 'none';
-    
-    // Start as host
-    initPeer(currentSessionCode, true);
-  };
-  
-  // Copy code
-  copySessionCodeBtn.onclick = () => {
-    navigator.clipboard.writeText(currentSessionCode);
-    copySessionCodeBtn.textContent = '✓ Copied!';
-    setTimeout(() => {
-      copySessionCodeBtn.textContent = '📋 Copy Code';
-    }, 2000);
-  };
-  
-  // Join session
-  joinSessionBtn.onclick = () => {
-    const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
-    if (code.length !== 6) {
-      document.getElementById('joinInfo').textContent = '⚠️ Enter a valid 6-character code';
-      document.getElementById('joinInfo').style.color = 'var(--primary)';
-      return;
-    }
-    
-    currentSessionCode = code;
-    document.getElementById('joinInfo').textContent = '✓ Joining...';
-    document.getElementById('joinInfo').style.color = 'var(--today)';
-    
-    enterGroupMode();
-    studyModal.style.display = 'none';
-    
-    // Join as participant
-    initPeer(currentSessionCode, false);
-  };
-  
-  // Enter group mode
-  function enterGroupMode() {
-    currentStudyMode = 'group';
-    studyToggleBtn.textContent = '👥 Group Study';
-    studyToggleBtn.classList.add('active');
-    chatWidget.style.display = 'flex';
-    document.getElementById('chatSessionCode').textContent = `Session: ${currentSessionCode}`;
-  }
-  
-  // Exit group mode
-  function exitGroupMode() {
-    currentStudyMode = 'solo';
-    
-    // Clean up peer connections
-    if (peer) {
-      peer.destroy();
-      peer = null;
-    }
-    connections = [];
-    studyToggleBtn.textContent = '👤 Solo Study';
-    studyToggleBtn.classList.remove('active');
-    chatWidget.style.display = 'none';
-    
-    currentSessionCode = null;
-    document.getElementById('matrixChatMessages').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.75rem;margin-top:2rem;">Welcome! 🎉<br>Start chatting with your study partners.</div>';
-  }
-  
-  // Send message
-  function sendChatMessage() {
-    const text = chatMessageInput.value.trim();
-    if (!text) return;
-    
-    // Display locally
-    const chatContainer = document.getElementById('matrixChatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.style.cssText = 'padding:0.5rem;margin:0.3rem 0;background:var(--primary);color:#fff;border-radius:8px;text-align:right;';
-    msgDiv.textContent = text;
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    
-    // Broadcast to peers
-    broadcastMessage(text);
-    
-    chatMessageInput.value = '';
-  }
-  
-  sendChatBtn.onclick = sendChatMessage;
-  chatMessageInput.onkeypress = (e) => {
-    if (e.key === 'Enter') sendChatMessage();
-  };
-  
-  // Close modals
-  closeStudyModal.onclick = () => {
-    studyModal.style.display = 'none';
-  };
-  
-  closeChatBtn.onclick = () => {
-    if (confirm('Close chat? (You\'ll stay in group mode)')) {
-      chatWidget.style.display = 'none';
-    }
-  };
-  
-  studyModal.onclick = (e) => {
-    if (e.target === studyModal) {
-      studyModal.style.display = 'none';
-    }
-  };
-  
 </script>
 
-<!-- PeerJS for P2P Chat (100% FREE) -->
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<!-- Widget/App Scripts -->
+<script src="apps/clock.js"></script>
+<script src="apps/pomodoro.js"></script>
+<script src="apps/todo.js"></script>
+<script src="apps/calculator.js"></script>
+<script src="apps/notes.js"></script>
 
 </body>
 </html>

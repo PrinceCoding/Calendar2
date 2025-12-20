@@ -1,0 +1,97 @@
+/* =========================
+    FLOATING NOTES WIDGET
+    ========================= */
+.floating-notes {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 25rem;
+  width: 420px;
+  max-height: 500px;
+  padding: 0.8rem;
+  border-radius: 16px;
+  background: var(--card);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft), var(--shadow-float);
+  cursor: grab;
+  z-index: 994;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.floating-notes:active { 
+  cursor: grabbing; 
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.notes-header:active { 
+  cursor: grabbing; 
+}
+
+.notes h2 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.notes-tools {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.notes-tools button {
+  height: 26px;
+  padding: 0 0.5rem;
+  border-radius: 7px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+}
+
+.notes-tools button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+body.dark .notes-tools button {
+  background: rgba(44,44,46,0.85);
+  color: #f5f5f7;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.notes-editor {
+  width: 100%;
+  flex: 1;
+  min-height: 300px;
+  max-height: 380px;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  background: rgba(255,255,255,0.5);
+  color: var(--text);
+  outline: none;
+}
+
+body.dark .notes-editor {
+  background: rgba(0,0,0,0.25);
+}

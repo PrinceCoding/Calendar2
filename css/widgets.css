@@ -1,0 +1,79 @@
+/* =========================
+    WIDGET RESIZE HANDLES
+    ========================= */
+.floating-todo .resize-handle,
+.floating-events .resize-handle,
+.floating-calculator .resize-handle,
+.floating-calendar .resize-handle,
+.floating-notes .resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 10;
+  background: linear-gradient(135deg, transparent 50%, var(--border) 50%);
+  border-bottom-right-radius: 14px;
+}
+
+.floating-todo .resize-handle:hover,
+.floating-events .resize-handle:hover,
+.floating-calculator .resize-handle:hover,
+.floating-calendar .resize-handle:hover,
+.floating-notes .resize-handle:hover {
+  background: linear-gradient(135deg, transparent 50%, var(--primary) 50%);
+}
+
+.floating-todo .resize-handle::after,
+.floating-events .resize-handle::after,
+.floating-calculator .resize-handle::after,
+.floating-calendar .resize-handle::after,
+.floating-notes .resize-handle::after {
+  content: '⋮⋮';
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 8px;
+  color: var(--muted);
+  line-height: 0.5;
+  transform: rotate(-45deg);
+}
+
+/* =========================
+    CLOSE BUTTON FOR WIDGETS
+    ========================= */
+.close-widget-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff3b30;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.analog-clock:hover .close-widget-btn,
+.floating-pomo:hover .close-widget-btn,
+.floating-todo:hover .close-widget-btn,
+.floating-events:hover .close-widget-btn,
+.floating-calculator:hover .close-widget-btn,
+.floating-calendar:hover .close-widget-btn,
+.floating-notes:hover .close-widget-btn {
+  opacity: 1;
+}
+
+.close-widget-btn:hover {
+  background: #d70015;
+  transform: scale(1.1);
+}

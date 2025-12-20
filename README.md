@@ -1,2 +1,2 @@
-# Calendar2
+# Calendar
 This is simple calendar

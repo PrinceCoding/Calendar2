@@ -1,0 +1,50 @@
+/* =========================
+    BASE STYLES
+    ========================= */
+*, *::before, *::after { 
+  box-sizing: border-box; 
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Auth Input Styles */
+.auth-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.4);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.auth-input:focus {
+  border-color: var(--primary);
+}
+
+body.dark .auth-input {
+  background: rgba(0,0,0,0.2);
+}

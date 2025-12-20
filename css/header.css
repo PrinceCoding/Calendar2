@@ -1,0 +1,102 @@
+/* =========================
+    HEADER
+    ========================= */
+header {
+  position: relative;
+  z-index: 1002;
+  padding: 0.9rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dynamic-island {
+  height: 32px;
+  padding: 0 0.9rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--card);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft), var(--shadow-float);
+  white-space: nowrap;
+}
+
+.dynamic-island .pomo-btn {
+  flex-shrink: 0;
+}
+
+.today-btn,
+.theme-btn {
+  height: 32px;
+  padding: 0 0.9rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.today-btn {
+  position: absolute;
+  top: 0.9rem;
+  left: 9rem;
+  background: linear-gradient(180deg, #34c759, #28b84e);
+  color: #fff;
+}
+
+.theme-btn {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  background: var(--card);
+  color: var(--text);
+}
+
+h1 {
+  margin: 0.6rem 0 0.2rem;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.nav-btn {
+  height: 28px;
+  width: 28px;
+  border-radius: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.dark .nav-btn {
+  background: rgba(44,44,46,0.85);
+  color: #f5f5f7;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+footer {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--muted);
+  padding-bottom: 0.6rem;
+}

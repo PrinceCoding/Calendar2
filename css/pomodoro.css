@@ -1,0 +1,73 @@
+/* =========================
+    FLOATING POMODORO
+    ========================= */
+.floating-pomo {
+  position: fixed;
+  bottom: 10rem;
+  right: 1.2rem;
+  padding: 0.6rem 1rem;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft), var(--shadow-float);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  cursor: grab;
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+}
+
+.floating-pomo:active { 
+  cursor: grabbing; 
+}
+
+.pomo-content { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.6rem; 
+  font-weight: 600; 
+  font-size: 0.9rem; 
+}
+
+.pomo-controls { 
+  display: flex; 
+  gap: 0.3rem; 
+}
+
+.pomo-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.08);
+  color: var(--text);
+  font-size: 0.65rem;
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  user-select: none;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.pomo-btn:hover {
+  background: rgba(0,0,0,0.12);
+}
+
+body.dark .pomo-btn {
+  background: rgba(255,255,255,0.1);
+}
+
+body.dark .pomo-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.pomo-emoji {
+  font-size: 1.1rem;
+}
