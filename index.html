@@ -1060,7 +1060,9 @@
   
   function saveWidgetPosition(el, id) {
     // Save to current canvas
-    saveCurrentCanvasPositions();
+    if (window.saveCurrentCanvas) {
+      window.saveCurrentCanvas();
+    }
   }
   
   function restoreWidgetPosition(el, id) {
