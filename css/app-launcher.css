@@ -3,19 +3,19 @@
     ========================= */
 .app-launcher-btn {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), #0051d5);
   color: white;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0,122,255,0.25);
   cursor: pointer;
   z-index: 1003;
-  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease;
   border: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -23,9 +23,27 @@
   flex-shrink: 0;
 }
 
-.app-launcher-btn:hover {
-  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
-  cursor: pointer;
+@media (min-width: 600px) {
+  .app-launcher-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 1.35rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .app-launcher-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-launcher-btn:hover {
+    box-shadow: 0 4px 12px rgba(0,122,255,0.35);
+    transform: translateY(-1px);
+  }
 }
 
 .app-launcher-btn:active {
@@ -51,19 +69,32 @@
   position: absolute;
   top: 24px;
   left: 1rem;
-  width: 280px;
-  max-height: calc(100% - 32px);
+  width: min(320px, calc(100vw - 2rem));
+  max-height: calc(100% - 48px);
   background: var(--card);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: var(--shadow-float), 0 12px 32px rgba(0,0,0,0.2);
-  padding: 0.8rem;
+  padding: 1rem;
   animation: slideUp 0.2s ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+@media (min-width: 600px) {
+  .app-drawer-content {
+    width: 340px;
+    padding: 1.2rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .app-drawer-content {
+    width: 360px;
+  }
 }
 
 @keyframes slideUp {
@@ -117,22 +148,36 @@ body.dark .app-list::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  padding: 0.6rem 0.8rem;
+  padding: 0.8rem 1rem;
   border-radius: 10px;
   background: rgba(0,0,0,0.04);
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.1s ease;
   cursor: pointer;
+  min-height: 60px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body.dark .app-item {
   background: rgba(255,255,255,0.06);
 }
 
-.app-item:hover {
-  background: rgba(0,0,0,0.08);
+@media (hover: hover) and (pointer: fine) {
+  .app-item:hover {
+    background: rgba(0,0,0,0.08);
+  }
+
+  body.dark .app-item:hover {
+    background: rgba(255,255,255,0.1);
+  }
 }
 
-body.dark .app-item:hover {
+.app-item:active {
+  background: rgba(0,0,0,0.08);
+  transform: scale(0.98);
+}
+
+body.dark .app-item:active {
   background: rgba(255,255,255,0.1);
 }
 

@@ -10,34 +10,37 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   cursor: nwse-resize;
   z-index: 10;
   background: linear-gradient(135deg, transparent 50%, var(--border) 50%);
   border-bottom-right-radius: 14px;
   touch-action: none;
+  transition: background 0.15s ease;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1025px) {
   .floating-todo .resize-handle,
   .floating-events .resize-handle,
   .floating-calculator .resize-handle,
   .floating-calendar .resize-handle,
   .floating-notes .resize-handle,
   .canvas-manager .resize-handle {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 }
 
-.floating-todo .resize-handle:hover,
-.floating-events .resize-handle:hover,
-.floating-calculator .resize-handle:hover,
-.floating-calendar .resize-handle:hover,
-.floating-notes .resize-handle:hover,
-.canvas-manager .resize-handle:hover {
-  background: linear-gradient(135deg, transparent 50%, var(--primary) 50%);
+@media (hover: hover) and (pointer: fine) {
+  .floating-todo .resize-handle:hover,
+  .floating-events .resize-handle:hover,
+  .floating-calculator .resize-handle:hover,
+  .floating-calendar .resize-handle:hover,
+  .floating-notes .resize-handle:hover,
+  .canvas-manager .resize-handle:hover {
+    background: linear-gradient(135deg, transparent 50%, var(--primary) 50%);
+  }
 }
 
 .floating-todo .resize-handle::after,
@@ -61,14 +64,14 @@
     ========================= */
 .close-widget-btn {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 32px;
-  height: 32px;
+  top: -10px;
+  right: -10px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: #ff3b30;
   color: white;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -83,25 +86,32 @@
   touch-action: manipulation;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1025px) {
   .close-widget-btn {
-    width: 36px;
-    height: 36px;
-    top: -10px;
-    right: -10px;
-    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    top: -8px;
+    right: -8px;
+    font-size: 14px;
   }
 }
 
-.analog-clock:hover .close-widget-btn,
-.floating-pomo:hover .close-widget-btn,
-.floating-todo:hover .close-widget-btn,
-.floating-events:hover .close-widget-btn,
-.floating-calculator:hover .close-widget-btn,
-.floating-calendar:hover .close-widget-btn,
-.floating-notes:hover .close-widget-btn,
-.canvas-manager:hover .close-widget-btn {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .analog-clock:hover .close-widget-btn,
+  .floating-pomo:hover .close-widget-btn,
+  .floating-todo:hover .close-widget-btn,
+  .floating-events:hover .close-widget-btn,
+  .floating-calculator:hover .close-widget-btn,
+  .floating-calendar:hover .close-widget-btn,
+  .floating-notes:hover .close-widget-btn,
+  .canvas-manager:hover .close-widget-btn {
+    opacity: 1;
+  }
+  
+  .close-widget-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
+  }
 }
 
 /* Show close button on active/tap for touch devices */
@@ -112,13 +122,16 @@
 .floating-calculator:active .close-widget-btn,
 .floating-calendar:active .close-widget-btn,
 .floating-notes:active .close-widget-btn,
-.canvas-manager:active .close-widget-btn {
+.canvas-manager:active .close-widget-btn,
+.analog-clock.widget-touched .close-widget-btn,
+.floating-pomo.widget-touched .close-widget-btn,
+.floating-todo.widget-touched .close-widget-btn,
+.floating-events.widget-touched .close-widget-btn,
+.floating-calculator.widget-touched .close-widget-btn,
+.floating-calendar.widget-touched .close-widget-btn,
+.floating-notes.widget-touched .close-widget-btn,
+.canvas-manager.widget-touched .close-widget-btn {
   opacity: 1;
-}
-
-.close-widget-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
 }
 
 .close-widget-btn:active {
