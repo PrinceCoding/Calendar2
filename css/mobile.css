@@ -68,6 +68,13 @@
     min-height: 44px;
   }
   
+  /* Better select elements */
+  select {
+    font-size: 16px;
+    padding: 0.8rem;
+    min-height: 44px;
+  }
+  
   /* Touch-friendly canvas manager */
   .canvas-tabs-bar {
     -webkit-overflow-scrolling: touch;
@@ -98,6 +105,38 @@
     min-width: 56px;
     min-height: 48px;
     font-size: 1.3rem;
+  }
+  
+  /* Calendar cells - larger tap targets */
+  .calendar-cell,
+  .days div {
+    min-height: 44px;
+    padding: 0.5rem 0.3rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Better todo/event items */
+  .todo-item,
+  .event-item {
+    min-height: 48px;
+    padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+  
+  /* Larger checkboxes and buttons in lists */
+  .todo-checkbox,
+  .delete-btn {
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  /* Active feedback */
+  button:active,
+  .canvas-tab:active,
+  .app-item:active,
+  .canvas-dropdown-item:active {
+    opacity: 0.7;
+    transform: scale(0.98);
   }
 }
 
@@ -230,13 +269,128 @@
     border: none;
   }
   
-  /* Widgets - responsive sizing */
+  /* Widgets - full responsive on mobile */
   .floating-todo,
   .floating-events,
   .floating-calculator,
   .floating-calendar,
+  .floating-notes,
+  .canvas-manager,
+  .analog-clock,
+  .floating-pomo {
+    max-width: 95vw !important;
+    max-height: 85vh !important;
+    left: 2.5vw !important;
+    right: auto !important;
+    width: 95vw !important;
+  }
+  
+  /* Calendar widget - stack layout on mobile */
+  .floating-calendar {
+    top: 10vh !important;
+    width: 95vw !important;
+  }
+  
+  .calendar-grid {
+    gap: 0.2rem;
+  }
+  
+  .month {
+    min-width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .calendar-cell {
+    min-height: 50px;
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+  
+  /* Notes widget */
   .floating-notes {
-    max-width: 95vw;
+    top: 10vh !important;
+  }
+  
+  .notes-textarea {
+    font-size: 16px !important;
+    min-height: 50vh;
+  }
+  
+  /* Todo widget */
+  .floating-todo {
+    top: 15vh !important;
+    min-height: 60vh;
+  }
+  
+  .todo-input {
+    font-size: 16px !important;
+    padding: 0.8rem !important;
+  }
+  
+  /* Events widget */
+  .floating-events {
+    top: 12vh !important;
+    min-height: 65vh;
+  }
+  
+  .event-input {
+    font-size: 16px !important;
+  }
+  
+  /* Calculator */
+  .floating-calculator {
+    top: 20vh !important;
+    width: 90vw !important;
+    max-width: 320px !important;
+    left: 5vw !important;
+  }
+  
+  .calc-buttons {
+    gap: 0.5rem;
+  }
+  
+  .calc-btn {
+    min-height: 56px;
+    font-size: 1.2rem;
+  }
+  
+  /* Canvas Manager */
+  .canvas-manager {
+    top: 10vh !important;
+    min-height: 70vh;
+  }
+  
+  /* Analog Clock - smaller on mobile */
+  .analog-clock {
+    width: 200px !important;
+    height: 200px !important;
+    top: 20vh !important;
+    left: calc(50vw - 100px) !important;
+  }
+  
+  /* Floating Pomodoro */
+  .floating-pomo {
+    width: auto !important;
+    min-width: 200px;
+    top: 15vh !important;
+    left: calc(50vw - 100px) !important;
+  }
+  
+  /* Close buttons - larger */
+  .close-widget-btn,
+  .close-calendar-btn,
+  .close-events-btn,
+  .close-notes-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1.1rem !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+  }
+  
+  /* Resize handles - hide on mobile */
+  .resize-handle {
+    display: none !important;
   }
   
   /* Canvas hint */
@@ -246,7 +400,13 @@
     right: 0.5rem;
     transform: none;
     max-width: none;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .canvas-hint kbd {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
   }
 }
 
@@ -325,6 +485,42 @@
   .canvas-tab .canvas-tab-close {
     opacity: 0.5;
   }
+  
+  /* Widgets - better sizing for large phones */
+  .floating-todo,
+  .floating-events,
+  .floating-calculator,
+  .floating-calendar,
+  .floating-notes,
+  .canvas-manager {
+    max-width: 90vw !important;
+    max-height: 80vh !important;
+  }
+  
+  .floating-calendar {
+    width: 90vw !important;
+  }
+  
+  .calendar-cell {
+    min-height: 45px;
+    font-size: 0.85rem;
+  }
+  
+  /* Close buttons */
+  .close-widget-btn,
+  .close-calendar-btn,
+  .close-events-btn,
+  .close-notes-btn {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 1rem !important;
+  }
+  
+  /* App drawer */
+  .app-drawer-content {
+    width: min(400px, 90vw);
+    max-height: 85vh;
+  }
 }
 
 /* Tablets (768px - 1024px) */
@@ -382,6 +578,34 @@
     padding: 0.6rem 1.1rem;
     font-size: 0.8rem;
     min-height: 42px;
+  }
+  
+  /* Widgets - tablet optimized */
+  .floating-calendar,
+  .floating-notes,
+  .floating-todo,
+  .floating-events,
+  .canvas-manager {
+    max-width: 85vw !important;
+    max-height: 75vh !important;
+  }
+  
+  .floating-calculator {
+    max-width: 400px !important;
+  }
+  
+  .calendar-cell {
+    min-height: 42px;
+    font-size: 0.8rem;
+  }
+  
+  /* Close buttons */
+  .close-widget-btn,
+  .close-calendar-btn,
+  .close-events-btn,
+  .close-notes-btn {
+    width: 32px !important;
+    height: 32px !important;
   }
 }
 
