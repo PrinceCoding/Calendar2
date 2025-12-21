@@ -151,7 +151,6 @@ header {
   border: none;
   border-bottom: 1px solid var(--border);
   text-align: left;
-  cursor: pointer;
   transition: background 0.15s ease, transform 0.1s ease;
   display: flex;
   align-items: center;
@@ -175,11 +174,29 @@ header {
   .canvas-dropdown-item:hover {
     background: var(--hover);
   }
+  
+  .canvas-dropdown-item:hover .canvas-dropdown-delete {
+    opacity: 1 !important;
+  }
 }
 
 .canvas-dropdown-item:active {
   background: var(--hover);
-  transform: scale(0.98);
+}
+
+.canvas-dropdown-delete {
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.canvas-dropdown-delete:hover {
+  background: rgba(255, 59, 48, 0.15) !important;
+  opacity: 1 !important;
+}
+
+.canvas-dropdown-delete:active {
+  background: rgba(255, 59, 48, 0.25) !important;
+  transform: scale(0.95);
 }
 
 .canvas-dropdown-item.active {

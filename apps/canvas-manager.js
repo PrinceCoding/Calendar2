@@ -471,20 +471,56 @@ function openCanvasDropdown() {
   dropdown.innerHTML = '';
   
   Object.values(canvases).forEach(canvas => {
-    const item = document.createElement('button');
+    const item = document.createElement('div');
     item.className = 'canvas-dropdown-item';
     if (canvas.id === activeCanvasId) {
       item.classList.add('active');
-      item.innerHTML = `<span>✓</span><span>${canvas.name}</span>`;
-    } else {
-      item.innerHTML = `<span style="opacity:0">✓</span><span>${canvas.name}</span>`;
     }
     
-    item.addEventListener('click', (e) => {
+    // Create the content wrapper for the canvas name
+    const contentWrapper = document.createElement('button');
+    contentWrapper.className = 'canvas-dropdown-content';
+    contentWrapper.style.cssText = 'flex: 1; display: flex; align-items: center; gap: 0.5rem; background: none; border: none; padding: 0; cursor: pointer; color: inherit; font: inherit; text-align: left;';
+    
+    if (canvas.id === activeCanvasId) {
+      contentWrapper.innerHTML = `<span>✓</span><span>${canvas.name}</span>`;
+    } else {
+      contentWrapper.innerHTML = `<span style="opacity:0">✓</span><span>${canvas.name}</span>`;
+    }
+    
+    contentWrapper.addEventListener('click', (e) => {
       e.stopPropagation();
       switchToCanvas(canvas.id);
       closeCanvasDropdown();
     });
+    
+    // Create delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'canvas-dropdown-delete';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.title = 'Delete Canvas';
+    deleteBtn.style.cssText = 'background: none; border: none; color: #ff3b30; font-size: 1.2rem; font-weight: bold; cursor: pointer; padding: 0; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.15s ease;';
+    
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteCanvas(canvas.id);
+      // Refresh the dropdown after deletion
+      openCanvasDropdown();
+    });
+    
+    // Only show delete button if there's more than one canvas
+    if (Object.keys(canvases).length > 1) {
+      deleteBtn.addEventListener('mouseenter', () => {
+        deleteBtn.style.background = 'rgba(255, 59, 48, 0.15)';
+      });
+      deleteBtn.addEventListener('mouseleave', () => {
+        deleteBtn.style.background = 'none';
+      });
+      item.appendChild(contentWrapper);
+      item.appendChild(deleteBtn);
+    } else {
+      item.appendChild(contentWrapper);
+    }
     
     dropdown.appendChild(item);
   });
