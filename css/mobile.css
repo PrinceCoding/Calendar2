@@ -106,13 +106,18 @@
     padding: 0.7rem 0.6rem 1rem;
   }
   
-  /* Canvas tabs bar adjustments */
+  /* Canvas tabs bar adjustments - full width on mobile */
   .canvas-tabs-bar {
     top: 62px;
+    left: 0.5rem;
+    right: 0.5rem;
+    transform: none;
+    max-width: none;
+    width: calc(100% - 1rem);
   }
   
   #canvasWorkspace {
-    top: 110px;
+    top: 115px;
   }
   
   /* Larger touch targets for tabs on phones */

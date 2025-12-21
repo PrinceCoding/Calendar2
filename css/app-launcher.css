@@ -2,22 +2,23 @@
     APP LAUNCHER
     ========================= */
 .app-launcher-btn {
-  position: fixed;
-  top: 0.7rem;
+  position: absolute;
+  top: 50%;
   left: 1rem;
+  transform: translateY(-50%);
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), #0051d5);
   color: white;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0,122,255,0.25);
   cursor: pointer;
   z-index: 1003;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -25,12 +26,12 @@
 }
 
 .app-launcher-btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-50%) scale(1.05);
   box-shadow: 0 4px 12px rgba(0,122,255,0.35);
 }
 
 .app-launcher-btn:active {
-  transform: translateY(0);
+  transform: translateY(-50%) scale(0.95);
   box-shadow: 0 2px 6px rgba(0,122,255,0.2);
   transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -47,10 +48,10 @@
 
 .app-drawer-content {
   position: absolute;
-  top: 4.5rem;
+  top: 4.2rem;
   left: 1rem;
   width: 280px;
-  max-height: calc(100vh - 5.5rem);
+  max-height: calc(100vh - 5rem);
   background: var(--card);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
