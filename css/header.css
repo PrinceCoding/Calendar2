@@ -4,13 +4,23 @@
 header {
   position: relative;
   z-index: 1005;
-  padding: 0.8rem 1rem;
+  padding: 0.6rem 0.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  flex-wrap: wrap;
+  min-height: 56px;
+}
+
+@media (min-width: 1025px) {
+  header {
+    padding: 0.8rem 1rem;
+    flex-wrap: nowrap;
+  }
 }
 
 .dynamic-island {
@@ -28,18 +38,29 @@ header {
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft), var(--shadow-float);
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  flex-shrink: 0;
 }
 
 .canvas-switcher {
   position: relative;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.canvas-switcher:hover {
-  background: var(--hover);
-  transform: translateY(-1px);
+.canvas-switcher:active {
+  transform: scale(0.98);
+}
+
+@media (min-width: 769px) {
+  .canvas-switcher:hover {
+    background: var(--hover);
+    transform: translateY(-1px);
+  }
 }
 
 .canvas-switcher .dropdown-arrow {

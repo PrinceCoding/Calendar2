@@ -10,12 +10,24 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   cursor: nwse-resize;
   z-index: 10;
   background: linear-gradient(135deg, transparent 50%, var(--border) 50%);
   border-bottom-right-radius: 14px;
+  touch-action: none;
+}
+
+@media (max-width: 1024px) {
+  .floating-todo .resize-handle,
+  .floating-events .resize-handle,
+  .floating-calculator .resize-handle,
+  .floating-calendar .resize-handle,
+  .floating-notes .resize-handle,
+  .canvas-manager .resize-handle {
+    display: none;
+  }
 }
 
 .floating-todo .resize-handle:hover,
@@ -50,14 +62,44 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #ff3b30;
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
+  z-index: 1001;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+  .close-widget-btn {
+    width: 36px;
+    height: 36px;
+    top: -10px;
+    right: -10px;
+    font-size: 16px;
+  }
+}
+
+.close-widget-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
+}
+
+.close-widget-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 4px rgba(255, 59, 48, 0.3);
+}
   align-items: center;
   justify-content: center;
   opacity: 0;

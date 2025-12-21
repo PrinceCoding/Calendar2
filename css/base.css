@@ -11,7 +11,14 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
 }
 
 /* Canvas Workspace */
@@ -28,6 +35,9 @@ body {
   background-size: 20px 20px;
   background-position: -1px -1px;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
 }
 
 body.dark #canvasWorkspace {
@@ -97,6 +107,16 @@ button {
   background: none;
   font-family: inherit;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:active {
+  opacity: 0.8;
+  transform: scale(0.98);
 }
 
 button:disabled {
