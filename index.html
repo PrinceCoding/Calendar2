@@ -532,6 +532,8 @@
     deviceId = Math.random().toString(36).slice(2) + Date.now().toString(36);
     localStorage.setItem(DEVICE_ID_KEY, deviceId);
   }
+  // Make deviceId globally accessible
+  window.deviceId = deviceId;
 
   const pomoDurationInput = document.getElementById('pomoDurationInput');
   pomoDurationInput.value = defaultPomoMinutes;
@@ -1244,10 +1246,40 @@
 
   // Add click handlers to bring widgets to front
   const allWidgets = [clock, floatingPomo, floatingTodo, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes, canvasManager];
+  
+  // Touch handling for close button visibility
+  const touchTimers = new Map();
+  
   allWidgets.forEach(widget => {
     if (widget) {
       widget.addEventListener('mousedown', () => bringToFront(widget));
-      widget.addEventListener('touchstart', () => bringToFront(widget));
+      
+      // Touch handling - keep close button visible longer
+      widget.addEventListener('touchstart', (e) => {
+        bringToFront(widget);
+        
+        // Add touched class to show close button
+        widget.classList.add('widget-touched');
+        
+        // Clear any existing timer for this widget
+        if (touchTimers.has(widget)) {
+          clearTimeout(touchTimers.get(widget));
+        }
+        
+        // Keep close button visible for 3 seconds after touch
+        const timer = setTimeout(() => {
+          widget.classList.remove('widget-touched');
+          touchTimers.delete(widget);
+        }, 3000);
+        
+        touchTimers.set(widget, timer);
+      });
+      
+      // Also remove on touchend if user taps elsewhere quickly
+      widget.addEventListener('touchend', (e) => {
+        // Don't remove immediately - let the timer handle it
+        // This gives users time to tap the close button
+      });
     }
   });
 
@@ -1364,126 +1396,211 @@
   })();
 
   // =========================
-  // TODO LIST LOGIC
+  // TODO LIST LOGIC - REBUILT FROM SCRATCH
   // =========================
-  // Start with empty - will be loaded from Firebase when authenticated
-  let todos = [];
-  let todosLoaded = false; // Track if Firebase data has been loaded
   
+  // Initialize todo state
+  let todos = [];
+  let todosLoaded = false;
+  
+  // Get DOM elements
   const todoInput = document.getElementById('todoInput');
   const todoAddBtn = document.getElementById('todoAddBtn');
   const todoList = document.getElementById('todoList');
 
+  // Render todos to DOM
   function renderTodos() {
-    if (!todoList) return;
-    todoList.innerHTML = '';
-    
-    // Show loading state if not loaded yet and user is authenticated
-    if (!todosLoaded && window.auth && auth.currentUser) {
-      todoList.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Loading todos from cloud...</div>';
+    if (!todoList) {
+      console.error('[TODO] todoList element not found');
       return;
     }
     
+    console.log('[TODO] Rendering', todos.length, 'todos');
+    todoList.innerHTML = '';
+    
+    // Show loading state if waiting for Firebase
+    if (!todosLoaded && window.auth && window.auth.currentUser) {
+      todoList.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.9rem;">⏳ Loading from cloud...</div>';
+      return;
+    }
+    
+    // Show empty state if no todos
+    if (todos.length === 0) {
+      todoList.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">No tasks yet. Add one above!</div>';
+      return;
+    }
+    
+    // Render each todo
     todos.forEach((todo, index) => {
       const item = document.createElement('div');
       item.className = 'todo-item';
-      item.innerHTML = `
-        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-index="${index}" />
-        <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
-        <button class="todo-delete" data-index="${index}">✕</button>
-      `;
+      item.dataset.index = index;
+      
+      // Checkbox
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'todo-checkbox';
+      checkbox.checked = todo.completed || false;
+      checkbox.addEventListener('change', () => toggleTodo(index));
+      
+      // Text
+      const text = document.createElement('span');
+      text.className = 'todo-text' + (todo.completed ? ' completed' : '');
+      text.textContent = todo.text;
+      
+      // Delete button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'todo-delete';
+      deleteBtn.textContent = '✕';
+      deleteBtn.addEventListener('click', () => deleteTodo(index));
+      
+      item.appendChild(checkbox);
+      item.appendChild(text);
+      item.appendChild(deleteBtn);
       todoList.appendChild(item);
     });
-
-    // Event listeners
-    todoList.querySelectorAll('.todo-checkbox').forEach(cb => {
-      cb.onchange = (e) => {
-        const idx = Number(e.target.dataset.index);
-        todos[idx].completed = e.target.checked;
-        renderTodos();
-        syncTodosToCloud();
-      };
-    });
-    todoList.querySelectorAll('.todo-delete').forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const idx = Number(e.currentTarget.dataset.index);
-        todos.splice(idx, 1);
-        renderTodos();
-        syncTodosToCloud();
-      };
-    });
   }
 
+  // Add new todo
   function addTodo() {
     if (!todoInput) return;
+    
     const text = todoInput.value.trim();
-    if (!text) return;
-    todos.push({ text, completed: false, id: Date.now() + Math.random() });
+    if (!text) {
+      console.log('[TODO] Empty input, ignoring');
+      return;
+    }
+    
+    // Check if user is authenticated
+    if (!window.auth || !window.auth.currentUser) {
+      alert('Please log in to save todos');
+      return;
+    }
+    
+    console.log('[TODO] Adding new todo:', text);
+    
+    const newTodo = {
+      text: text,
+      completed: false,
+      id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      createdAt: Date.now()
+    };
+    
+    todos.push(newTodo);
     todoInput.value = '';
+    
+    console.log('[TODO] Total todos:', todos.length);
     renderTodos();
-    syncTodosToCloud();
+    saveTodosToFirebase();
   }
 
-  async function syncTodosToCloud() {
+  // Toggle todo completion
+  function toggleTodo(index) {
+    if (index < 0 || index >= todos.length) return;
+    
+    console.log('[TODO] Toggling todo at index', index);
+    todos[index].completed = !todos[index].completed;
+    
+    renderTodos();
+    saveTodosToFirebase();
+  }
+
+  // Delete todo
+  function deleteTodo(index) {
+    if (index < 0 || index >= todos.length) return;
+    
+    console.log('[TODO] Deleting todo at index', index);
+    todos.splice(index, 1);
+    
+    renderTodos();
+    saveTodosToFirebase();
+  }
+
+  // Save todos to Firebase
+  async function saveTodosToFirebase() {
     try {
-      // Require authentication for data operations
-      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
-        console.warn('[TODO] Not authenticated - data not saved');
+      // Verify authentication
+      if (!window.auth || !window.auth.currentUser) {
+        console.warn('[TODO] Not authenticated, cannot save');
         return;
       }
       
-      const ref = doc(db, 'user_todos', auth.currentUser.uid);
-      await setDoc(ref, {
+      if (!window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
+        console.error('[TODO] Firebase not initialized');
+        return;
+      }
+      
+      const userId = window.auth.currentUser.uid;
+      const deviceId = window.deviceId || 'unknown';
+      
+      console.log('[TODO] Saving', todos.length, 'todos to Firebase for user:', userId);
+      
+      const todoRef = window.doc(window.db, 'user_todos', userId);
+      await window.setDoc(todoRef, {
         items: todos,
         by: deviceId,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+        updatedAt: window.serverTimestamp()
+      });
       
-      // Only save to localStorage as cache after successful cloud sync
-      localStorage.setItem('todos_local_cache', JSON.stringify(todos));
-    } catch (err) {
-      console.error('[TODO] Cloud sync failed:', err);
+      console.log('[TODO] ✅ Successfully saved to Firebase');
+    } catch (error) {
+      console.error('[TODO] ❌ Failed to save to Firebase:', error);
+      console.error('[TODO] Error code:', error.code);
+      console.error('[TODO] Error message:', error.message);
     }
   }
 
-  window.applyRemoteTodos = (data) => {
+  // Load todos from Firebase (called by Firebase listener)
+  function loadTodosFromFirebase(data) {
     try {
+      console.log('[TODO] Loading data from Firebase:', data);
+      
       if (!data) {
-        console.log('[TODO] No data received');
+        console.log('[TODO] No data received from Firebase, using empty array');
+        todos = [];
         todosLoaded = true;
         renderTodos();
         return;
       }
-      console.log('[TODO] Received data:', data);
-      // Don't skip if from same device - we need to load on page refresh
-      // if (data.by && data.by === deviceId) return;
+      
       if (Array.isArray(data.items)) {
         todos = data.items;
-        todosLoaded = true;
-        console.log('[TODO] Loaded', todos.length, 'todos from Firebase');
-        // Cache to localStorage only after successful Firebase load
-        localStorage.setItem('todos_local_cache', JSON.stringify(todos));
-        renderTodos();
+        console.log('[TODO] ✅ Loaded', todos.length, 'todos from Firebase');
       } else {
-        console.warn('[TODO] data.items is not an array:', data.items);
-        todosLoaded = true;
-        renderTodos();
+        console.warn('[TODO] data.items is not an array, using empty array');
+        todos = [];
       }
-    } catch (e) {
-      console.error('[TODO] applyRemoteTodos error:', e);
+      
+      todosLoaded = true;
+      renderTodos();
+    } catch (error) {
+      console.error('[TODO] ❌ Error loading from Firebase:', error);
+      todos = [];
       todosLoaded = true;
       renderTodos();
     }
-  };
-
-  if (todoAddBtn) todoAddBtn.onclick = addTodo;
-  if (todoInput) {
-    todoInput.onkeypress = (e) => {
-      if (e.key === 'Enter') addTodo();
-    };
   }
 
+  // Expose function for Firebase listener
+  window.applyRemoteTodos = loadTodosFromFirebase;
+
+  // Set up event listeners
+  if (todoAddBtn) {
+    todoAddBtn.addEventListener('click', addTodo);
+    console.log('[TODO] Add button listener attached');
+  }
+
+  if (todoInput) {
+    todoInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTodo();
+      }
+    });
+    console.log('[TODO] Input keypress listener attached');
+  }
+
+  // Initial render
+  console.log('[TODO] Initial render');
   renderTodos();
 
   // =========================
@@ -1605,11 +1722,17 @@
 
   async function syncEventsToCloud() {
     try {
+      console.log('[EVENTS] syncEventsToCloud called, events count:', events.length);
+      
       // Require authentication for data operations
       if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
         console.warn('[EVENTS] Not authenticated - data not saved');
         return;
       }
+      
+      // Get deviceId from global scope or localStorage
+      const deviceId = window.deviceId || localStorage.getItem('device_id') || 'unknown';
+      console.log('[EVENTS] Syncing', events.length, 'events to Firebase...');
       
       const ref = doc(db, 'user_events', auth.currentUser.uid);
       await setDoc(ref, {
@@ -1618,10 +1741,10 @@
         updatedAt: serverTimestamp()
       }, { merge: true });
       
-      // Only save to localStorage as cache after successful cloud sync
-      localStorage.setItem('events_local_cache', JSON.stringify(events));
+      console.log('[EVENTS] ✓ Successfully synced to Firebase');
     } catch (err) {
       console.error('[EVENTS] Cloud sync failed:', err);
+      console.error('[EVENTS] Error details:', err.message, err.code);
     }
   }
 
@@ -1641,8 +1764,6 @@
         events = data.items;
         eventsLoaded = true;
         console.log('[EVENTS] Loaded', events.length, 'events from Firebase');
-        // Cache to localStorage only after successful Firebase load
-        localStorage.setItem('events_local_cache', JSON.stringify(events));
         // Preserve current filter when receiving remote updates
         renderEvents(selectedCalendarDate);
         renderCalendar(shownYear);
@@ -1762,7 +1883,27 @@
     } catch (err) { handleAuthError(err); }
   };
 
-  if (logoutBtn) logoutBtn.onclick = () => signOut(auth);
+  if (logoutBtn) logoutBtn.onclick = async () => {
+    // Clear all app data from memory
+    todos = [];
+    events = [];
+    todosLoaded = false;
+    eventsLoaded = false;
+    
+    // Clear all cached data from localStorage
+    console.log('[LOGOUT] Clearing all cached data...');
+    localStorage.removeItem('todos_local_cache');
+    localStorage.removeItem('events_local_cache');
+    localStorage.removeItem('calendar_notes_rich');
+    
+    // Clear UI
+    if (todoList) todoList.innerHTML = '';
+    if (eventsList) eventsList.innerHTML = '';
+    if (notesEditor) notesEditor.innerHTML = '';
+    
+    console.log('[LOGOUT] All data cleared, signing out...');
+    await signOut(auth);
+  };
 
   // Persist auth
   (async function initAuth() {
@@ -1800,8 +1941,8 @@
           }
           setSyncStatus('Cloud Synced');
         } else {
-          const local = localStorage.getItem(NOTES_KEY_CLOUD) || '';
-          setDoc(noteRef, { content: local, updatedAt: serverTimestamp() })
+          // No existing notes - start with empty
+          setDoc(noteRef, { content: '', updatedAt: serverTimestamp() })
             .then(() => setSyncStatus('Synced (Started Cloud)'))
             .catch(() => setSyncStatus('Sync Error'));
         }
@@ -1887,12 +2028,22 @@
     } else {
       if (loggedOutUI) loggedOutUI.style.display = 'block';
       if (loggedInUI) loggedInUI.style.display = 'none';
-      setSyncStatus('Not signed in (Local mode)');
+      setSyncStatus('Not signed in - Login to access your data');
+      
+      // Unsubscribe from all listeners
       if (unsubscribeNote) { unsubscribeNote(); unsubscribeNote = null; }
       if (unsubscribePomo) { unsubscribePomo(); unsubscribePomo = null; }
       if (unsubscribeTodo) { unsubscribeTodo(); unsubscribeTodo = null; }
       if (unsubscribeEvents) { unsubscribeEvents(); unsubscribeEvents = null; }
-      if (notesEditor) notesEditor.innerHTML = localStorage.getItem(NOTES_KEY_CLOUD) || '';
+      
+      // Clear all data when logged out (cloud-first approach)
+      todos = [];
+      events = [];
+      todosLoaded = false;
+      eventsLoaded = false;
+      if (notesEditor) notesEditor.innerHTML = '';
+      if (todoList) todoList.innerHTML = '';
+      if (eventsList) eventsList.innerHTML = '';
     }
   });
 
@@ -1901,7 +2052,7 @@
   if (notesEditor) {
     notesEditor.addEventListener('input', () => {
       const html = notesEditor.innerHTML;
-      localStorage.setItem(NOTES_KEY_CLOUD, html);
+      // Only save to cloud if authenticated - no local storage
       if (auth.currentUser) {
         clearTimeout(saveTimer);
         saveTimer = setTimeout(async () => {
