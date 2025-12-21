@@ -14,15 +14,20 @@ let activeCanvasId = null;
 function initializeCanvasManager() {
   loadCanvasesFromStorage();
   
+  console.log('After loadCanvasesFromStorage - activeCanvasId:', activeCanvasId);
+  
   // Create default canvas if none exist
   if (Object.keys(canvases).length === 0) {
     const defaultCanvas = createCanvas('Canvas 1');
     defaultCanvas.visibility = { canvasManager: true }; // Canvas manager visible by default
     activeCanvasId = defaultCanvas.id;
     saveCanvasesToStorage();
-  } else {
-    // Set first canvas as active
+  } else if (!activeCanvasId || !canvases[activeCanvasId]) {
+    // Set first canvas as active only if no active canvas was loaded
     activeCanvasId = Object.keys(canvases)[0];
+    console.log('No active canvas found, setting to first:', activeCanvasId);
+  } else {
+    console.log('Keeping loaded activeCanvasId:', activeCanvasId);
   }
   
   renderCanvasTabs();
@@ -65,6 +70,7 @@ function switchToCanvas(canvasId) {
   
   // Switch to new canvas
   activeCanvasId = canvasId;
+  saveCanvasesToStorage(); // Save the new active canvas
   renderCanvasTabs();
   loadActiveCanvasState();
   updateCanvasNameDisplay();
@@ -389,6 +395,16 @@ function loadCanvasesFromStorage() {
     if (saved) {
       canvases = JSON.parse(saved);
     }
+    // Load the last active canvas ID
+    const savedActiveId = localStorage.getItem('activeCanvasId');
+    console.log('Loading from storage - savedActiveId:', savedActiveId);
+    console.log('Available canvases:', Object.keys(canvases));
+    if (savedActiveId && canvases[savedActiveId]) {
+      activeCanvasId = savedActiveId;
+      console.log('Set activeCanvasId to:', activeCanvasId);
+    } else {
+      console.log('No valid saved active canvas');
+    }
   } catch (e) {
     console.error('Failed to load canvases:', e);
     canvases = {};
@@ -399,6 +415,10 @@ function loadCanvasesFromStorage() {
 function saveCanvasesToStorage() {
   try {
     localStorage.setItem(CANVASES_STORAGE_KEY, JSON.stringify(canvases));
+    // Save the active canvas ID
+    if (activeCanvasId) {
+      localStorage.setItem('activeCanvasId', activeCanvasId);
+    }
   } catch (e) {
     console.error('Failed to save canvases:', e);
   }

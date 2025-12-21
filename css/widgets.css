@@ -19,14 +19,15 @@
   touch-action: none;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .floating-todo .resize-handle,
   .floating-events .resize-handle,
   .floating-calculator .resize-handle,
   .floating-calendar .resize-handle,
   .floating-notes .resize-handle,
   .canvas-manager .resize-handle {
-    display: none;
+    width: 40px;
+    height: 40px;
   }
 }
 
