@@ -561,16 +561,24 @@
 
   async function syncToCloud(runningFlag, extra = {}) {
     try {
-      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) return;
-      const ref = doc(db, 'user_pomodoro', auth.currentUser.uid);
-      await setDoc(ref, Object.assign({
+      if (!window.auth || !window.auth.currentUser) {
+        console.log('[POMO] ⏸ Not syncing - user not authenticated');
+        return;
+      }
+      if (!window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
+        console.log('[POMO] ⏸ Not syncing - Firebase not ready');
+        return;
+      }
+      const ref = window.doc(window.db, 'user_pomodoro', window.auth.currentUser.uid);
+      await window.setDoc(ref, Object.assign({
         duration: defaultPomoMinutes,
         running: !!runningFlag,
         by: deviceId,
-        updatedAt: serverTimestamp()
+        updatedAt: window.serverTimestamp()
       }, extra), { merge: true });
+      console.log('[POMO] ✅ Synced to cloud:', { running: runningFlag, ...extra });
     } catch (err) {
-      console.error('[POMO] Cloud sync failed:', err);
+      console.error('[POMO] ❌ Cloud sync failed:', err);
     }
   }
 
@@ -599,11 +607,13 @@
   }
 
   function togglePomo() {
+    console.log('[POMO] Toggle clicked, timer active:', !!timer);
     // Pause if currently running
     if (timer) {
       clearLocalTimer();
       setStartButtons(false);
       saveLocalSecs();
+      console.log('[POMO] ⏸ Paused at', secs, 'seconds');
       // Persist pause with remaining seconds
       syncToCloud(false, { remaining: secs, startedAt: null });
       return;
@@ -612,11 +622,13 @@
     const remainAtStart = secs;
     const startedNow = Date.now();
     startLocalDisplayFromAnchor(remainAtStart, startedNow);
+    console.log('[POMO] ▶ Started with', remainAtStart, 'seconds remaining');
     // Persist start (no per-second writes)
-    syncToCloud(true, { remaining: remainAtStart, startedAt: serverTimestamp() });
+    syncToCloud(true, { remaining: remainAtStart, startedAt: window.serverTimestamp ? window.serverTimestamp() : null });
   }
 
   function resetPomo() {
+    console.log('[POMO] ⟳ Reset to', defaultPomoMinutes, 'minutes');
     clearLocalTimer();
     secs = defaultPomoMinutes * 60;
     updatePomoDisplay();
@@ -627,6 +639,7 @@
 
   pomoDurationInput.onchange = () => {
     const val = Math.max(1, Number(pomoDurationInput.value) || 60);
+    console.log('[POMO] Duration changed to', val, 'minutes');
     defaultPomoMinutes = val;
     localStorage.setItem(POMO_KEY, val);
     secs = val * 60;
@@ -642,23 +655,47 @@
   const pomoResetBtn = document.getElementById('pomoReset');
   const floatingPomoResetBtn = document.getElementById('floatingPomoReset');
   
-  console.log('Pomodoro buttons:', { pomoStartBtn, floatingPomoStartBtn, pomoResetBtn, floatingPomoResetBtn });
+  console.log('[POMO] Initializing buttons:');
+  console.log('  pomoStart:', pomoStartBtn, pomoStartBtn ? 'FOUND ✅' : 'MISSING ❌');
+  console.log('  floatingPomoStart:', floatingPomoStartBtn, floatingPomoStartBtn ? 'FOUND ✅' : 'MISSING ❌');
+  console.log('  pomoReset:', pomoResetBtn, pomoResetBtn ? 'FOUND ✅' : 'MISSING ❌');
+  console.log('  floatingPomoReset:', floatingPomoResetBtn, floatingPomoResetBtn ? 'FOUND ✅' : 'MISSING ❌');
   
   if (pomoStartBtn) {
-    pomoStartBtn.onclick = togglePomo;
+    pomoStartBtn.onclick = (e) => {
+      console.log('[POMO] Header start button clicked');
+      e.stopPropagation();
+      togglePomo();
+    };
     pomoStartBtn.style.pointerEvents = 'auto';
+    console.log('[POMO] Header start button initialized');
   }
   if (floatingPomoStartBtn) {
-    floatingPomoStartBtn.onclick = togglePomo;
+    floatingPomoStartBtn.onclick = (e) => {
+      console.log('[POMO] Floating start button clicked');
+      e.stopPropagation();
+      togglePomo();
+    };
     floatingPomoStartBtn.style.pointerEvents = 'auto';
+    console.log('[POMO] Floating start button initialized');
   }
   if (pomoResetBtn) {
-    pomoResetBtn.onclick = resetPomo;
+    pomoResetBtn.onclick = (e) => {
+      console.log('[POMO] Header reset button clicked');
+      e.stopPropagation();
+      resetPomo();
+    };
     pomoResetBtn.style.pointerEvents = 'auto';
+    console.log('[POMO] Header reset button initialized');
   }
   if (floatingPomoResetBtn) {
-    floatingPomoResetBtn.onclick = resetPomo;
+    floatingPomoResetBtn.onclick = (e) => {
+      console.log('[POMO] Floating reset button clicked');
+      e.stopPropagation();
+      resetPomo();
+    };
     floatingPomoResetBtn.style.pointerEvents = 'auto';
+    console.log('[POMO] Floating reset button initialized');
   }
 
   // Initialize pomodoro display
