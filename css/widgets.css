@@ -113,14 +113,3 @@
   transform: scale(0.95);
   box-shadow: 0 1px 4px rgba(255, 59, 48, 0.3);
 }
-
-/* Always show close button on touch devices */
-@media (hover: none) and (pointer: coarse) {
-  .close-widget-btn {
-    opacity: 0.8;
-  }
-  .close-widget-btn:active {
-    opacity: 1;
-    background: #d70015;
-  }
-}
