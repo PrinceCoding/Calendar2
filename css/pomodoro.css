@@ -2,9 +2,9 @@
     FLOATING POMODORO
     ========================= */
 .floating-pomo {
-  position: fixed;
-  bottom: 10rem;
-  right: 1.2rem;
+  position: absolute;
+  top: 100px;
+  left: 250px;
   padding: 0.6rem 1rem;
   border-radius: 16px;
   background: var(--card);

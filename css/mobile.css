@@ -1,23 +1,92 @@
 /* =========================
    iPHONE / MOBILE ADJUSTMENTS
    ========================= */
+
+/* Touch-friendly improvements for all mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  /* Prevent unwanted zoom on double-tap */
+  * {
+    touch-action: manipulation;
+  }
+  
+  /* Canvas can still pan */
+  #canvasWorkspace {
+    touch-action: pan-x pan-y;
+  }
+  
+  /* Larger touch targets for buttons */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.6rem 1rem;
+  }
+  
+  /* Larger canvas tabs for easier tapping */
+  .canvas-tab {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+  
+  .canvas-add-btn {
+    padding: 0.6rem 0.8rem;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Larger pomodoro buttons */
+  .pomo-btn {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 1rem;
+  }
+  
+  /* Better spacing for hint */
+  .canvas-hint {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.85rem;
+    max-width: 90vw;
+    text-align: center;
+  }
+  
+  /* Widget headers more touch-friendly */
+  .todo-header,
+  .events-header,
+  .calc-header,
+  .calendar-header,
+  .notes-header {
+    min-height: 44px;
+    cursor: move;
+    padding: 0.8rem;
+  }
+  
+  /* Larger input fields */
+  input[type="text"],
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.8rem;
+    min-height: 44px;
+  }
+}
+
 @media (max-width: 480px) {
   header {
-    padding: 0.7rem 0.6rem 0.8rem;
+    padding: 0.7rem 0.6rem 1rem;
   }
 
   .dynamic-island {
-    font-size: 0.7rem;
-    padding: 0 0.6rem;
-    height: 30px;
+    font-size: 0.75rem;
+    padding: 0 0.8rem;
+    height: 36px;
   }
 
   .today-btn,
   .theme-btn {
     position: static;
-    height: 28px;
-    font-size: 0.7rem;
-    padding: 0 0.6rem;
+    height: 36px;
+    font-size: 0.75rem;
+    padding: 0 0.8rem;
+    min-height: 36px;
   }
 
   header > div:first-child {
@@ -62,5 +131,41 @@
   .notes-editor {
     min-height: 140px;
     font-size: 0.8rem;
+  }
+  
+  /* Make widgets smaller on phones */
+  .floating-todo,
+  .floating-events,
+  .floating-calculator,
+  .floating-calendar,
+  .floating-notes {
+    max-width: 90vw;
+  }
+  
+  /* Ensure hint doesn't cover content */
+  .canvas-hint {
+    bottom: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    transform: none;
+    max-width: none;
+  }
+}
+
+/* Tablet adjustments (481px - 1024px) */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .canvas-tab {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+  }
+  
+  .dynamic-island {
+    height: 34px;
+    font-size: 0.75rem;
+  }
+  
+  .theme-btn {
+    height: 34px;
+    font-size: 0.75rem;
   }
 }

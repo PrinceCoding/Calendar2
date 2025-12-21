@@ -4,10 +4,13 @@
 header {
   position: relative;
   z-index: 1002;
-  padding: 0.9rem 1rem 1rem;
+  padding: 0.9rem 1rem 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .dynamic-island {

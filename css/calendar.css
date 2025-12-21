@@ -2,9 +2,9 @@
     FLOATING CALENDAR WIDGET
     ========================= */
 .floating-calendar {
-  position: fixed;
-  top: 5rem;
-  left: 1.2rem;
+  position: absolute;
+  top: 50px;
+  left: 50px;
   width: 900px;
   max-width: calc(100vw - 2.4rem);
   max-height: calc(100vh - 7rem);
@@ -16,7 +16,7 @@
   box-shadow: var(--shadow-soft), var(--shadow-float);
   padding: 0.8rem;
   z-index: 990;
-  display: flex;
+  display: none;
   flex-direction: column;
   cursor: grab;
   user-select: none;

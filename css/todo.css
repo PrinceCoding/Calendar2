@@ -2,9 +2,9 @@
     FLOATING TODO LIST
     ========================= */
 .floating-todo {
-  position: fixed;
-  bottom: 1.2rem;
-  left: 1.2rem;
+  position: absolute;
+  top: 100px;
+  left: 400px;
   width: 280px;
   max-height: 400px;
   padding: 0.8rem;

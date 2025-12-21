@@ -2,9 +2,9 @@
     FLOATING NOTES WIDGET
     ========================= */
 .floating-notes {
-  position: fixed;
-  bottom: 1.2rem;
-  right: 25rem;
+  position: absolute;
+  top: 450px;
+  left: 700px;
   width: 420px;
   max-height: 500px;
   padding: 0.8rem;
@@ -16,7 +16,7 @@
   box-shadow: var(--shadow-soft), var(--shadow-float);
   cursor: grab;
   z-index: 994;
-  display: flex;
+  display: none;
   flex-direction: column;
   user-select: none;
 }

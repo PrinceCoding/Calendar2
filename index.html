@@ -33,9 +33,20 @@
     </div>
   </div>
 
+  <div id="canvasTabs" class="canvas-tabs"></div>
+
   <button id="themeBtn" class="theme-btn">🍎 macOS</button>
   <button id="settingsBtn" class="theme-btn" style="right:5.5rem;">⚙️ Settings</button>
 </header>
+
+<!-- Canvas Workspace -->
+<div id="canvasWorkspace">
+<div id="canvasContent"></div>
+
+<!-- Canvas Helper Hint -->
+<div class="canvas-hint" id="canvasHint">
+  💡 <strong>Quick Tips:</strong> Hold <kbd>Space</kbd> + drag or middle-click to pan • Drag widgets by header • Click <strong>▦</strong> to toggle widgets • Click <strong>+</strong> to add canvas • Click <strong>×</strong> on tab to delete canvas
+</div>
 
 <!-- Floating Analog Clock -->
 <div id="analogClock" class="analog-clock">
@@ -129,6 +140,43 @@
   </div>
   <div id="eventsList" class="events-list"></div>
 </div>
+
+<!-- Floating Calendar Widget -->
+<div id="floatingCalendar" class="floating-calendar">
+  <button id="closeCalendarBtn" class="close-widget-btn" title="Close Calendar">✕</button>
+  <div class="resize-handle"></div>
+  <div class="calendar-header">
+    <h1 class="calendar-title" id="year">Calendar 2025</h1>
+    <div class="calendar-controls">
+      <button id="todayBtn" class="calendar-today-btn">📍 Today</button>
+      <button id="monthToggleBtn" class="calendar-month-btn">📅 Year View</button>
+      <button id="prev" class="calendar-nav-btn">◀</button>
+      <button id="next" class="calendar-nav-btn">▶</button>
+    </div>
+  </div>
+  <div id="calendar" class="calendar"></div>
+</div>
+
+<!-- Floating Notes Widget -->
+<div id="floatingNotes" class="floating-notes">
+  <button id="closeNotesBtn" class="close-widget-btn" title="Close Notes">✕</button>
+  <div class="resize-handle"></div>
+  <div class="notes-header">
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <h2 style="margin:0">Notes</h2>
+      <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
+    </div>
+    <div class="notes-tools">
+      <button data-cmd="bold"><b>B</b></button>
+      <button data-cmd="italic"><i>I</i></button>
+      <button data-cmd="underline"><u>U</u></button>
+      <button data-cmd="insertUnorderedList">• List</button>
+    </div>
+  </div>
+  <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
+</div>
+
+</div><!-- End Canvas Workspace -->
 
 <!-- App Launcher Button -->
 <button id="appLauncherBtn" class="app-launcher-btn" title="Apps">▦</button>
@@ -260,24 +308,6 @@
   </div>
 </div>
 
-<main id="mainLayout">
-
-<!-- Floating Calendar Widget -->
-<div id="floatingCalendar" class="floating-calendar">
-  <button id="closeCalendarBtn" class="close-widget-btn" title="Close Calendar">✕</button>
-  <div class="resize-handle"></div>
-  <div class="calendar-header">
-    <h1 class="calendar-title" id="year">Calendar 2025</h1>
-    <div class="calendar-controls">
-      <button id="todayBtn" class="calendar-today-btn">📍 Today</button>
-      <button id="monthToggleBtn" class="calendar-month-btn">📅 Year View</button>
-      <button id="prev" class="calendar-nav-btn">◀</button>
-      <button id="next" class="calendar-nav-btn">▶</button>
-    </div>
-  </div>
-  <div id="calendar" class="calendar"></div>
-</div>
-
 <!-- Floating Notes Widget -->
 <div id="floatingNotes" class="floating-notes">
   <button id="closeNotesBtn" class="close-widget-btn" title="Close Notes">✕</button>
@@ -297,7 +327,7 @@
   <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
 </div>
 
-</main>
+</div><!-- End Canvas Workspace -->
 
 <script>
   const calEl = document.getElementById('calendar');
@@ -754,79 +784,55 @@
   function updateCalendarVisibility(visible) {
     if (!floatingCalendar) return;
     floatingCalendar.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(CALENDAR_VIS_KEY, String(visible));
     if (toggleCalendarApp) toggleCalendarApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
   window.updateCalendarVisibility = updateCalendarVisibility;
 
   function updateClockVisibility(visible) {
     if (!clock) return;
     clock.style.display = visible ? 'block' : 'none';
-    localStorage.setItem(CLOCK_VIS_KEY, String(visible));
     if (toggleClockApp) toggleClockApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
 
   function updatePomoVisibility(visible) {
     if (!floatingPomo) return;
-    floatingPomo.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(POMO_VIS_KEY, String(visible));
+    floatingPomo.style.display = visible ? 'block' : 'none';
     if (togglePomoApp) togglePomoApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
 
   function updateTodoVisibility(visible) {
     if (!floatingTodo) return;
     floatingTodo.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(TODO_VIS_KEY, String(visible));
     if (toggleTodoApp) toggleTodoApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
 
   function updateEventsVisibility(visible) {
     if (!floatingEvents) return;
     floatingEvents.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(EVENTS_VIS_KEY, String(visible));
     if (toggleEventsApp) toggleEventsApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
   window.updateEventsVisibility = updateEventsVisibility;
 
   function updateNotesVisibility(visible) {
     if (!floatingNotes) return;
     floatingNotes.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(NOTES_VIS_KEY, String(visible));
     if (toggleNotesApp) toggleNotesApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
 
-  // Init states from localStorage
-  (function initWidgetVisibility() {
-    const savedCalendar = localStorage.getItem(CALENDAR_VIS_KEY);
-    const showCalendar = savedCalendar === null ? true : savedCalendar !== 'false';
-    updateCalendarVisibility(showCalendar);
-
-    const savedClock = localStorage.getItem(CLOCK_VIS_KEY);
-    const showClock = savedClock === null ? true : savedClock !== 'false';
-    updateClockVisibility(showClock);
-
-    const savedPomoVis = localStorage.getItem(POMO_VIS_KEY);
-    const showPomo = savedPomoVis === null ? true : savedPomoVis !== 'false';
-    updatePomoVisibility(showPomo);
-
-    const savedTodoVis = localStorage.getItem(TODO_VIS_KEY);
-    const showTodo = savedTodoVis === null ? true : savedTodoVis !== 'false';
-    updateTodoVisibility(showTodo);
-
-    const savedEventsVis = localStorage.getItem(EVENTS_VIS_KEY);
-    const showEvents = savedEventsVis === null ? true : savedEventsVis !== 'false';
-    updateEventsVisibility(showEvents);
-
-    const savedNotesVis = localStorage.getItem(NOTES_VIS_KEY);
-    const showNotes = savedNotesVis === null ? true : savedNotesVis !== 'false';
-    updateNotesVisibility(showNotes);
-  })();
+  // Note: Widget visibility is now managed per-canvas via loadCanvasPositions()
+  // called during canvas initialization
 
   // App toggle click handlers
   if (toggleCalendarApp) {
     toggleCalendarApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(CALENDAR_VIS_KEY) !== 'false';
+      const isVisible = floatingCalendar && floatingCalendar.style.display !== 'none';
       updateCalendarVisibility(!isVisible);
     };
   }
@@ -834,35 +840,35 @@
   if (toggleClockApp) {
     toggleClockApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(CLOCK_VIS_KEY) !== 'false';
+      const isVisible = clock && clock.style.display !== 'none';
       updateClockVisibility(!isVisible);
     };
   }
   if (togglePomoApp) {
     togglePomoApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(POMO_VIS_KEY) !== 'false';
+      const isVisible = floatingPomo && floatingPomo.style.display !== 'none';
       updatePomoVisibility(!isVisible);
     };
   }
   if (toggleTodoApp) {
     toggleTodoApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(TODO_VIS_KEY) !== 'false';
+      const isVisible = floatingTodo && floatingTodo.style.display !== 'none';
       updateTodoVisibility(!isVisible);
     };
   }
   if (toggleEventsApp) {
     toggleEventsApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(EVENTS_VIS_KEY) !== 'false';
+      const isVisible = floatingEvents && floatingEvents.style.display !== 'none';
       updateEventsVisibility(!isVisible);
     };
   }
   if (toggleNotesApp) {
     toggleNotesApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(NOTES_VIS_KEY) !== 'false';
+      const isVisible = floatingNotes && floatingNotes.style.display !== 'none';
       updateNotesVisibility(!isVisible);
     };
   }
@@ -892,8 +898,8 @@
   function updateCalculatorVisibility(visible) {
     if (!floatingCalculator) return;
     floatingCalculator.style.display = visible ? 'flex' : 'none';
-    localStorage.setItem(CALCULATOR_VIS_KEY, String(visible));
     if (toggleCalculatorApp) toggleCalculatorApp.classList.toggle('active', !!visible);
+    saveCurrentCanvasPositions();
   }
 
   function updateCalcDisplay(value) {
@@ -960,7 +966,7 @@
   if (toggleCalculatorApp) {
     toggleCalculatorApp.onclick = (e) => {
       e.stopPropagation();
-      const isVisible = localStorage.getItem(CALCULATOR_VIS_KEY) !== 'false';
+      const isVisible = floatingCalculator && floatingCalculator.style.display !== 'none';
       updateCalculatorVisibility(!isVisible);
     };
   }
@@ -983,25 +989,385 @@
   })();
 
   // =========================
-  // RESPONSIVE WIDGET POSITIONING
+  // MULTI-CANVAS MANAGEMENT
   // =========================
-  const WIDGET_POSITIONS_KEY = 'widget_positions_responsive';
+  const CANVASES_KEY = 'canvases_data';
+  let currentCanvasId = null;
+  let canvasesData = {};
+
+  function initCanvases() {
+    const saved = localStorage.getItem(CANVASES_KEY);
+    if (saved) {
+      canvasesData = JSON.parse(saved);
+    }
+    
+    // If no canvases exist, create default
+    if (Object.keys(canvasesData).length === 0) {
+      const defaultId = 'canvas_' + Date.now();
+      canvasesData[defaultId] = {
+        name: 'Canvas 1',
+        positions: {},
+        created: Date.now()
+      };
+      currentCanvasId = defaultId;
+    } else {
+      // Set first canvas as current
+      currentCanvasId = Object.keys(canvasesData)[0];
+    }
+    
+    saveCanvases();
+    renderCanvasTabs();
+    loadCanvasPositions();
+  }
+
+  function saveCanvases() {
+    localStorage.setItem(CANVASES_KEY, JSON.stringify(canvasesData));
+  }
+
+  function renderCanvasTabs() {
+    const tabsContainer = document.getElementById('canvasTabs');
+    if (!tabsContainer) return;
+    
+    tabsContainer.innerHTML = '';
+    
+    Object.keys(canvasesData).forEach((id, index) => {
+      const canvas = canvasesData[id];
+      const tab = document.createElement('div');
+      tab.className = 'canvas-tab' + (id === currentCanvasId ? ' active' : '');
+      tab.innerHTML = `
+        <span class="canvas-tab-name">${canvas.name}</span>
+        <span class="canvas-tab-edit" title="Rename">✎</span>
+        ${Object.keys(canvasesData).length > 1 ? '<span class="canvas-tab-close" title="Delete">×</span>' : ''}
+      `;
+      
+      const nameSpan = tab.querySelector('.canvas-tab-name');
+      const editBtn = tab.querySelector('.canvas-tab-edit');
+      const closeBtn = tab.querySelector('.canvas-tab-close');
+      
+      // Click tab to switch
+      tab.addEventListener('click', (e) => {
+        // Don't switch if clicking on buttons
+        if (e.target === editBtn || e.target === closeBtn) {
+          return;
+        }
+        switchCanvas(id);
+      });
+      
+      // Click edit button to rename
+      if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = canvas.name;
+          input.className = 'canvas-rename-input';
+          
+          tab.classList.add('editing');
+          nameSpan.replaceWith(input);
+          input.focus();
+          input.select();
+          
+          const finishRename = () => {
+            const newName = input.value;
+            const newSpan = document.createElement('span');
+            newSpan.className = 'canvas-tab-name';
+            newSpan.textContent = newName || canvas.name;
+            input.replaceWith(newSpan);
+            tab.classList.remove('editing');
+            
+            if (newName && newName !== canvas.name) {
+              renameCanvas(id, newName);
+            }
+          };
+          
+          input.addEventListener('blur', finishRename);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              finishRename();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              input.value = canvas.name;
+              finishRename();
+            }
+          });
+        });
+      }
+      
+      // Click close button to delete
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteCanvas(id);
+        });
+      }
+      
+      tabsContainer.appendChild(tab);
+    });
+    
+    // Add new canvas button
+    const addBtn = document.createElement('button');
+    addBtn.className = 'canvas-add-btn';
+    addBtn.textContent = '+';
+    addBtn.title = 'Add Canvas';
+    addBtn.addEventListener('click', addCanvas);
+    tabsContainer.appendChild(addBtn);
+  }
+
+  function switchCanvas(id) {
+    if (id === currentCanvasId) return;
+    
+    // Save current canvas positions
+    saveCurrentCanvasPositions();
+    
+    // Switch to new canvas
+    currentCanvasId = id;
+    renderCanvasTabs();
+    loadCanvasPositions();
+  }
+
+  function addCanvas() {
+    const count = Object.keys(canvasesData).length + 1;
+    const newId = 'canvas_' + Date.now();
+    canvasesData[newId] = {
+      name: 'Canvas ' + count,
+      positions: {},
+      created: Date.now()
+    };
+    saveCanvases();
+    switchCanvas(newId);
+  }
+
+  function deleteCanvas(id) {
+    if (Object.keys(canvasesData).length === 1) {
+      return;
+    }
+    
+    delete canvasesData[id];
+    
+    if (currentCanvasId === id) {
+      currentCanvasId = Object.keys(canvasesData)[0];
+    }
+    
+    saveCanvases();
+    renderCanvasTabs();
+    loadCanvasPositions();
+  }
+
+  function renameCanvas(id, newName) {
+    if (!newName || !newName.trim()) return;
+    canvasesData[id].name = newName.trim();
+    saveCanvases();
+    renderCanvasTabs();
+  }
+
+  function saveCurrentCanvasPositions() {
+    if (!currentCanvasId) return;
+    
+    const positions = {};
+    const visibility = {};
+    const widgets = [
+      { el: clock, id: 'analogClock' },
+      { el: floatingPomo, id: 'floatingPomo' },
+      { el: floatingTodo, id: 'floatingTodo' },
+      { el: floatingEvents, id: 'floatingEvents' },
+      { el: floatingCalculator, id: 'floatingCalculator' },
+      { el: floatingCalendar, id: 'floatingCalendar' },
+      { el: floatingNotes, id: 'floatingNotes' }
+    ];
+    
+    widgets.forEach(({ el, id }) => {
+      if (el) {
+        // Save visibility state
+        visibility[id] = el.style.display !== 'none';
+        
+        // Save position if widget has been positioned
+        if (el.style.left && el.style.top) {
+          positions[id] = {
+            left: el.style.left,
+            top: el.style.top,
+            width: el.style.width || '',
+            height: el.style.height || ''
+          };
+        }
+      }
+    });
+    
+    // Save scroll position
+    const canvasWorkspace = document.getElementById('canvasWorkspace');
+    if (canvasWorkspace) {
+      canvasesData[currentCanvasId].scrollLeft = canvasWorkspace.scrollLeft;
+      canvasesData[currentCanvasId].scrollTop = canvasWorkspace.scrollTop;
+    }
+    
+    canvasesData[currentCanvasId].positions = positions;
+    canvasesData[currentCanvasId].visibility = visibility;
+    saveCanvases();
+  }
+
+  function loadCanvasPositions() {
+    if (!currentCanvasId) return;
+    
+    const positions = canvasesData[currentCanvasId].positions || {};
+    const visibility = canvasesData[currentCanvasId].visibility || {};
+    const canvasWorkspace = document.getElementById('canvasWorkspace');
+    
+    // Restore or reset scroll position
+    if (canvasWorkspace) {
+      const scrollLeft = canvasesData[currentCanvasId].scrollLeft;
+      const scrollTop = canvasesData[currentCanvasId].scrollTop;
+      
+      if (scrollLeft !== undefined && scrollTop !== undefined) {
+        canvasWorkspace.scrollLeft = scrollLeft;
+        canvasWorkspace.scrollTop = scrollTop;
+      } else {
+        // New canvas - reset to default position
+        canvasWorkspace.scrollLeft = 0;
+        canvasWorkspace.scrollTop = 0;
+      }
+    }
+    
+    // Default positions for widgets
+    const defaults = {
+      analogClock: { left: '100px', top: '100px' },
+      floatingPomo: { left: '250px', top: '100px' },
+      floatingTodo: { left: '400px', top: '100px' },
+      floatingCalculator: { left: '700px', top: '100px' },
+      floatingEvents: { left: '400px', top: '250px' },
+      floatingCalendar: { left: '50px', top: '50px' },
+      floatingNotes: { left: '700px', top: '450px' }
+    };
+    
+    // Default visibility (empty canvas - all hidden)
+    const defaultVisibility = {
+      analogClock: false,
+      floatingPomo: false,
+      floatingTodo: false,
+      floatingEvents: false,
+      floatingCalculator: false,
+      floatingCalendar: false,
+      floatingNotes: false
+    };
+    
+    const widgets = [
+      { el: clock, id: 'analogClock', display: 'block' },
+      { el: floatingPomo, id: 'floatingPomo', display: 'block' },
+      { el: floatingTodo, id: 'floatingTodo', display: 'flex' },
+      { el: floatingEvents, id: 'floatingEvents', display: 'flex' },
+      { el: floatingCalculator, id: 'floatingCalculator', display: 'flex' },
+      { el: floatingCalendar, id: 'floatingCalendar', display: 'flex' },
+      { el: floatingNotes, id: 'floatingNotes', display: 'flex' }
+    ];
+    
+    widgets.forEach(({ el, id, display }) => {
+      if (!el) return;
+      
+      const saved = positions[id];
+      const defaultPos = defaults[id];
+      const isVisible = visibility[id] !== undefined ? visibility[id] : defaultVisibility[id];
+      
+      // Set visibility
+      el.style.display = isVisible ? display : 'none';
+      
+      // Update toggle button state
+      const toggleMap = {
+        'analogClock': toggleClockApp,
+        'floatingPomo': togglePomoApp,
+        'floatingTodo': toggleTodoApp,
+        'floatingEvents': toggleEventsApp,
+        'floatingCalculator': toggleCalculatorApp,
+        'floatingCalendar': toggleCalendarApp,
+        'floatingNotes': toggleNotesApp
+      };
+      const toggleBtn = toggleMap[id];
+      if (toggleBtn) {
+        toggleBtn.classList.toggle('active', isVisible);
+      }
+      
+      // Set position
+      if (saved && saved.left && saved.top) {
+        // Use saved position
+        el.style.left = saved.left;
+        el.style.top = saved.top;
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        if (saved.width) el.style.width = saved.width;
+        if (saved.height) el.style.height = saved.height;
+      } else if (defaultPos) {
+        // Use default position for new canvas and reset size
+        el.style.left = defaultPos.left;
+        el.style.top = defaultPos.top;
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.width = '';
+        el.style.height = '';
+      }
+    });
+    
+    // Update canvas size after loading positions
+    setTimeout(updateCanvasSize, 100);
+  }
+
+  // Initialize canvases
+  initCanvases();
+
+  // =========================
+  // DYNAMIC CANVAS SIZING
+  // =========================
+  function updateCanvasSize() {
+    const canvasContent = document.getElementById('canvasContent');
+    if (!canvasContent) return;
+    
+    const widgets = [clock, floatingPomo, floatingTodo, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes];
+    
+    let maxRight = window.innerWidth;
+    let maxBottom = window.innerHeight;
+    
+    widgets.forEach(widget => {
+      if (widget && widget.style.display !== 'none') {
+        const left = parseFloat(widget.style.left) || 0;
+        const top = parseFloat(widget.style.top) || 0;
+        const width = widget.offsetWidth || 0;
+        const height = widget.offsetHeight || 0;
+        
+        const right = left + width;
+        const bottom = top + height;
+        
+        if (right > maxRight) maxRight = right;
+        if (bottom > maxBottom) maxBottom = bottom;
+      }
+    });
+    
+    // Add padding
+    const padding = 200;
+    canvasContent.style.width = (maxRight + padding) + 'px';
+    canvasContent.style.height = (maxBottom + padding) + 'px';
+  }
+  
+  // Update canvas size initially and on window resize
+  updateCanvasSize();
+  window.addEventListener('resize', updateCanvasSize);
+
+  // =========================
+  // CANVAS WIDGET POSITIONING
+  // =========================
+  let highestZIndex = 1000;
+  
+  // Bring widget to front when clicked
+  function bringToFront(el) {
+    if (!el) return;
+    highestZIndex++;
+    el.style.zIndex = highestZIndex;
+  }
   
   function constrainWidgetToViewport(el) {
     if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    // In canvas mode, widgets can be placed anywhere
+    // Only ensure they don't go negative
+    let left = parseFloat(el.style.left) || 0;
+    let top = parseFloat(el.style.top) || 0;
     
-    let left = parseFloat(el.style.left) || rect.left;
-    let top = parseFloat(el.style.top) || rect.top;
-    
-    // Ensure widget is at least partially visible
-    const minVisible = 50; // At least 50px must be visible
-    
-    if (left + minVisible > vw) left = vw - minVisible;
-    if (left + rect.width < minVisible) left = minVisible - rect.width;
-    if (top + minVisible > vh) top = vh - minVisible;
+    if (left < 0) left = 0;
     if (top < 0) top = 0;
     
     el.style.left = left + 'px';
@@ -1009,38 +1375,15 @@
   }
   
   function saveWidgetPosition(el, id) {
-    if (!el || !id) return;
-    const positions = JSON.parse(localStorage.getItem(WIDGET_POSITIONS_KEY) || '{}');
-    positions[id] = {
-      left: el.style.left,
-      top: el.style.top,
-      width: el.style.width || '',
-      height: el.style.height || '',
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight
-    };
-    localStorage.setItem(WIDGET_POSITIONS_KEY, JSON.stringify(positions));
+    // Save to current canvas
+    saveCurrentCanvasPositions();
+    // Update canvas size
+    updateCanvasSize();
   }
   
   function restoreWidgetPosition(el, id) {
-    if (!el || !id) return;
-    const positions = JSON.parse(localStorage.getItem(WIDGET_POSITIONS_KEY) || '{}');
-    const saved = positions[id];
-    
-    if (saved && saved.left && saved.top) {
-      // Restore position
-      el.style.left = saved.left;
-      el.style.top = saved.top;
-      el.style.right = 'auto';
-      el.style.bottom = 'auto';
-      
-      // Restore size if saved
-      if (saved.width) el.style.width = saved.width;
-      if (saved.height) el.style.height = saved.height;
-      
-      // Ensure it's still visible
-      constrainWidgetToViewport(el);
-    }
+    // Positions are loaded via loadCanvasPositions
+    // This function is kept for compatibility
   }
   
   function adjustAllWidgetsToViewport() {
@@ -1082,6 +1425,9 @@
       
       // prevent dragging when pressing inner buttons or input fields
       if (e.target && (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      
+      // Bring to front when starting to drag
+      bringToFront(el);
       
       isDragging = true;
       const p = getPoint(e);
@@ -1183,6 +1529,7 @@
   restoreWidgetPosition(floatingCalendar, 'floatingCalendar');
   restoreWidgetPosition(floatingNotes, 'floatingNotes');
 
+  // Setup draggable and resizable functionality
   makeDraggable(clock, null, 'analogClock');
   makeDraggable(floatingPomo, null, 'floatingPomo');
   makeDraggable(floatingTodo, '.todo-header', 'floatingTodo');
@@ -1198,6 +1545,15 @@
   makeResizable(floatingCalendar, 'floatingCalendar');
   makeResizable(floatingNotes, 'floatingNotes');
 
+  // Add click handlers to bring widgets to front
+  const allWidgets = [clock, floatingPomo, floatingTodo, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes];
+  allWidgets.forEach(widget => {
+    if (widget) {
+      widget.addEventListener('mousedown', () => bringToFront(widget));
+      widget.addEventListener('touchstart', () => bringToFront(widget));
+    }
+  });
+
   // Handle viewport resize and orientation change
   let resizeTimeout;
   window.addEventListener('resize', () => {
@@ -1207,6 +1563,73 @@
   
   window.addEventListener('orientationchange', () => {
     setTimeout(adjustAllWidgetsToViewport, 300);
+  });
+
+  // =========================
+  // CANVAS PANNING (Space + Drag)
+  // =========================
+  const canvasWorkspace = document.getElementById('canvasWorkspace');
+  const canvasHint = document.getElementById('canvasHint');
+  let isPanning = false;
+  let panStartX = 0;
+  let panStartY = 0;
+  let scrollStartX = 0;
+  let scrollStartY = 0;
+  let spacePressed = false;
+
+  // Auto-hide hint after 8 seconds
+  if (canvasHint) {
+    setTimeout(() => {
+      canvasHint.classList.add('hidden');
+    }, 8000);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !e.repeat && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && !e.target.isContentEditable) {
+      e.preventDefault();
+      spacePressed = true;
+      canvasWorkspace.style.cursor = 'grab';
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') {
+      spacePressed = false;
+      canvasWorkspace.style.cursor = '';
+      if (isPanning) {
+        isPanning = false;
+        canvasWorkspace.classList.remove('panning');
+      }
+    }
+  });
+
+  canvasWorkspace.addEventListener('mousedown', (e) => {
+    // Pan with Space+LMB or Middle Mouse Button
+    if ((spacePressed && e.button === 0) || e.button === 1) {
+      e.preventDefault();
+      isPanning = true;
+      canvasWorkspace.classList.add('panning');
+      panStartX = e.clientX;
+      panStartY = e.clientY;
+      scrollStartX = canvasWorkspace.scrollLeft;
+      scrollStartY = canvasWorkspace.scrollTop;
+    }
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isPanning) {
+      const deltaX = panStartX - e.clientX;
+      const deltaY = panStartY - e.clientY;
+      canvasWorkspace.scrollLeft = scrollStartX + deltaX;
+      canvasWorkspace.scrollTop = scrollStartY + deltaY;
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isPanning) {
+      isPanning = false;
+      canvasWorkspace.classList.remove('panning');
+    }
   });
 
   // =========================

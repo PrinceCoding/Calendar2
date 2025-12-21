@@ -2,9 +2,9 @@
     FLOATING EVENTS WIDGET
     ========================= */
 .floating-events {
-  position: fixed;
-  bottom: 1.2rem;
-  left: 20rem;
+  position: absolute;
+  top: 250px;
+  left: 400px;
   width: 320px;
   max-height: 450px;
   padding: 0.8rem;
