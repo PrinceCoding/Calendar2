@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="css/app-launcher.css?v=2">
   <link rel="stylesheet" href="css/canvas-tabs.css?v=2">
   <link rel="stylesheet" href="css/widgets.css?v=2">
+  <link rel="stylesheet" href="css/dragging.css?v=2">
   <link rel="stylesheet" href="css/mobile.css?v=2">
 </head>
 <body>
@@ -1045,12 +1046,13 @@
   function constrainWidgetToViewport(el) {
     if (!el) return;
     // In canvas mode, widgets can be placed anywhere
-    // Only ensure they don't go negative
+    // Only ensure they don't go negative or above canvas
+    const minTop = 44; // Canvas starts at 44px (header height)
     let left = parseFloat(el.style.left) || 0;
     let top = parseFloat(el.style.top) || 0;
     
     if (left < 0) left = 0;
-    if (top < 0) top = 0;
+    if (top < minTop) top = minTop;
     
     el.style.left = left + 'px';
     el.style.top = top + 'px';
@@ -1115,6 +1117,11 @@
       startLeft = el.offsetLeft; startTop = el.offsetTop;
       el.style.right = 'auto';
       el.style.bottom = 'auto';
+      
+      // Add dragging class for visual feedback
+      el.classList.add('is-dragging');
+      document.body.classList.add('dragging-active');
+      
       // Prevent scrolling on touch devices only when actually dragging from valid area
       if (e.type === 'touchstart') {
         e.preventDefault();
@@ -1135,6 +1142,11 @@
     const endDrag = () => {
       if (!isDragging) return;
       isDragging = false;
+      
+      // Remove dragging class
+      el.classList.remove('is-dragging');
+      document.body.classList.remove('dragging-active');
+      
       constrainWidgetToViewport(el);
       if (widgetId) saveWidgetPosition(el, widgetId);
     };

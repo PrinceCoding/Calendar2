@@ -24,26 +24,24 @@ body {
 /* Canvas Workspace */
 #canvasWorkspace {
   position: fixed;
-  top: 66px;
+  top: 44px;
   left: 0;
   right: 0;
   bottom: 0;
   overflow: auto;
-  background-image: 
-    linear-gradient(rgba(128, 128, 128, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  background-position: -1px -1px;
+  border-top: 2px solid rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-x pan-y;
+  z-index: 1;
 }
 
 body.dark #canvasWorkspace {
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 #canvasWorkspace.panning {
@@ -51,13 +49,24 @@ body.dark #canvasWorkspace {
   user-select: none;
 }
 
-/* Canvas content area - dynamic sizing based on widgets */
+/* Canvas content area - dynamic sizing based on widgets with grid background */
 #canvasWorkspace::before {
   content: '';
   display: block;
   min-width: 100vw;
   min-height: 100vh;
   pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(128, 128, 128, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: -1px -1px;
+}
+
+body.dark #canvasWorkspace::before {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
 #canvasContent {

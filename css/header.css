@@ -4,7 +4,7 @@
 header {
   position: relative;
   z-index: 1005;
-  padding: 0.6rem 0.8rem;
+  padding: 0.4rem 0.6rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,12 +13,12 @@ header {
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   flex-wrap: wrap;
-  min-height: 56px;
+  min-height: 44px;
 }
 
 @media (min-width: 1025px) {
   header {
-    padding: 0.8rem 1rem;
+    padding: 0.5rem 0.8rem;
     flex-wrap: nowrap;
   }
 }

@@ -3,11 +3,11 @@
     ========================= */
 .floating-calendar {
   position: absolute;
-  top: 50px;
+  top: 100px;
   left: 50px;
   width: 900px;
   max-width: calc(100vw - 2.4rem);
-  max-height: calc(100vh - 7rem);
+  max-height: calc(100vh - 160px);
   background: var(--card);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -15,7 +15,7 @@
   border-radius: 16px;
   box-shadow: var(--shadow-soft), var(--shadow-float);
   padding: 0.8rem;
-  z-index: 990;
+  z-index: 1012;
   display: none;
   flex-direction: column;
   cursor: grab;

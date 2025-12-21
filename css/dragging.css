@@ -1,0 +1,189 @@
+/* =========================
+    ENHANCED DRAGGING EXPERIENCE
+    ========================= */
+
+/* Only show grab cursor on draggable headers, not entire widget */
+.todo-header,
+.events-header,
+.calc-header,
+.calendar-header,
+.notes-header,
+.canvas-manager-header,
+.floating-pomo,
+.analog-clock {
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+}
+
+/* Remove grab cursor from widget bodies */
+.floating-calendar,
+.floating-todo,
+.floating-events,
+.floating-calculator,
+.floating-notes,
+.canvas-manager {
+  cursor: default;
+}
+
+.todo-header:active,
+.events-header:active,
+.calc-header:active,
+.calendar-header:active,
+.notes-header:active,
+.canvas-manager-header:active,
+.floating-pomo:active,
+.analog-clock:active {
+  cursor: grabbing;
+}
+
+/* Visual feedback when dragging */
+.is-dragging {
+  cursor: grabbing !important;
+  opacity: 0.9;
+  transform: scale(1.02);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  transition: none !important;
+}
+
+body.dark .is-dragging {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Prevent text selection while dragging */
+body.dragging-active {
+  cursor: grabbing !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Header drag handles - more obvious on hover/touch */
+.todo-header,
+.events-header,
+.calc-header,
+.calendar-header,
+.notes-header,
+.canvas-manager-header {
+  position: relative;
+}
+
+.todo-header:hover,
+.events-header:hover,
+.calc-header:hover,
+.calendar-header:hover,
+.notes-header:hover,
+.canvas-manager-header:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.dark .todo-header:hover,
+body.dark .events-header:hover,
+body.dark .calc-header:hover,
+body.dark .calendar-header:hover,
+body.dark .notes-header:hover,
+body.dark .canvas-manager-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.todo-header:active,
+.events-header:active,
+.calc-header:active,
+.calendar-header:active,
+.notes-header:active,
+.canvas-manager-header:active {
+  cursor: grabbing;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.dark .todo-header:active,
+body.dark .events-header:active,
+body.dark .calc-header:active,
+body.dark .calendar-header:active,
+body.dark .notes-header:active,
+body.dark .canvas-manager-header:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Add visual drag indicator icon to headers */
+.todo-header::before,
+.events-header::before,
+.calc-header::before,
+.calendar-header::before,
+.notes-header::before,
+.canvas-manager-header::before {
+  content: '⋮⋮';
+  position: absolute;
+  left: 0.5rem;
+  opacity: 0.3;
+  font-size: 0.9rem;
+  letter-spacing: -2px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.todo-header:hover::before,
+.events-header:hover::before,
+.calc-header:hover::before,
+.calendar-header:hover::before,
+.notes-header:hover::before,
+.canvas-manager-header:hover::before {
+  opacity: 0.6;
+}
+
+/* Touch feedback for mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  .floating-calendar,
+  .floating-todo,
+  .floating-events,
+  .floating-calculator,
+  .floating-notes,
+  .floating-pomo,
+  .analog-clock,
+  .canvas-manager {
+    /* Always show slight shadow to indicate draggability */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    cursor: default;
+  }
+  
+  .is-dragging {
+    opacity: 0.85;
+    transform: scale(1.05);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  /* Make drag indicator more visible on touch devices */
+  .todo-header::before,
+  .events-header::before,
+  .calc-header::before,
+  .calendar-header::before,
+  .notes-header::before,
+  .canvas-manager-header::before {
+    opacity: 0.5;
+  }
+  
+  /* Add tap highlight for better feedback */
+  .todo-header,
+  .events-header,
+  .calc-header,
+  .calendar-header,
+  .notes-header,
+  .canvas-manager-header,
+  .floating-pomo,
+  .analog-clock {
+    -webkit-tap-highlight-color: rgba(0, 122, 255, 0.1);
+    cursor: grab;
+  }
+}
+
+/* Smooth transitions when not dragging */
+.floating-calendar:not(.is-dragging),
+.floating-todo:not(.is-dragging),
+.floating-events:not(.is-dragging),
+.floating-calculator:not(.is-dragging),
+.floating-notes:not(.is-dragging),
+.floating-pomo:not(.is-dragging),
+.analog-clock:not(.is-dragging),
+.canvas-manager:not(.is-dragging) {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}

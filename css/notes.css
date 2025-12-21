@@ -3,10 +3,10 @@
     ========================= */
 .floating-notes {
   position: absolute;
-  top: 450px;
+  top: 100px;
   left: 700px;
   width: 420px;
-  max-height: 500px;
+  max-height: calc(100vh - 150px);
   padding: 0.8rem;
   border-radius: 16px;
   background: var(--card);
@@ -15,7 +15,7 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft), var(--shadow-float);
   cursor: grab;
-  z-index: 994;
+  z-index: 1007;
   display: none;
   flex-direction: column;
   user-select: none;

@@ -37,8 +37,11 @@
 .app-drawer {
   display: none;
   position: fixed;
-  inset: 0;
-  z-index: 1004;
+  top: 44px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
   background: rgba(0,0,0,0.3);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -46,10 +49,10 @@
 
 .app-drawer-content {
   position: absolute;
-  top: 4.2rem;
+  top: 24px;
   left: 1rem;
   width: 280px;
-  max-height: calc(100vh - 5rem);
+  max-height: calc(100% - 32px);
   background: var(--card);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -60,6 +63,7 @@
   animation: slideUp 0.2s ease;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 @keyframes slideUp {

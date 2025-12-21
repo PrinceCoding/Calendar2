@@ -4,6 +4,8 @@
 
 .canvas-manager {
   position: absolute;
+  top: 100px;
+  left: 50px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -12,7 +14,9 @@
   min-width: 120px;
   width: 500px;
   max-width: 90vw;
+  max-height: calc(100vh - 150px);
   display: none;
+  flex-direction: column;
   cursor: grab;
   user-select: none;
   backdrop-filter: blur(10px);
