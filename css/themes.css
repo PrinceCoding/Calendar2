@@ -102,7 +102,7 @@ body.theme-glass .app-launcher-btn {
 
 body.theme-glass .app-launcher-btn:hover,
 body.theme-glass .app-launcher-btn:active {
-  transform: translateY(-50%);
+  transform: none;
 }
 
 body.theme-glass .floating-calendar,

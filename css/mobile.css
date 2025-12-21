@@ -187,25 +187,33 @@
     flex-shrink: 0;
   }
   
-  /* Hide pomodoro in header on very small screens */
-  .dynamic-island:has(#pomoTime) {
+  /* Hide pomodoro controls on very small screens but keep timer visible */
+  .dynamic-island:has(#pomoTime) .pomo-btn {
     display: none;
   }
   
-  /* Theme buttons - compact */
+  /* Compact pomodoro display */
+  .dynamic-island:has(#pomoTime) {
+    padding: 0 0.5rem;
+  }
+  
+  /* Theme and settings buttons - compact but visible */
   .theme-btn {
     position: relative !important;
     height: 28px;
-    font-size: 0.65rem;
-    padding: 0 0.6rem;
+    font-size: 0.62rem;
+    padding: 0 0.5rem;
     min-height: 28px;
     right: auto !important;
     flex-shrink: 0;
     order: 2;
+    white-space: nowrap;
   }
   
   #settingsBtn {
-    display: none; /* Hide on very small screens */
+    position: relative !important;
+    right: auto !important;
+    order: 3;
   }
   
   /* Canvas manager bar - full width */
@@ -453,13 +461,14 @@
     position: relative !important;
     right: auto !important;
     height: 34px;
-    font-size: 0.72rem;
-    padding: 0 0.75rem;
+    font-size: 0.7rem;
+    padding: 0 0.7rem;
     flex-shrink: 0;
   }
   
   #settingsBtn {
-    display: none;
+    position: relative !important;
+    right: auto !important;
   }
   
   .canvas-tabs-bar {

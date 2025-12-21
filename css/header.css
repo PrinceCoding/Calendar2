@@ -172,22 +172,23 @@ header {
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
+  background: var(--card);
+  color: var(--text);
+  flex-shrink: 0;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.theme-btn:active {
+  opacity: 0.8;
+  transform: scale(0.98);
 }
 
 .today-btn {
-  position: absolute;
-  top: 0.9rem;
-  left: 9rem;
   background: linear-gradient(180deg, #34c759, #28b84e);
   color: #fff;
-}
-
-.theme-btn {
-  position: absolute;
-  top: 0.9rem;
-  right: 1rem;
-  background: var(--card);
-  color: var(--text);
 }
 
 h1 {
