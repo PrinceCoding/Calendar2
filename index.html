@@ -372,7 +372,9 @@
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
   // Events data (initialized early for calendar rendering)
+  // Start with empty - will be loaded from Firebase when authenticated
   let events = [];
+  let eventsLoaded = false; // Track if Firebase data has been loaded
   let selectedCalendarDate = null;
 
   function renderCalendar(year) {
@@ -1364,7 +1366,10 @@
   // =========================
   // TODO LIST LOGIC
   // =========================
+  // Start with empty - will be loaded from Firebase when authenticated
   let todos = [];
+  let todosLoaded = false; // Track if Firebase data has been loaded
+  
   const todoInput = document.getElementById('todoInput');
   const todoAddBtn = document.getElementById('todoAddBtn');
   const todoList = document.getElementById('todoList');
@@ -1372,6 +1377,13 @@
   function renderTodos() {
     if (!todoList) return;
     todoList.innerHTML = '';
+    
+    // Show loading state if not loaded yet and user is authenticated
+    if (!todosLoaded && window.auth && auth.currentUser) {
+      todoList.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Loading todos from cloud...</div>';
+      return;
+    }
+    
     todos.forEach((todo, index) => {
       const item = document.createElement('div');
       item.className = 'todo-item';
@@ -1415,13 +1427,21 @@
 
   async function syncTodosToCloud() {
     try {
-      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) return;
+      // Require authentication for data operations
+      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
+        console.warn('[TODO] Not authenticated - data not saved');
+        return;
+      }
+      
       const ref = doc(db, 'user_todos', auth.currentUser.uid);
       await setDoc(ref, {
         items: todos,
         by: deviceId,
         updatedAt: serverTimestamp()
       }, { merge: true });
+      
+      // Only save to localStorage as cache after successful cloud sync
+      localStorage.setItem('todos_local_cache', JSON.stringify(todos));
     } catch (err) {
       console.error('[TODO] Cloud sync failed:', err);
     }
@@ -1431,6 +1451,8 @@
     try {
       if (!data) {
         console.log('[TODO] No data received');
+        todosLoaded = true;
+        renderTodos();
         return;
       }
       console.log('[TODO] Received data:', data);
@@ -1438,13 +1460,20 @@
       // if (data.by && data.by === deviceId) return;
       if (Array.isArray(data.items)) {
         todos = data.items;
+        todosLoaded = true;
         console.log('[TODO] Loaded', todos.length, 'todos from Firebase');
+        // Cache to localStorage only after successful Firebase load
+        localStorage.setItem('todos_local_cache', JSON.stringify(todos));
         renderTodos();
       } else {
         console.warn('[TODO] data.items is not an array:', data.items);
+        todosLoaded = true;
+        renderTodos();
       }
     } catch (e) {
       console.error('[TODO] applyRemoteTodos error:', e);
+      todosLoaded = true;
+      renderTodos();
     }
   };
 
@@ -1490,6 +1519,12 @@
   function renderEvents(filterDate = null) {
     if (!eventsList) return;
     eventsList.innerHTML = '';
+    
+    // Show loading state if not loaded yet and user is authenticated
+    if (!eventsLoaded && window.auth && auth.currentUser) {
+      eventsList.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Loading events from cloud...</div>';
+      return;
+    }
     
     // Filter events by date if specified
     const filteredEvents = filterDate 
@@ -1570,13 +1605,21 @@
 
   async function syncEventsToCloud() {
     try {
-      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) return;
+      // Require authentication for data operations
+      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
+        console.warn('[EVENTS] Not authenticated - data not saved');
+        return;
+      }
+      
       const ref = doc(db, 'user_events', auth.currentUser.uid);
       await setDoc(ref, {
         items: events,
         by: deviceId,
         updatedAt: serverTimestamp()
       }, { merge: true });
+      
+      // Only save to localStorage as cache after successful cloud sync
+      localStorage.setItem('events_local_cache', JSON.stringify(events));
     } catch (err) {
       console.error('[EVENTS] Cloud sync failed:', err);
     }
@@ -1586,6 +1629,9 @@
     try {
       if (!data) {
         console.log('[EVENTS] No data received');
+        eventsLoaded = true;
+        renderEvents(selectedCalendarDate);
+        renderCalendar(shownYear);
         return;
       }
       console.log('[EVENTS] Received data:', data);
@@ -1593,15 +1639,24 @@
       // if (data.by && data.by === deviceId) return;
       if (Array.isArray(data.items)) {
         events = data.items;
+        eventsLoaded = true;
         console.log('[EVENTS] Loaded', events.length, 'events from Firebase');
+        // Cache to localStorage only after successful Firebase load
+        localStorage.setItem('events_local_cache', JSON.stringify(events));
         // Preserve current filter when receiving remote updates
         renderEvents(selectedCalendarDate);
         renderCalendar(shownYear);
       } else {
         console.warn('[EVENTS] data.items is not an array:', data.items);
+        eventsLoaded = true;
+        renderEvents(selectedCalendarDate);
+        renderCalendar(shownYear);
       }
     } catch (e) {
       console.error('[EVENTS] applyRemoteEvents error:', e);
+      eventsLoaded = true;
+      renderEvents(selectedCalendarDate);
+      renderCalendar(shownYear);
     }
   };
 
