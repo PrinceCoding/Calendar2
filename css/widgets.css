@@ -76,7 +76,8 @@
   box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
   z-index: 1001;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.15s ease, box-shadow 0.15s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -91,24 +92,6 @@
   }
 }
 
-.close-widget-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
-}
-
-.close-widget-btn:active {
-  transform: scale(0.95);
-  box-shadow: 0 1px 4px rgba(255, 59, 48, 0.3);
-}
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 1000;
-  cursor: pointer;
-}
-
 .analog-clock:hover .close-widget-btn,
 .floating-pomo:hover .close-widget-btn,
 .floating-todo:hover .close-widget-btn,
@@ -121,8 +104,13 @@
 }
 
 .close-widget-btn:hover {
-  background: #d70015;
   transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
+}
+
+.close-widget-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 4px rgba(255, 59, 48, 0.3);
 }
 
 /* Always show close button on touch devices */
