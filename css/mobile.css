@@ -21,7 +21,7 @@
     padding: 0.6rem 1rem;
   }
   
-  /* Larger canvas tabs for easier tapping */
+  /* Larger canvas manager tabs for easier tapping */
   .canvas-tab {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
@@ -68,7 +68,7 @@
     min-height: 44px;
   }
   
-  /* Touch-friendly canvas tabs */
+  /* Touch-friendly canvas manager */
   .canvas-tabs-bar {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -102,40 +102,101 @@
 }
 
 @media (max-width: 480px) {
+  /* Small phones - compact layout */
   header {
-    padding: 0.7rem 0.6rem 1rem;
+    padding: 0.6rem 0.5rem;
+    flex-direction: row;
+    justify-content: space-between;
   }
   
-  /* Canvas tabs bar adjustments - full width on mobile */
-  .canvas-tabs-bar {
-    top: 62px;
-    left: 0.5rem;
-    right: 0.5rem;
+  /* App launcher - smaller and integrated */
+  .app-launcher-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
     transform: none;
-    max-width: none;
-    width: calc(100% - 1rem);
+    left: 0;
+    top: 0;
+  }
+  
+  .app-launcher-btn:hover,
+  .app-launcher-btn:active {
+    transform: none;
+  }
+  
+  /* Dynamic islands - compact */
+  header > div:nth-child(2) {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  
+  header > div:nth-child(2)::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .dynamic-island {
+    font-size: 0.7rem;
+    padding: 0 0.6rem;
+    height: 32px;
+    min-width: fit-content;
+  }
+  
+  /* Theme buttons - stacked on the right */
+  .theme-btn {
+    position: relative !important;
+    height: 32px;
+    font-size: 0.7rem;
+    padding: 0 0.6rem;
+    min-height: 32px;
+    right: auto !important;
+  }
+  
+  #settingsBtn {
+    display: none; /* Hide on very small screens */
+  }
+  
+  /* Canvas manager bar - full width */
+  .canvas-tabs-bar {
+    top: 56px;
+    left: 0;
+    right: 0;
+    transform: none;
+    max-width: 100%;
+    width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
   
   #canvasWorkspace {
-    top: 115px;
+    top: 104px;
   }
   
-  /* Larger touch targets for tabs on phones */
+  /* Canvas manager - larger for touch */
   .canvas-tab {
-    min-height: 52px;
-    padding: 1rem 1.5rem;
-    font-size: 0.95rem;
+    min-height: 48px;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.85rem;
     border-bottom-width: 3px;
+    min-width: 100px;
   }
   
   .canvas-tab-name {
     font-weight: 500;
   }
   
-  /* Always show edit/close buttons on mobile */
+  /* Always show edit/close buttons */
   .canvas-tab .canvas-tab-edit,
   .canvas-tab .canvas-tab-close {
-    opacity: 0.5;
+    opacity: 0.6;
+    width: 28px;
+    height: 28px;
   }
   
   .canvas-tab-edit:active,
@@ -145,110 +206,139 @@
   }
   
   .canvas-add-btn {
-    min-width: 60px;
-    font-size: 1.4rem;
+    min-width: 52px;
+    font-size: 1.2rem;
   }
   
-  /* App launcher adjustments */
-  .app-launcher-btn {
-    width: 44px;
-    height: 44px;
-    top: 0.5rem;
-    left: 0.6rem;
-  }
-
-  .dynamic-island {
-    font-size: 0.75rem;
-    padding: 0 0.8rem;
-    height: 36px;
-  }
-
-  .today-btn,
-  .theme-btn {
-    position: static;
-    height: 36px;
-    font-size: 0.75rem;
-    padding: 0 0.8rem;
-    min-height: 36px;
-  }
-
-  header > div:first-child {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav {
-    margin-top: 0.4rem;
-  }
-
-  h1 {
-    font-size: 1.3rem;
-  }
-
-  .calendar {
-    grid-template-columns: 1fr;
-    padding: 0.6rem;
-  }
-
-  .month {
-    padding: 0.6rem;
-  }
-
-  .month h2 {
-    font-size: 0.9rem;
-  }
-
-  .weekdays div {
-    font-size: 0.55rem;
-  }
-
-  .days div {
-    font-size: 0.7rem;
-    padding: 0.3rem 0;
-  }
-
-  .notes {
-    margin: 0.6rem;
-  }
-
-  .notes-editor {
-    min-height: 140px;
-    font-size: 0.8rem;
+  /* App drawer - full screen on mobile */
+  .app-drawer-content {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
   }
   
-  /* Make widgets smaller on phones */
+  /* Widgets - responsive sizing */
   .floating-todo,
   .floating-events,
   .floating-calculator,
   .floating-calendar,
   .floating-notes {
-    max-width: 90vw;
+    max-width: 95vw;
   }
   
-  /* Ensure hint doesn't cover content */
+  /* Canvas hint */
   .canvas-hint {
     bottom: 0.5rem;
     left: 0.5rem;
     right: 0.5rem;
     transform: none;
     max-width: none;
+    font-size: 0.75rem;
   }
 }
 
-/* Tablet adjustments (481px - 1024px) */
-@media (min-width: 481px) and (max-width: 1024px) {
-  .canvas-tab {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.8rem;
+/* Large phones (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  header {
+    padding: 0.7rem 0.8rem;
+  }
+  
+  .app-launcher-btn {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
   }
   
   .dynamic-island {
-    height: 34px;
     font-size: 0.75rem;
+    padding: 0 0.8rem;
+    height: 36px;
   }
   
   .theme-btn {
-    height: 34px;
+    height: 36px;
     font-size: 0.75rem;
+    padding: 0 0.8rem;
+  }
+  
+  .canvas-tabs-bar {
+    top: 68px;
+    left: 0.8rem;
+    right: 0.8rem;
+    transform: none;
+    max-width: none;
+    width: calc(100% - 1.6rem);
+  }
+  
+  #canvasWorkspace {
+    top: 120px;
+  }
+  
+  .canvas-tab {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.85rem;
+    min-height: 46px;
+  }
+  
+  .canvas-tab .canvas-tab-edit,
+  .canvas-tab .canvas-tab-close {
+    opacity: 0.5;
+  }
+}
+
+/* Tablets (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  header {
+    padding: 0.8rem 1rem;
+  }
+  
+  .app-launcher-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 1.35rem;
+  }
+  
+  .dynamic-island {
+    height: 36px;
+    font-size: 0.78rem;
+    padding: 0 0.85rem;
+  }
+  
+  .theme-btn {
+    height: 36px;
+    font-size: 0.75rem;
+    padding: 0 0.85rem;
+  }
+  
+  .canvas-tabs-bar {
+    top: 72px;
+    max-width: calc(100vw - 3rem);
+  }
+  
+  #canvasWorkspace {
+    top: 124px;
+  }
+  
+  .canvas-tab {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.8rem;
+    min-height: 42px;
+  }
+}
+
+/* Small desktops (1025px - 1366px) */
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .canvas-tabs-bar {
+    max-width: calc(100vw - 4rem);
+  }
+  
+  .canvas-tab {
+    padding: 0.6rem 1.15rem;
   }
 }

@@ -5,7 +5,8 @@
 .floating-events .resize-handle,
 .floating-calculator .resize-handle,
 .floating-calendar .resize-handle,
-.floating-notes .resize-handle {
+.floating-notes .resize-handle,
+.canvas-manager .resize-handle {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -21,7 +22,8 @@
 .floating-events .resize-handle:hover,
 .floating-calculator .resize-handle:hover,
 .floating-calendar .resize-handle:hover,
-.floating-notes .resize-handle:hover {
+.floating-notes .resize-handle:hover,
+.canvas-manager .resize-handle:hover {
   background: linear-gradient(135deg, transparent 50%, var(--primary) 50%);
 }
 
@@ -29,7 +31,8 @@
 .floating-events .resize-handle::after,
 .floating-calculator .resize-handle::after,
 .floating-calendar .resize-handle::after,
-.floating-notes .resize-handle::after {
+.floating-notes .resize-handle::after,
+.canvas-manager .resize-handle::after {
   content: '⋮⋮';
   position: absolute;
   bottom: 1px;
@@ -70,7 +73,8 @@
 .floating-events:hover .close-widget-btn,
 .floating-calculator:hover .close-widget-btn,
 .floating-calendar:hover .close-widget-btn,
-.floating-notes:hover .close-widget-btn {
+.floating-notes:hover .close-widget-btn,
+.canvas-manager:hover .close-widget-btn {
   opacity: 1;
 }
 

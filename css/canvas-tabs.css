@@ -1,0 +1,275 @@
+/* =========================
+   CANVAS MANAGER WIDGET
+   ========================= */
+
+.canvas-manager {
+  position: absolute;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 900;
+  min-width: 120px;
+  width: 500px;
+  max-width: 90vw;
+  display: none;
+  cursor: grab;
+  user-select: none;
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.canvas-manager:active {
+  cursor: grabbing;
+}
+
+.canvas-manager:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 122, 255, 0.2);
+}
+
+.canvas-manager-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+.canvas-manager-header:active {
+  cursor: grabbing;
+}
+
+.canvas-tabs-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0.8rem;
+  padding-top: 0.6rem;
+  overflow-y: auto;
+  min-height: 50px;
+}
+
+.canvas-tabs-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.canvas-tabs-container::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+  margin: 0.8rem 0;
+}
+
+.canvas-tabs-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.canvas-tabs-container::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+.canvas-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  min-width: 120px;
+  flex: 0 1 auto;
+}
+
+.canvas-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0), rgba(0, 122, 255, 0.05));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.canvas-tab:hover::before {
+  opacity: 1;
+}
+
+.canvas-tab:hover {
+  background: var(--card);
+  border-color: rgba(0, 122, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.canvas-tab.active {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(0, 122, 255, 0.18));
+  border-color: rgba(0, 122, 255, 0.6);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2), 0 2px 6px rgba(0, 122, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.canvas-tab.active::before {
+  opacity: 0;
+}
+
+.canvas-tab-name {
+  flex: 1;
+  min-width: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Canvas tab buttons container - rewritten from scratch */
+.canvas-tab-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.canvas-tab:hover .canvas-tab-buttons {
+  opacity: 1;
+}
+
+.canvas-tab.active .canvas-tab-buttons {
+  opacity: 1;
+}
+
+/* Delete button - rewritten from scratch */
+.canvas-delete-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.canvas-delete-btn:hover {
+  background: rgba(255, 59, 48, 0.25) !important;
+  color: #ff3b30 !important;
+  transform: scale(1.15);
+}
+
+.canvas-delete-btn:active {
+  transform: scale(1.05);
+  background: rgba(255, 59, 48, 0.35) !important;
+}
+
+/* Rename button - rewritten from scratch */
+.canvas-rename-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.canvas-rename-btn:hover {
+  background: rgba(0, 122, 255, 0.25) !important;
+  color: var(--primary) !important;
+  transform: scale(1.15);
+}
+
+.canvas-rename-btn:active {
+  transform: scale(1.05);
+  background: rgba(0, 122, 255, 0.35) !important;
+}
+
+.canvas-tab-rename-input {
+  padding: 6px 10px;
+  border: 2px solid var(--primary);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  min-width: 100px;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+  font-weight: 500;
+}
+
+.canvas-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(0, 122, 255, 0.18));
+  border: 1.5px solid rgba(0, 122, 255, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1.2rem;
+  color: var(--primary);
+  flex-shrink: 0;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.1);
+}
+
+.canvas-add-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.2), rgba(0, 122, 255, 0.3));
+  border-color: var(--primary);
+  transform: scale(1.08) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+}
+
+.canvas-add-btn:active {
+  transform: scale(0.95) rotate(90deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .canvas-manager {
+    min-width: 280px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .canvas-tab {
+    font-size: 0.825rem;
+    padding: 8px 12px;
+  }
+  
+  .canvas-tab-actions {
+    opacity: 1;
+  }
+}
