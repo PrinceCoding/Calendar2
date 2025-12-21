@@ -17,7 +17,6 @@
   <link rel="stylesheet" href="css/pomodoro.css?v=2">
   <link rel="stylesheet" href="css/todo.css?v=2">
   <link rel="stylesheet" href="css/calculator.css?v=2">
-  <link rel="stylesheet" href="css/weather.css?v=2">
   <link rel="stylesheet" href="css/events.css?v=2">
   <link rel="stylesheet" href="css/app-launcher.css?v=2">
   <link rel="stylesheet" href="css/widgets.css?v=2">
@@ -112,39 +111,6 @@
   </div>
 </div>
 
-<!-- Floating Weather Widget -->
-<div id="floatingWeather" class="floating-weather">
-  <button id="closeWeatherBtn" class="close-widget-btn" title="Close Weather">✕</button>
-  <div class="weather-header">
-    <span class="weather-header-title">🌤️ Weather</span>
-    <button id="weatherRefreshBtn" class="weather-refresh-btn" title="Refresh">⟳</button>
-  </div>
-  <div class="weather-search-container">
-    <input type="text" id="weatherSearch" class="weather-search-input" placeholder="Search city..." />
-    <button id="weatherSearchBtn" class="weather-search-btn">Search</button>
-  </div>
-  <div class="weather-main">
-    <div id="weatherLocation" class="weather-location">London, GB</div>
-    <div id="weatherIcon" class="weather-icon">🌤️</div>
-    <div id="weatherTemp" class="weather-temp">--°</div>
-    <div id="weatherDesc" class="weather-description">--</div>
-  </div>
-  <div class="weather-details">
-    <div class="weather-detail-item">
-      <div class="weather-detail-label">Feels Like</div>
-      <div id="weatherFeels" class="weather-detail-value">--°</div>
-    </div>
-    <div class="weather-detail-item">
-      <div class="weather-detail-label">Humidity</div>
-      <div id="weatherHumidity" class="weather-detail-value">--%</div>
-    </div>
-    <div class="weather-detail-item">
-      <div class="weather-detail-label">Wind</div>
-      <div id="weatherWind" class="weather-detail-value">-- km/h</div>
-    </div>
-  </div>
-</div>
-
 <!-- Floating Events Widget -->
 <div id="floatingEvents" class="floating-events">
   <button id="closeEventsBtn" class="close-widget-btn" title="Close Events">✕</button>
@@ -227,14 +193,6 @@
           <div class="app-desc">Quick notes</div>
         </div>
         <div class="app-toggle" id="toggleNotesApp"></div>
-      </div>
-      <div class="app-item" data-app="weather">
-        <div class="app-icon">🌤️</div>
-        <div class="app-info">
-          <div class="app-name">Weather</div>
-          <div class="app-desc">Current weather</div>
-        </div>
-        <div class="app-toggle" id="toggleWeatherApp"></div>
       </div>
     </div>
   </div>
@@ -743,7 +701,6 @@
   const toggleTodoApp = document.getElementById('toggleTodoApp');
   const toggleEventsApp = document.getElementById('toggleEventsApp');
   const toggleNotesApp = document.getElementById('toggleNotesApp');
-  const toggleWeatherApp = document.getElementById('toggleWeatherApp');
 
   // Open/close app drawer
   if (appLauncherBtn) {
@@ -786,8 +743,6 @@
   const closeCalendarBtn = document.getElementById('closeCalendarBtn');
   const floatingNotes = document.getElementById('floatingNotes');
   const closeNotesBtn = document.getElementById('closeNotesBtn');
-  const floatingWeather = document.getElementById('floatingWeather');
-  const closeWeatherBtn = document.getElementById('closeWeatherBtn');
 
   const CLOCK_VIS_KEY = 'show_analog_clock';
   const POMO_VIS_KEY = 'show_floating_pomo';
@@ -795,7 +750,6 @@
   const EVENTS_VIS_KEY = 'show_floating_events';
   const CALENDAR_VIS_KEY = 'show_floating_calendar';
   const NOTES_VIS_KEY = 'show_floating_notes';
-  const WEATHER_VIS_KEY = 'show_floating_weather';
 
   function updateCalendarVisibility(visible) {
     if (!floatingCalendar) return;
@@ -841,13 +795,6 @@
     if (toggleNotesApp) toggleNotesApp.classList.toggle('active', !!visible);
   }
 
-  function updateWeatherVisibility(visible) {
-    if (!floatingWeather) return;
-    floatingWeather.classList.toggle('active', visible);
-    localStorage.setItem(WEATHER_VIS_KEY, String(visible));
-    if (toggleWeatherApp) toggleWeatherApp.classList.toggle('active', !!visible);
-  }
-
   // Init states from localStorage
   (function initWidgetVisibility() {
     const savedCalendar = localStorage.getItem(CALENDAR_VIS_KEY);
@@ -873,10 +820,6 @@
     const savedNotesVis = localStorage.getItem(NOTES_VIS_KEY);
     const showNotes = savedNotesVis === null ? true : savedNotesVis !== 'false';
     updateNotesVisibility(showNotes);
-
-    const savedWeatherVis = localStorage.getItem(WEATHER_VIS_KEY);
-    const showWeather = savedWeatherVis === null ? false : savedWeatherVis !== 'false';
-    updateWeatherVisibility(showWeather);
   })();
 
   // App toggle click handlers
@@ -924,14 +867,6 @@
     };
   }
 
-  if (toggleWeatherApp) {
-    toggleWeatherApp.onclick = (e) => {
-      e.stopPropagation();
-      const isVisible = localStorage.getItem(WEATHER_VIS_KEY) !== 'false';
-      updateWeatherVisibility(!isVisible);
-    };
-  }
-
   // Close buttons
   if (closeCalendarBtn) closeCalendarBtn.onclick = (e) => { e.stopPropagation(); updateCalendarVisibility(false); };
   if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
@@ -939,7 +874,6 @@
   if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
   if (closeEventsBtn) closeEventsBtn.onclick = (e) => { e.stopPropagation(); updateEventsVisibility(false); };
   if (closeNotesBtn) closeNotesBtn.onclick = (e) => { e.stopPropagation(); updateNotesVisibility(false); };
-  if (closeWeatherBtn) closeWeatherBtn.onclick = (e) => { e.stopPropagation(); updateWeatherVisibility(false); };
 
 
   // =========================
@@ -1248,7 +1182,6 @@
   restoreWidgetPosition(floatingCalculator, 'floatingCalculator');
   restoreWidgetPosition(floatingCalendar, 'floatingCalendar');
   restoreWidgetPosition(floatingNotes, 'floatingNotes');
-  restoreWidgetPosition(floatingWeather, 'floatingWeather');
 
   makeDraggable(clock, null, 'analogClock');
   makeDraggable(floatingPomo, null, 'floatingPomo');
@@ -1257,7 +1190,6 @@
   makeDraggable(floatingCalculator, '.calc-header', 'floatingCalculator');
   makeDraggable(floatingCalendar, '.calendar-header', 'floatingCalendar');
   makeDraggable(floatingNotes, '.notes-header', 'floatingNotes');
-  makeDraggable(floatingWeather, '.weather-header', 'floatingWeather');
 
   // Make widgets resizable
   makeResizable(floatingTodo, 'floatingTodo');
@@ -1822,7 +1754,6 @@
 <script src="apps/todo.js"></script>
 <script src="apps/calculator.js"></script>
 <script src="apps/notes.js"></script>
-<script src="apps/weather.js"></script>
 
 </body>
 </html>
