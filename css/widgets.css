@@ -104,12 +104,25 @@
   opacity: 1;
 }
 
+/* Show close button on active/tap for touch devices */
+.analog-clock:active .close-widget-btn,
+.floating-pomo:active .close-widget-btn,
+.floating-todo:active .close-widget-btn,
+.floating-events:active .close-widget-btn,
+.floating-calculator:active .close-widget-btn,
+.floating-calendar:active .close-widget-btn,
+.floating-notes:active .close-widget-btn,
+.canvas-manager:active .close-widget-btn {
+  opacity: 1;
+}
+
 .close-widget-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
 }
 
 .close-widget-btn:active {
+  opacity: 1;
   transform: scale(0.95);
   box-shadow: 0 1px 4px rgba(255, 59, 48, 0.3);
 }
