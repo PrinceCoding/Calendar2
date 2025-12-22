@@ -263,8 +263,14 @@ function saveActiveCanvasState() {
     { el: document.getElementById('floatingCalculator'), id: 'floatingCalculator' },
     { el: document.getElementById('floatingCalendar'), id: 'floatingCalendar' },
     { el: document.getElementById('floatingNotes'), id: 'floatingNotes' },
+    { el: document.getElementById('floatingWebBrowser'), id: 'floatingWebBrowser' },
+    { el: document.getElementById('floatingAppStore'), id: 'floatingAppStore' },
     { el: document.getElementById('canvasManager'), id: 'canvasManager' }
   ];
+  // Append dynamic widgets present in DOM
+  Array.from(document.querySelectorAll('.dynamic-widget')).forEach(el => {
+    if (el && el.id) widgets.push({ el, id: el.id });
+  });
   
   canvas.positions = {};
   canvas.visibility = {};
@@ -311,6 +317,8 @@ function loadActiveCanvasState() {
     floatingEvents: { left: '400px', top: '250px' },
     floatingCalendar: { left: '50px', top: '50px' },
     floatingNotes: { left: '700px', top: '450px' },
+    floatingWebBrowser: { left: '900px', top: '120px' },
+    floatingAppStore: { left: '300px', top: '120px' },
     canvasManager: { left: '300px', top: '80px' }
   };
   
@@ -323,6 +331,8 @@ function loadActiveCanvasState() {
     floatingCalculator: false,
     floatingCalendar: false,
     floatingNotes: false,
+    floatingWebBrowser: false,
+    floatingAppStore: false,
     canvasManager: true
   };
   
@@ -335,8 +345,15 @@ function loadActiveCanvasState() {
     { el: document.getElementById('floatingCalculator'), id: 'floatingCalculator', display: 'flex' },
     { el: document.getElementById('floatingCalendar'), id: 'floatingCalendar', display: 'flex' },
     { el: document.getElementById('floatingNotes'), id: 'floatingNotes', display: 'flex' },
+    { el: document.getElementById('floatingWebBrowser'), id: 'floatingWebBrowser', display: 'flex' },
+    { el: document.getElementById('floatingAppStore'), id: 'floatingAppStore', display: 'flex' },
     { el: document.getElementById('canvasManager'), id: 'canvasManager', display: 'flex' }
   ];
+  // Append dynamic widgets found in DOM
+  Array.from(document.querySelectorAll('.dynamic-widget')).forEach(el => {
+    // Dynamic widgets are expected to be flex containers; using computed style breaks restore when hidden.
+    widgets.push({ el, id: el.id, display: 'flex' });
+  });
   
   widgets.forEach(({ el, id, display }) => {
     if (!el) return;
@@ -357,10 +374,12 @@ function loadActiveCanvasState() {
       'floatingCalculator': 'toggleCalculatorApp',
       'floatingCalendar': 'toggleCalendarApp',
       'floatingNotes': 'toggleNotesApp',
+      'floatingWebBrowser': 'toggleWebBrowserApp',
+      'floatingAppStore': 'toggleAppStore',
       'canvasManager': 'toggleCanvasManagerApp'
     };
     
-    const toggleBtnId = toggleMap[id];
+    const toggleBtnId = toggleMap[id] || `toggle-${id}`;
     const toggleBtn = toggleBtnId ? document.getElementById(toggleBtnId) : null;
     if (toggleBtn) {
       toggleBtn.classList.toggle('active', isVisible);

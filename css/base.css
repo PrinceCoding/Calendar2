@@ -471,6 +471,7 @@ button:active,
   .floating-calculator,
   .floating-calendar,
   .floating-notes,
+  .floating-web-browser,
   .canvas-manager,
   .analog-clock,
   .floating-pomo {
@@ -689,6 +690,7 @@ button:active,
   .floating-calculator,
   .floating-calendar,
   .floating-notes,
+  .floating-web-browser,
   .canvas-manager {
     max-width: 90vw !important;
     max-height: 80vh !important;

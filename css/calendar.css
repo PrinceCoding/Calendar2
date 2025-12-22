@@ -197,6 +197,14 @@ body.dark .calendar::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.06);
 }
 
+.weekend-day {
+  background: rgba(var(--accent-rgb, 0, 122, 255), 0.05);
+}
+
+body.dark .weekend-day {
+  background: rgba(var(--accent-rgb, 10, 132, 255), 0.08);
+}
+
 .today {
   background: var(--today);
   color: #fff;
@@ -213,4 +221,17 @@ body.dark .calendar::-webkit-scrollbar-thumb {
   border-radius: 50%;
   background: var(--primary);
   pointer-events: none;
+}
+
+#calendar.compact-view .month {
+  padding: 0.5rem;
+}
+
+#calendar.compact-view .days div {
+  padding: 0.25rem 0;
+  font-size: 0.7rem;
+}
+
+#calendar.compact-view .weekdays {
+  font-size: 0.65rem;
 }

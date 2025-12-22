@@ -110,3 +110,26 @@ body.dark .clock-date {
 .clock-date div {
   display: block;
 }
+/* Clock Size Variations */
+.analog-clock.clock-small {
+  width: 100px;
+  height: 100px;
+}
+
+.analog-clock.clock-medium {
+  width: 120px;
+  height: 120px;
+}
+
+.analog-clock.clock-large {
+  width: 150px;
+  height: 150px;
+}
+
+.analog-clock.clock-small .hour-marks span {
+  transform-origin: center calc(50px - 6px);
+}
+
+.analog-clock.clock-large .hour-marks span {
+  transform-origin: center calc(75px - 6px);
+}

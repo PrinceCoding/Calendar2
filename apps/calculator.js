@@ -17,7 +17,83 @@
       calcValue = '0';
     } else if (val === '=') {
       try {
-        calcValue = String(eval(calcValue));
+        // Replace display-friendly operators with eval-friendly ones
+        let expression = calcValue.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+        calcValue = String(eval(expression));
+      } catch {
+        calcValue = 'Error';
+      }
+    } else if (val.startsWith('Math.')) {
+      // Scientific functions
+      try {
+        const currentVal = calcValue === '0' || calcValue === 'Error' ? '0' : calcValue;
+        let result;
+        
+        switch(val) {
+          case 'Math.sin':
+            result = Math.sin(eval(currentVal) * Math.PI / 180); // Convert to radians
+            break;
+          case 'Math.cos':
+            result = Math.cos(eval(currentVal) * Math.PI / 180);
+            break;
+          case 'Math.tan':
+            result = Math.tan(eval(currentVal) * Math.PI / 180);
+            break;
+          case 'Math.log':
+            result = Math.log10(eval(currentVal));
+            break;
+          case 'Math.sqrt':
+            result = Math.sqrt(eval(currentVal));
+            break;
+          case 'Math.PI':
+            calcValue = (calcValue === '0' || calcValue === 'Error') ? String(Math.PI) : calcValue + Math.PI;
+            updateDisplay();
+            return;
+          case 'Math.E':
+            calcValue = (calcValue === '0' || calcValue === 'Error') ? String(Math.E) : calcValue + Math.E;
+            updateDisplay();
+            return;
+        }
+        
+        calcValue = String(result);
+      } catch {
+        calcValue = 'Error';
+      }
+    } else if (val === '^2') {
+      try {
+        const currentVal = eval(calcValue === '0' || calcValue === 'Error' ? '0' : calcValue);
+        calcValue = String(Math.pow(currentVal, 2));
+      } catch {
+        calcValue = 'Error';
+      }
+    } else if (val === '^') {
+      if (calcValue === '0' || calcValue === 'Error') {
+        calcValue = '2^';
+      } else {
+        calcValue += '**';
+      }
+    } else if (val === '1/') {
+      try {
+        const currentVal = eval(calcValue === '0' || calcValue === 'Error' ? '1' : calcValue);
+        calcValue = String(1 / currentVal);
+      } catch {
+        calcValue = 'Error';
+      }
+    } else if (val === '%') {
+      try {
+        const currentVal = eval(calcValue === '0' || calcValue === 'Error' ? '0' : calcValue);
+        calcValue = String(currentVal / 100);
+      } catch {
+        calcValue = 'Error';
+      }
+    } else if (val === '!') {
+      try {
+        const currentVal = Math.floor(eval(calcValue === '0' || calcValue === 'Error' ? '1' : calcValue));
+        let factorial = 1;
+        for (let i = 2; i <= currentVal; i++) {
+          factorial *= i;
+        }
+        calcValue = String(factorial);
       } catch {
         calcValue = 'Error';
       }

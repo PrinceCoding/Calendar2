@@ -8,6 +8,7 @@
 .calc-header,
 .calendar-header,
 .notes-header,
+.web-browser-header,
 .canvas-manager-header,
 .floating-pomo,
 .analog-clock {
@@ -21,6 +22,7 @@
 .floating-events,
 .floating-calculator,
 .floating-notes,
+.floating-web-browser,
 .canvas-manager {
   cursor: default;
 }
@@ -30,6 +32,7 @@
 .calc-header:active,
 .calendar-header:active,
 .notes-header:active,
+.web-browser-header:active,
 .canvas-manager-header:active,
 .floating-pomo:active,
 .analog-clock:active {

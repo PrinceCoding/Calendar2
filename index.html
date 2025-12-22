@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="css/header.css?v=2">
   <link rel="stylesheet" href="css/calendar.css?v=2">
   <link rel="stylesheet" href="css/notes.css?v=2">
+  <link rel="stylesheet" href="css/web-browser.css?v=2">
   <link rel="stylesheet" href="css/clock.css?v=2">
   <link rel="stylesheet" href="css/pomodoro.css?v=2">
   <link rel="stylesheet" href="css/todo.css?v=2">
@@ -25,6 +26,7 @@
   <link rel="stylesheet" href="css/canvas-tabs.css?v=2">
   <link rel="stylesheet" href="css/widgets.css?v=2">
   <link rel="stylesheet" href="css/dragging.css?v=2">
+  <link rel="stylesheet" href="css/settings.css?v=2">
 </head>
 <body>
 
@@ -58,6 +60,7 @@
 <!-- Floating Analog Clock -->
 <div id="analogClock" class="analog-clock">
   <button id="closeClockBtn" class="close-widget-btn" title="Close Clock">✕</button>
+  <button id="clockSettingsBtn" class="settings-btn" title="Clock Settings">⚙️</button>
   <div class="clock-face">
     <div class="hour-marks">
       <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -74,6 +77,7 @@
 <!-- Floating Pomodoro -->
 <div id="floatingPomo" class="floating-pomo">
   <button id="closePomoBtn" class="close-widget-btn" title="Close Pomodoro">✕</button>
+  <button id="pomoSettingsBtn" class="settings-btn" title="Pomodoro Settings">⚙️</button>
   <div class="pomo-content">
     <span class="pomo-emoji">🍅</span>
     <span id="floatingPomoTime">60:00</span>
@@ -87,6 +91,7 @@
 <!-- Floating Todo List -->
 <div id="floatingTodo" class="floating-todo">
   <button id="closeTodoBtn" class="close-widget-btn" title="Close Todo">✕</button>
+  <button id="todoSettingsBtn" class="settings-btn" title="Todo Settings">⚙️</button>
   <div class="resize-handle"></div>
   <div class="todo-header">📝 To-Do List</div>
   <div class="todo-input-container">
@@ -99,9 +104,29 @@
 <!-- Floating Calculator Widget -->
 <div id="floatingCalculator" class="floating-calculator">
   <button id="closeCalculatorBtn" class="close-widget-btn" title="Close Calculator">✕</button>
+  <button id="calculatorSettingsBtn" class="settings-btn" title="Calculator Settings">⚙️</button>
   <div class="resize-handle"></div>
   <div class="calc-header">🔢 Calculator</div>
   <div id="calcDisplay" class="calc-display">0</div>
+  
+  <!-- Scientific buttons (hidden by default) -->
+  <div class="calc-scientific-buttons" style="display:none;">
+    <button class="calc-btn sci" data-calc="Math.sin">sin</button>
+    <button class="calc-btn sci" data-calc="Math.cos">cos</button>
+    <button class="calc-btn sci" data-calc="Math.tan">tan</button>
+    <button class="calc-btn sci" data-calc="Math.log">log</button>
+    
+    <button class="calc-btn sci" data-calc="Math.sqrt">√</button>
+    <button class="calc-btn sci" data-calc="^2">x²</button>
+    <button class="calc-btn sci" data-calc="^">xʸ</button>
+    <button class="calc-btn sci" data-calc="Math.PI">π</button>
+    
+    <button class="calc-btn sci" data-calc="Math.E">e</button>
+    <button class="calc-btn sci" data-calc="1/">1/x</button>
+    <button class="calc-btn sci" data-calc="%">%</button>
+    <button class="calc-btn sci" data-calc="!">n!</button>
+  </div>
+  
   <div class="calc-buttons">
     <button class="calc-btn clear" data-calc="C">C</button>
     <button class="calc-btn" data-calc="(">(</button>
@@ -132,6 +157,7 @@
 <!-- Floating Events Widget -->
 <div id="floatingEvents" class="floating-events">
   <button id="closeEventsBtn" class="close-widget-btn" title="Close Events">✕</button>
+  <button id="eventsSettingsBtn" class="settings-btn" title="Events Settings">⚙️</button>
   <div class="resize-handle"></div>
   <div class="events-header">
     <span>📅 Events</span>
@@ -151,6 +177,7 @@
 <!-- Floating Calendar Widget -->
 <div id="floatingCalendar" class="floating-calendar">
   <button id="closeCalendarBtn" class="close-widget-btn" title="Close Calendar">✕</button>
+  <button id="calendarSettingsBtn" class="settings-btn" title="Calendar Settings">⚙️</button>
   <div class="resize-handle"></div>
   <div class="calendar-header">
     <h1 class="calendar-title" id="year">Calendar 2025</h1>
@@ -167,6 +194,7 @@
 <!-- Floating Notes Widget -->
 <div id="floatingNotes" class="floating-notes">
   <button id="closeNotesBtn" class="close-widget-btn" title="Close Notes">✕</button>
+  <button id="notesSettingsBtn" class="settings-btn" title="Notes Settings">⚙️</button>
   <div class="resize-handle"></div>
   <div class="notes-header">
     <div style="display:flex;align-items:center;gap:0.6rem;">
@@ -183,9 +211,47 @@
   <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
 </div>
 
+<!-- Web Browser Widget -->
+<div id="floatingWebBrowser" class="floating-web-browser">
+  <button id="closeWebBrowserBtn" class="close-widget-btn" title="Close Browser">✕</button>
+  <button id="webBrowserSettingsBtn" class="settings-btn" title="Browser Settings">⚙️</button>
+  <div class="resize-handle"></div>
+  <div class="browser-header">🌐 Web Browser</div>
+  <div class="browser-toolbar">
+    <button id="browserBackBtn" class="browser-nav-btn" title="Back" disabled>←</button>
+    <button id="browserForwardBtn" class="browser-nav-btn" title="Forward" disabled>→</button>
+    <button id="browserRefreshBtn" class="browser-nav-btn" title="Refresh">↻</button>
+    <button id="browserHomeBtn" class="browser-nav-btn" title="Home">🏠</button>
+    <input type="text" id="browserUrlInput" placeholder="Enter URL or search..." class="browser-url-input">
+    <button id="browserGoBtn" class="browser-go-btn" title="Go">Go</button>
+    <button id="browserNewTabBtn" class="browser-nav-btn" title="New Instance">↗</button>
+    <button id="browserBookmarkBtn" class="browser-bookmark-btn" title="Bookmark">★</button>
+  </div>
+  <div class="browser-bookmarks" id="browserBookmarks" style="display:none;"></div>
+  <div class="browser-content">
+    <iframe id="browserIframe" class="browser-iframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-modals allow-downloads" allowfullscreen></iframe>
+    <div id="browserErrorOverlay" class="browser-error-overlay" style="display:none;">
+      <div class="browser-error-content">
+        <div class="browser-error-icon">🚫</div>
+        <h3>Can't Display This Page</h3>
+        <p id="browserErrorMessage">This website cannot be displayed in an iframe due to security restrictions.</p>
+        <div class="browser-error-actions">
+          <button id="browserOpenNewTabError" class="browser-error-btn">Open Externally</button>
+          <button id="browserTryAgain" class="browser-error-btn secondary">Try Again</button>
+        </div>
+        <small style="color:var(--muted);margin-top:1rem;display:block;">
+          Many sites like Google, Facebook, and YouTube block iframe embedding for security.<br>
+          <strong>Try the Popular Sites section below for guaranteed compatibility!</strong>
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Canvas Manager Widget -->
 <div id="canvasManager" class="canvas-manager">
   <button id="closeCanvasManagerBtn" class="close-widget-btn" title="Close">✕</button>
+  <button id="canvasManagerSettingsBtn" class="settings-btn" title="Canvas Settings">⚙️</button>
   <div class="resize-handle"></div>
   <div class="canvas-manager-header">📑 Canvas Manager</div>
   <div id="canvasTabsContainer" class="canvas-tabs-container">
@@ -256,6 +322,14 @@
         </div>
         <div class="app-toggle" id="toggleNotesApp"></div>
       </div>
+      <div class="app-item" data-app="webBrowser">
+        <div class="app-icon">🌐</div>
+        <div class="app-info">
+          <div class="app-name">Web Browser</div>
+          <div class="app-desc">Browse the web</div>
+        </div>
+        <div class="app-toggle" id="toggleWebBrowserApp"></div>
+      </div>
       <div class="app-item" data-app="canvasManager">
         <div class="app-icon">📑</div>
         <div class="app-info">
@@ -272,58 +346,481 @@
      SETTINGS PAGE (OVERLAY)
      ========================= -->
 <div id="settingsPage" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);">
-    <div style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 90vh; overflow-y: auto;">
-    <h2 style="margin-top:0">Settings</h2>
+    <div id="settingsContainer" style="max-width:420px;margin:4rem auto;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-float); max-height: 90vh; overflow-y: auto;">
+    
+    <!-- Main Settings View -->
+    <div id="mainSettingsView">
+      <h2 style="margin-top:0">Settings</h2>
 
-    <!-- Appearance -->
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Appearance</h3>
-      <p style="font-size:0.8rem;color:var(--muted)">Theme</p>
-      <div id="settingsThemes" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
+      <!-- Appearance -->
+      <div class="month" style="margin-bottom:1rem;">
+        <h3>Appearance</h3>
+        <p style="font-size:0.8rem;color:var(--muted)">Theme</p>
+        <div id="settingsThemes" style="display:flex;gap:0.4rem;flex-wrap:wrap;"></div>
 
-      <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem">Font Size</p>
-      <button class="font-btn" data-size="90">A−</button>
-      <button class="font-btn" data-size="100">A</button>
-      <button class="font-btn" data-size="110">A+</button>
-    </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem">Font Size</p>
+        <button class="font-btn" data-size="90">A−</button>
+        <button class="font-btn" data-size="100">A</button>
+        <button class="font-btn" data-size="110">A+</button>
+      </div>
 
-    <!-- Pomodoro -->
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Pomodoro</h3>
-      <p style="font-size:0.75rem;color:var(--muted)">Session length (minutes)</p>
-      <input id="pomoDurationInput" type="number" min="1" style="width:80px;padding:4px 6px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem;" />
-    </div>
-
-    <!-- Account -->
-    <div class="month" style="margin-bottom:1rem;">
-      <h3>Account</h3>
-      
-      <!-- Logged Out View -->
-      <div id="loggedOutUI">
-        <input type="email" id="emailInput" class="auth-input" placeholder="Email address">
-        <input type="password" id="passwordInput" class="auth-input" placeholder="Password">
+      <!-- Account -->
+      <div class="month" style="margin-bottom:1rem;">
+        <h3>Account</h3>
         
-        <div style="display:flex; gap: 8px; margin-bottom: 12px;">
-          <button id="loginBtn" class="today-btn" style="position:static; flex:1; justify-content:center;">Login</button>
-          <button id="signupBtn" class="theme-btn" style="position:static; flex:1; justify-content:center;">Sign Up</button>
+        <!-- Logged Out View -->
+        <div id="loggedOutUI">
+          <input type="email" id="emailInput" class="auth-input" placeholder="Email address">
+          <input type="password" id="passwordInput" class="auth-input" placeholder="Password">
+          
+          <div style="display:flex; gap: 8px; margin-bottom: 12px;">
+            <button id="loginBtn" class="today-btn" style="position:static; flex:1; justify-content:center;">Login</button>
+            <button id="signupBtn" class="theme-btn" style="position:static; flex:1; justify-content:center;">Sign Up</button>
+          </div>
+          
+          <button id="resetPasswordBtn" style="font-size: 0.7rem; color: var(--primary); text-decoration: underline; background: none; border: none; padding: 0; cursor: pointer;">Forgot Password?</button>
         </div>
-        
-        <button id="resetPasswordBtn" style="font-size: 0.7rem; color: var(--primary); text-decoration: underline; background: none; border: none; padding: 0; cursor: pointer;">Forgot Password?</button>
+
+        <!-- Logged In View -->
+        <div id="loggedInUI" style="display:none;">
+          <p id="userEmailDisplay" style="font-size: 0.8rem; margin-bottom: 12px;"></p>
+          <button id="logoutBtn" class="today-btn" style="position:static; background: linear-gradient(180deg, #ff3b30, #d70015); width: 100%; justify-content: center;">Sign Out</button>
+        </div>
+
+        <p style="font-size:0.75rem;color:var(--muted); margin-top: 12px;">Sync notes across devices</p>
       </div>
 
-      <!-- Logged In View -->
-      <div id="loggedInUI" style="display:none;">
-        <p id="userEmailDisplay" style="font-size: 0.8rem; margin-bottom: 12px;"></p>
-        <button id="logoutBtn" class="today-btn" style="position:static; background: linear-gradient(180deg, #ff3b30, #d70015); width: 100%; justify-content: center;">Sign Out</button>
+      <!-- About -->
+      <div class="month" style="margin-bottom:1rem;">
+        <h3>About</h3>
+        <p style="font-size:0.75rem;color:var(--muted)">Year Calendar with Notes</p>
       </div>
 
-      <p style="font-size:0.75rem;color:var(--muted); margin-top: 12px;">Sync notes across devices</p>
+      <!-- Apps Section (iOS Style) -->
+      <div class="month">
+        <h3>Apps</h3>
+        <div class="settings-app-list">
+          <div class="settings-app-item" data-app="clock">
+            <span class="settings-app-icon">🕒</span>
+            <span class="settings-app-name">Clock</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="pomodoro">
+            <span class="settings-app-icon">🍅</span>
+            <span class="settings-app-name">Pomodoro</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="todo">
+            <span class="settings-app-icon">✅</span>
+            <span class="settings-app-name">Todo</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="calculator">
+            <span class="settings-app-icon">🔢</span>
+            <span class="settings-app-name">Calculator</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="events">
+            <span class="settings-app-icon">📅</span>
+            <span class="settings-app-name">Events</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="calendar">
+            <span class="settings-app-icon">📆</span>
+            <span class="settings-app-name">Calendar</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="notes">
+            <span class="settings-app-icon">📝</span>
+            <span class="settings-app-name">Notes</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="webBrowser">
+            <span class="settings-app-icon">🌐</span>
+            <span class="settings-app-name">Web Browser</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="canvas">
+            <span class="settings-app-icon">📑</span>
+            <span class="settings-app-name">Canvas Manager</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- About -->
-    <div class="month">
-      <h3>About</h3>
-      <p style="font-size:0.75rem;color:var(--muted)">Year Calendar with Notes</p>
+    <!-- App Settings Views -->
+    <div id="appSettingsView" style="display:none;">
+      <button id="backToSettings" class="settings-back-btn">‹ Settings</button>
+      
+      <!-- Clock Settings -->
+      <div id="clockAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>🕒 Clock</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Show Seconds Hand</span>
+            <input type="checkbox" id="clockShowSeconds" checked>
+          </label>
+          <label class="settings-label">
+            <span>24-Hour Format</span>
+            <input type="checkbox" id="clockShow24Hour">
+          </label>
+          <label class="settings-label">
+            <span>Clock Size</span>
+            <select id="clockSize" class="settings-select">
+              <option value="small">Small</option>
+              <option value="medium" selected>Medium</option>
+              <option value="large">Large</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Clock Face Color</span>
+            <select id="clockColor" class="settings-select">
+              <option value="default" selected>Default</option>
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="red">Red</option>
+              <option value="gold">Gold</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Show Date</span>
+            <input type="checkbox" id="clockShowDate" checked>
+          </label>
+        </div>
+      </div>
+
+      <!-- Pomodoro Settings -->
+      <div id="pomodoroAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>🍅 Pomodoro</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Work Duration (minutes)</span>
+            <input type="number" id="pomoWorkDuration" min="1" max="120" value="25" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Short Break (minutes)</span>
+            <input type="number" id="pomoBreakDuration" min="1" max="60" value="5" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Long Break (minutes)</span>
+            <input type="number" id="pomoLongBreak" min="1" max="60" value="15" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Sessions before long break</span>
+            <input type="number" id="pomoSessionsBeforeLongBreak" min="1" max="10" value="4" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Auto-start next session</span>
+            <input type="checkbox" id="pomoAutoStart">
+          </label>
+          <label class="settings-label">
+            <span>Play sound on completion</span>
+            <input type="checkbox" id="pomoSound" checked>
+          </label>
+          <label class="settings-label">
+            <span>Desktop notifications</span>
+            <input type="checkbox" id="pomoNotifications" checked>
+          </label>
+        </div>
+      </div>
+
+      <!-- Todo Settings -->
+      <div id="todoAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>✅ Todo</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Show completed tasks</span>
+            <input type="checkbox" id="todoShowCompleted" checked>
+          </label>
+          <label class="settings-label">
+            <span>Auto-sort by priority</span>
+            <input type="checkbox" id="todoAutoSort">
+          </label>
+          <label class="settings-label">
+            <span>Show priority colors</span>
+            <input type="checkbox" id="todoShowPriorityColors" checked>
+          </label>
+          <label class="settings-label">
+            <span>Confirm before delete</span>
+            <input type="checkbox" id="todoConfirmDelete" checked>
+          </label>
+          <label class="settings-label">
+            <span>Default Priority</span>
+            <select id="todoDefaultPriority" class="settings-select">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Task limit per day</span>
+            <input type="number" id="todoMaxTasks" min="5" max="100" value="50" class="settings-input">
+          </label>
+          <button id="todoClearCompleted" class="settings-action-btn">Clear Completed</button>
+        </div>
+      </div>
+
+      <!-- Calculator Settings -->
+      <div id="calculatorAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>🔢 Calculator</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Scientific Mode</span>
+            <input type="checkbox" id="calcScientificMode">
+          </label>
+          <label class="settings-label">
+            <span>Decimal Places</span>
+            <input type="number" id="calcDecimalPlaces" min="0" max="10" value="2" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Use thousands separator</span>
+            <input type="checkbox" id="calcThousandsSeparator" checked>
+          </label>
+          <label class="settings-label">
+            <span>Button click sound</span>
+            <input type="checkbox" id="calcButtonSound">
+          </label>
+          <label class="settings-label">
+            <span>History size</span>
+            <input type="number" id="calcHistorySize" min="5" max="100" value="20" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Theme</span>
+            <select id="calcTheme" class="settings-select">
+              <option value="default" selected>Default</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="colorful">Colorful</option>
+            </select>
+          </label>
+          <button id="calcClearHistory" class="settings-action-btn">Clear History</button>
+        </div>
+      </div>
+
+      <!-- Events Settings -->
+      <div id="eventsAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>📅 Events</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Show past events</span>
+            <input type="checkbox" id="eventsShowPast" checked>
+          </label>
+          <label class="settings-label">
+            <span>Enable notifications</span>
+            <input type="checkbox" id="eventsNotifications">
+          </label>
+          <label class="settings-label">
+            <span>Reminder time (minutes before)</span>
+            <select id="eventsReminderTime" class="settings-select">
+              <option value="0">At event time</option>
+              <option value="5">5 minutes</option>
+              <option value="15" selected>15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="1440">1 day</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Compact view</span>
+            <input type="checkbox" id="eventsCompactView">
+          </label>
+          <label class="settings-label">
+            <span>Default View</span>
+            <select id="eventsDefaultView" class="settings-select">
+              <option value="all" selected>All Events</option>
+              <option value="today">Today Only</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Sort By</span>
+            <select id="eventsSortOrder" class="settings-select">
+              <option value="date" selected>Date</option>
+              <option value="created">Created</option>
+              <option value="title">Title</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- Calendar Settings -->
+      <div id="calendarAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>📆 Calendar</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Start Week On</span>
+            <select id="calendarWeekStart" class="settings-select">
+              <option value="0" selected>Sunday</option>
+              <option value="1">Monday</option>
+              <option value="6">Saturday</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Show week numbers</span>
+            <input type="checkbox" id="calendarShowWeekNumbers">
+          </label>
+          <label class="settings-label">
+            <span>Highlight weekends</span>
+            <input type="checkbox" id="calendarHighlightWeekends" checked>
+          </label>
+          <label class="settings-label">
+            <span>Show today indicator</span>
+            <input type="checkbox" id="calendarShowToday" checked>
+          </label>
+          <label class="settings-label">
+            <span>Show holidays</span>
+            <input type="checkbox" id="calendarShowHolidays" checked>
+          </label>
+          <label class="settings-label">
+            <span>Compact month view</span>
+            <input type="checkbox" id="calendarCompactView">
+          </label>
+          <label class="settings-label">
+            <span>Default View</span>
+            <select id="calendarDefaultView" class="settings-select">
+              <option value="month" selected>Month</option>
+              <option value="year">Year</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- Notes Settings -->
+      <div id="notesAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>📝 Notes</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Font Size</span>
+            <select id="notesFontSize" class="settings-select">
+              <option value="12px">Small</option>
+              <option value="14px" selected>Medium</option>
+              <option value="16px">Large</option>
+              <option value="18px">Extra Large</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Font Family</span>
+            <select id="notesFontFamily" class="settings-select">
+              <option value="system-ui" selected>System</option>
+              <option value="monospace">Monospace</option>
+              <option value="serif">Serif</option>
+              <option value="'Comic Sans MS', cursive">Comic Sans</option>
+              <option value="'Georgia', serif">Georgia</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Line Height</span>
+            <select id="notesLineHeight" class="settings-select">
+              <option value="1.2">Compact</option>
+              <option value="1.5">Normal</option>
+              <option value="1.8" selected>Comfortable</option>
+              <option value="2.0">Spacious</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Word wrap</span>
+            <input type="checkbox" id="notesWordWrap" checked>
+          </label>
+          <label class="settings-label">
+            <span>Auto-save</span>
+            <input type="checkbox" id="notesAutoSave" checked>
+          </label>
+          <label class="settings-label">
+            <span>Spell check</span>
+            <input type="checkbox" id="notesSpellCheck" checked>
+          </label>
+          <label class="settings-label">
+            <span>Auto-save interval (seconds)</span>
+            <input type="number" id="notesAutoSaveInterval" min="5" max="300" value="30" class="settings-input">
+          </label>
+        </div>
+      </div>
+
+      <!-- Web Browser Settings -->
+      <div id="webBrowserAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>🌐 Web Browser</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Home page URL</span>
+            <input type="text" id="browserHomePage" placeholder="https://wikipedia.org" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Default zoom level</span>
+            <select id="browserZoom" class="settings-select">
+              <option value="0.75">75%</option>
+              <option value="0.9">90%</option>
+              <option value="1" selected>100%</option>
+              <option value="1.1">110%</option>
+              <option value="1.25">125%</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Search engine</span>
+            <select id="browserSearchEngine" class="settings-select">
+              <option value="google" selected>Google</option>
+              <option value="bing">Bing</option>
+              <option value="duckduckgo">DuckDuckGo</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Allow JavaScript</span>
+            <input type="checkbox" id="browserAllowJS" checked>
+          </label>
+          <label class="settings-label">
+            <span>Allow forms</span>
+            <input type="checkbox" id="browserAllowForms" checked>
+          </label>
+          <label class="settings-label">
+            <span>Allow popups</span>
+            <input type="checkbox" id="browserAllowPopups" checked>
+          </label>
+          <label class="settings-label">
+            <span>Show bookmarks bar</span>
+            <input type="checkbox" id="browserShowBookmarks" checked>
+          </label>
+          <button id="browserClearHistory" class="settings-button" style="margin-top:1rem;">Clear History</button>
+          <button id="browserClearBookmarks" class="settings-button" style="margin-top:0.5rem;">Clear All Bookmarks</button>
+        </div>
+      </div>
+
+      <!-- Canvas Manager Settings -->
+      <div id="canvasAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>📑 Canvas Manager</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Max Canvases</span>
+            <input type="number" id="canvasMaxCount" min="1" max="20" value="10" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Default brush size</span>
+            <input type="number" id="canvasBrushSize" min="1" max="50" value="2" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Show grid</span>
+            <input type="checkbox" id="canvasShowGrid">
+          </label>
+          <label class="settings-label">
+            <span>Grid size (pixels)</span>
+            <input type="number" id="canvasGridSize" min="10" max="100" value="20" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Auto-save canvas state</span>
+            <input type="checkbox" id="canvasAutoSave" checked>
+          </label>
+          <label class="settings-label">
+            <span>Auto-save interval (seconds)</span>
+            <input type="number" id="canvasAutoSaveInterval" min="10" max="300" value="60" class="settings-input">
+          </label>
+          <label class="settings-label">
+            <span>Show hints</span>
+            <input type="checkbox" id="canvasShowHints" checked>
+          </label>
+          <button id="canvasExportAll" class="settings-action-btn">Export All Canvases</button>
+          <button id="canvasImportData" class="settings-action-btn">Import Canvases</button>
+        </div>
+      </div>
     </div>
 
     <button id="closeSettings" class="theme-btn" style="position:absolute;top:0.8rem;right:0.8rem;">✕</button>
@@ -381,6 +878,18 @@
     calEl.innerHTML = '';
     yearEl.textContent = `Calendar ${year}`;
 
+    // Get calendar settings
+    const weekStart = parseInt(localStorage.getItem('calendarWeekStart') || '0');
+    const showWeekNumbers = localStorage.getItem('calendarShowWeekNumbers') === 'true';
+    const highlightWeekends = localStorage.getItem('calendarHighlightWeekends') !== 'false';
+    const showToday = localStorage.getItem('calendarShowToday') !== 'false';
+
+    // Reorder DAYS array based on week start
+    let orderedDays = [...DAYS];
+    if (weekStart > 0) {
+      orderedDays = [...DAYS.slice(weekStart), ...DAYS.slice(0, weekStart)];
+    }
+
     MONTHS.forEach((m, i) => {
       if (monthViewIndex !== null && monthViewIndex !== i) return;
       const box = document.createElement('div');
@@ -389,20 +898,57 @@
 
       const w = document.createElement('div');
       w.className = 'weekdays';
-      DAYS.forEach(d => w.innerHTML += `<div>${d}</div>`);
+      
+      // Add week number header if enabled
+      if (showWeekNumbers) {
+        w.innerHTML += '<div style="font-weight:bold;font-size:0.7rem;">Wk</div>';
+      }
+      
+      orderedDays.forEach((d, idx) => {
+        const isWeekend = highlightWeekends && ((idx + weekStart) % 7 === 0 || (idx + weekStart) % 7 === 6);
+        const style = isWeekend ? 'color:var(--accent);font-weight:600;' : '';
+        w.innerHTML += `<div style="${style}">${d}</div>`;
+      });
 
       const g = document.createElement('div');
       g.className = 'days';
+      g.style.gridTemplateColumns = showWeekNumbers ? 'repeat(8, 1fr)' : 'repeat(7, 1fr)';
+      
       const first = new Date(year, i, 1).getDay();
       const total = new Date(year, i + 1, 0).getDate();
+      
+      // Adjust first day based on week start
+      let adjustedFirst = (first - weekStart + 7) % 7;
 
-      for (let j = 0; j < first; j++) g.innerHTML += '<div></div>';
+      // Add week number for first week if enabled
+      if (showWeekNumbers) {
+        const firstDate = new Date(year, i, 1);
+        const weekNum = getWeekNumber(firstDate);
+        g.innerHTML += `<div style="font-size:0.7rem;color:var(--muted);display:flex;align-items:center;justify-content:center;">${weekNum}</div>`;
+      }
+
+      for (let j = 0; j < adjustedFirst; j++) g.innerHTML += '<div></div>';
+      
       for (let d = 1; d <= total; d++) {
-        const t = d === TODAY_DATE && i === TODAY_MONTH && year === CURRENT_YEAR;
+        // Add week number at start of each week
+        if (showWeekNumbers && (adjustedFirst + d - 1) % 7 === 0 && d > 1) {
+          const currentDate = new Date(year, i, d);
+          const weekNum = getWeekNumber(currentDate);
+          g.innerHTML += `<div style="font-size:0.7rem;color:var(--muted);display:flex;align-items:center;justify-content:center;">${weekNum}</div>`;
+        }
+        
+        const isToday = d === TODAY_DATE && i === TODAY_MONTH && year === CURRENT_YEAR;
+        const shouldShowToday = showToday && isToday;
         const dateStr = `${year}-${String(i + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const hasEvent = events.some(e => e.date === dateStr);
         const dotHtml = hasEvent ? '<span class="event-dot"></span>' : '';
-        g.innerHTML += `<div class="${t ? 'today' : ''}" data-date="${dateStr}" style="cursor:pointer">${d}${dotHtml}</div>`;
+        
+        // Check if it's a weekend
+        const dayOfWeek = new Date(year, i, d).getDay();
+        const isWeekend = highlightWeekends && (dayOfWeek === 0 || dayOfWeek === 6);
+        const weekendClass = isWeekend ? 'weekend-day' : '';
+        
+        g.innerHTML += `<div class="${shouldShowToday ? 'today' : ''} ${weekendClass}" data-date="${dateStr}" style="cursor:pointer">${d}${dotHtml}</div>`;
       }
 
       box.append(w, g);
@@ -427,6 +973,18 @@
       };
     });
   }
+
+  // Helper function to get week number
+  function getWeekNumber(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+
+  // Expose renderCalendar globally
+  window.renderCalendar = renderCalendar;
 
   function updateTime() {
     const d = new Date();
@@ -535,8 +1093,10 @@
   // Make deviceId globally accessible
   window.deviceId = deviceId;
 
-  const pomoDurationInput = document.getElementById('pomoDurationInput');
-  pomoDurationInput.value = defaultPomoMinutes;
+  const pomoDurationInput = document.getElementById('pomoWorkDuration');
+  if (pomoDurationInput) {
+    pomoDurationInput.value = defaultPomoMinutes;
+  }
 
   function updatePomoDisplay() {
     const minStr = String(Math.floor(secs/60)).padStart(2,'0');
@@ -637,18 +1197,34 @@
     syncToCloud(false, { remaining: secs, startedAt: null });
   }
 
-  pomoDurationInput.onchange = () => {
-    const val = Math.max(1, Number(pomoDurationInput.value) || 60);
-    console.log('[POMO] Duration changed to', val, 'minutes');
-    defaultPomoMinutes = val;
-    localStorage.setItem(POMO_KEY, val);
-    secs = val * 60;
-    updatePomoDisplay();
-    clearLocalTimer();
-    setStartButtons(false);
-    saveLocalSecs();
-    syncToCloud(false, { remaining: secs, startedAt: null });
+  // Expose reset function globally for widget settings
+  window.resetPomoTimer = function(newDuration) {
+    if (newDuration) {
+      defaultPomoMinutes = newDuration;
+      localStorage.setItem(POMO_KEY, newDuration);
+    }
+    resetPomo();
+    // Update input if it exists
+    const pomoInput = document.getElementById('pomoWorkDuration');
+    if (pomoInput) {
+      pomoInput.value = defaultPomoMinutes;
+    }
   };
+
+  if (pomoDurationInput) {
+    pomoDurationInput.onchange = () => {
+      const val = Math.max(1, Number(pomoDurationInput.value) || 60);
+      console.log('[POMO] Duration changed to', val, 'minutes');
+      defaultPomoMinutes = val;
+      localStorage.setItem(POMO_KEY, val);
+      secs = val * 60;
+      updatePomoDisplay();
+      clearLocalTimer();
+      setStartButtons(false);
+      saveLocalSecs();
+      syncToCloud(false, { remaining: secs, startedAt: null });
+    };
+  }
   
   const pomoStartBtn = document.getElementById('pomoStart');
   const floatingPomoStartBtn = document.getElementById('floatingPomoStart');
@@ -775,13 +1351,28 @@
     { name: '🌅 Solar', class: 'theme-solar' },
     { name: '💎 Glass', class: 'theme-glass' }
   ];
-  let themeIndex = 0;
+  
+  // Load saved theme or default to 0
+  let themeIndex = parseInt(localStorage.getItem('selectedThemeIndex')) || 0;
+  
+  // Apply saved theme on page load
+  const savedTheme = themes[themeIndex];
+  if (savedTheme) {
+    document.body.classList.remove('dark','theme-ocean','theme-forest','theme-solar','theme-glass');
+    if (savedTheme.class) document.body.classList.add(savedTheme.class);
+    themeBtn.textContent = savedTheme.name;
+  }
+  
   themeBtn.onclick = () => {
     document.body.classList.remove('dark','theme-ocean','theme-forest','theme-solar','theme-glass');
     themeIndex = (themeIndex + 1) % themes.length;
     const t = themes[themeIndex];
     if (t.class) document.body.classList.add(t.class);
     themeBtn.textContent = t.name;
+    
+    // Save theme selection to localStorage
+    localStorage.setItem('selectedThemeIndex', themeIndex.toString());
+    console.log('Theme saved:', t.name);
   };
 
   // =========================
@@ -795,6 +1386,7 @@
   const toggleTodoApp = document.getElementById('toggleTodoApp');
   const toggleEventsApp = document.getElementById('toggleEventsApp');
   const toggleNotesApp = document.getElementById('toggleNotesApp');
+  const toggleWebBrowserApp = document.getElementById('toggleWebBrowserApp');
   const toggleCanvasManagerApp = document.getElementById('toggleCanvasManagerApp');
 
   // Open/close app drawer
@@ -838,6 +1430,8 @@
   const closeCalendarBtn = document.getElementById('closeCalendarBtn');
   const floatingNotes = document.getElementById('floatingNotes');
   const closeNotesBtn = document.getElementById('closeNotesBtn');
+  const floatingWebBrowser = document.getElementById('floatingWebBrowser');
+  const closeWebBrowserBtn = document.getElementById('closeWebBrowserBtn');
   const canvasManager = document.getElementById('canvasManager');
   const closeCanvasManagerBtn = document.getElementById('closeCanvasManagerBtn');
 
@@ -847,6 +1441,7 @@
   const EVENTS_VIS_KEY = 'show_floating_events';
   const CALENDAR_VIS_KEY = 'show_floating_calendar';
   const NOTES_VIS_KEY = 'show_floating_notes';
+  const WEB_BROWSER_VIS_KEY = 'show_web_browser';
   const CANVAS_TABS_VIS_KEY = 'show_canvas_tabs';
 
   function updateCalendarVisibility(visible) {
@@ -893,6 +1488,14 @@
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
   window.updateNotesVisibility = updateNotesVisibility;
+
+  function updateWebBrowserVisibility(visible) {
+    if (!floatingWebBrowser) return;
+    floatingWebBrowser.style.display = visible ? 'flex' : 'none';
+    if (toggleWebBrowserApp) toggleWebBrowserApp.classList.toggle('active', !!visible);
+    if (window.saveCurrentCanvas) window.saveCurrentCanvas();
+  }
+  window.updateWebBrowserVisibility = updateWebBrowserVisibility;
 
   function updateCanvasManagerVisibility(visible) {
     if (!canvasManager) return;
@@ -948,6 +1551,13 @@
       updateNotesVisibility(!isVisible);
     };
   }
+  if (toggleWebBrowserApp) {
+    toggleWebBrowserApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = floatingWebBrowser && floatingWebBrowser.style.display !== 'none';
+      updateWebBrowserVisibility(!isVisible);
+    };
+  }
   if (toggleCanvasManagerApp) {
     toggleCanvasManagerApp.onclick = (e) => {
       e.stopPropagation();
@@ -963,6 +1573,7 @@
   if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
   if (closeEventsBtn) closeEventsBtn.onclick = (e) => { e.stopPropagation(); updateEventsVisibility(false); };
   if (closeNotesBtn) closeNotesBtn.onclick = (e) => { e.stopPropagation(); updateNotesVisibility(false); };
+  if (closeWebBrowserBtn) closeWebBrowserBtn.onclick = (e) => { e.stopPropagation(); updateWebBrowserVisibility(false); };
   if (closeCanvasManagerBtn) closeCanvasManagerBtn.onclick = (e) => { e.stopPropagation(); updateCanvasManagerVisibility(false); };
 
   // =========================
@@ -1118,7 +1729,8 @@
       { el: floatingEvents, id: 'floatingEvents' },
       { el: floatingCalculator, id: 'floatingCalculator' },
       { el: floatingCalendar, id: 'floatingCalendar' },
-      { el: floatingNotes, id: 'floatingNotes' }
+      { el: floatingNotes, id: 'floatingNotes' },
+      { el: floatingWebBrowser, id: 'floatingWebBrowser' }
     ];
     
     widgets.forEach(({ el, id }) => {
@@ -1271,6 +1883,7 @@
   makeDraggable(floatingCalculator, '.calc-header', 'floatingCalculator');
   makeDraggable(floatingCalendar, '.calendar-header', 'floatingCalendar');
   makeDraggable(floatingNotes, '.notes-header', 'floatingNotes');
+  makeDraggable(floatingWebBrowser, '.browser-header', 'floatingWebBrowser');
   makeDraggable(canvasManager, '.canvas-manager-header', 'canvasManager');
 
   // Make widgets resizable
@@ -1279,10 +1892,11 @@
   makeResizable(floatingCalculator, 'floatingCalculator');
   makeResizable(floatingCalendar, 'floatingCalendar');
   makeResizable(floatingNotes, 'floatingNotes');
+  makeResizable(floatingWebBrowser, 'floatingWebBrowser');
   makeResizable(canvasManager, 'canvasManager');
 
   // Add click handlers to bring widgets to front
-  const allWidgets = [clock, floatingPomo, floatingTodo, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes, canvasManager];
+  const allWidgets = [clock, floatingPomo, floatingTodo, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes, floatingWebBrowser, canvasManager];
   
   // Touch handling for close button visibility
   const touchTimers = new Map();
@@ -2115,7 +2729,9 @@
 <script src="apps/todo.js"></script>
 <script src="apps/calculator.js"></script>
 <script src="apps/notes.js"></script>
+<script src="apps/web-browser.js"></script>
 <script src="apps/canvas-manager.js"></script>
+<script src="apps/settings.js"></script>
 
 <script>
   // Initialize canvas manager after all scripts are loaded
