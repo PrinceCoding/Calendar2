@@ -10,6 +10,7 @@
 .notes-header,
 .web-browser-header,
 .canvas-manager-header,
+.ambient-header,
 .floating-pomo,
 .analog-clock {
   cursor: grab;
@@ -23,7 +24,8 @@
 .floating-calculator,
 .floating-notes,
 .floating-web-browser,
-.canvas-manager {
+.canvas-manager,
+.floating-ambient {
   cursor: default;
 }
 
@@ -34,6 +36,7 @@
 .notes-header:active,
 .web-browser-header:active,
 .canvas-manager-header:active,
+.ambient-header:active,
 .floating-pomo:active,
 .analog-clock:active {
   cursor: grabbing;
@@ -67,7 +70,8 @@ body.dragging-active {
 .calc-header,
 .calendar-header,
 .notes-header,
-.canvas-manager-header {
+.canvas-manager-header,
+.ambient-header {
   position: relative;
 }
 
@@ -76,7 +80,8 @@ body.dragging-active {
 .calc-header:hover,
 .calendar-header:hover,
 .notes-header:hover,
-.canvas-manager-header:hover {
+.canvas-manager-header:hover,
+.ambient-header:hover {
   background: rgba(0, 0, 0, 0.03);
 }
 
@@ -94,7 +99,8 @@ body.dark .canvas-manager-header:hover {
 .calc-header:active,
 .calendar-header:active,
 .notes-header:active,
-.canvas-manager-header:active {
+.canvas-manager-header:active,
+.ambient-header:active {
   cursor: grabbing;
   background: rgba(0, 0, 0, 0.05);
 }
@@ -104,7 +110,8 @@ body.dark .events-header:active,
 body.dark .calc-header:active,
 body.dark .calendar-header:active,
 body.dark .notes-header:active,
-body.dark .canvas-manager-header:active {
+body.dark .canvas-manager-header:active,
+body.dark .ambient-header:active {
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -114,7 +121,8 @@ body.dark .canvas-manager-header:active {
 .calc-header::before,
 .calendar-header::before,
 .notes-header::before,
-.canvas-manager-header::before {
+.canvas-manager-header::before,
+.ambient-header::before {
   content: '⋮⋮';
   position: absolute;
   left: 0.5rem;
@@ -130,7 +138,8 @@ body.dark .canvas-manager-header:active {
 .calc-header:hover::before,
 .calendar-header:hover::before,
 .notes-header:hover::before,
-.canvas-manager-header:hover::before {
+.canvas-manager-header:hover::before,
+.ambient-header:hover::before {
   opacity: 0.6;
 }
 
@@ -143,7 +152,8 @@ body.dark .canvas-manager-header:active {
   .floating-notes,
   .floating-pomo,
   .analog-clock,
-  .canvas-manager {
+  .canvas-manager,
+  .floating-ambient {
     /* Always show slight shadow to indicate draggability */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
     cursor: default;
@@ -161,7 +171,8 @@ body.dark .canvas-manager-header:active {
   .calc-header::before,
   .calendar-header::before,
   .notes-header::before,
-  .canvas-manager-header::before {
+  .canvas-manager-header::before,
+  .ambient-header::before {
     opacity: 0.5;
   }
   
@@ -172,6 +183,7 @@ body.dark .canvas-manager-header:active {
   .calendar-header,
   .notes-header,
   .canvas-manager-header,
+  .ambient-header,
   .floating-pomo,
   .analog-clock {
     -webkit-tap-highlight-color: rgba(0, 122, 255, 0.1);
@@ -186,6 +198,7 @@ body.dark .canvas-manager-header:active {
 .floating-calculator:not(.is-dragging),
 .floating-notes:not(.is-dragging),
 .floating-pomo:not(.is-dragging),
+.floating-ambient:not(.is-dragging),
 .analog-clock:not(.is-dragging),
 .canvas-manager:not(.is-dragging) {
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;

@@ -9,7 +9,9 @@
 .floating-web-browser .resize-handle,
 .floating-app-store .resize-handle,
 .floating-app .resize-handle,
-.canvas-manager .resize-handle {
+.floating-pomo .resize-handle,
+.canvas-manager .resize-handle,
+.floating-ambient .resize-handle {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -32,7 +34,9 @@
   .floating-web-browser .resize-handle,
   .floating-app-store .resize-handle,
   .floating-app .resize-handle,
-  .canvas-manager .resize-handle {
+  .floating-pomo .resize-handle,
+  .canvas-manager .resize-handle,
+  .floating-ambient .resize-handle {
     width: 36px;
     height: 36px;
   }
@@ -47,7 +51,9 @@
   .floating-web-browser .resize-handle:hover,
   .floating-app-store .resize-handle:hover,
   .floating-app .resize-handle:hover,
-  .canvas-manager .resize-handle:hover {
+  .floating-pomo .resize-handle:hover,
+  .canvas-manager .resize-handle:hover,
+  .floating-ambient .resize-handle:hover {
     background: linear-gradient(135deg, transparent 50%, var(--primary) 50%);
   }
 }
@@ -60,7 +66,8 @@
 .floating-web-browser .resize-handle::after,
 .floating-app-store .resize-handle::after,
 .floating-app .resize-handle::after,
-.canvas-manager .resize-handle::after {
+.canvas-manager .resize-handle::after,
+.floating-ambient .resize-handle::after {
   content: '⋮⋮';
   position: absolute;
   bottom: 1px;
@@ -130,7 +137,8 @@
   .floating-web-browser:hover .close-widget-btn,
   .floating-app-store:hover .close-widget-btn,
   .floating-app:hover .close-widget-btn,
-  .canvas-manager:hover .close-widget-btn {
+  .canvas-manager:hover .close-widget-btn,
+  .floating-ambient:hover .close-widget-btn {
     opacity: 1;
   }
   
@@ -151,6 +159,7 @@
 .floating-app-store:active .close-widget-btn,
 .floating-app:active .close-widget-btn,
 .canvas-manager:active .close-widget-btn,
+.floating-ambient:active .close-widget-btn,
 .analog-clock.widget-touched .close-widget-btn,
 .floating-pomo.widget-touched .close-widget-btn,
 .floating-todo.widget-touched .close-widget-btn,
@@ -160,7 +169,8 @@
 .floating-notes.widget-touched .close-widget-btn,
 .floating-app-store.widget-touched .close-widget-btn,
 .floating-app.widget-touched .close-widget-btn,
-.canvas-manager.widget-touched .close-widget-btn {
+.canvas-manager.widget-touched .close-widget-btn,
+.floating-ambient.widget-touched .close-widget-btn {
   opacity: 1;
   /* Fade out smoothly after touch */
   transition: opacity 0.5s ease-in-out;
@@ -230,7 +240,8 @@
   .floating-web-browser:hover .settings-btn,
   .floating-app-store:hover .settings-btn,
   .floating-app:hover .settings-btn,
-  .canvas-manager:hover .settings-btn {
+  .canvas-manager:hover .settings-btn,
+  .floating-ambient:hover .settings-btn {
     opacity: 1;
   }
   
@@ -252,6 +263,7 @@
 .floating-app-store:active .settings-btn,
 .floating-app:active .settings-btn,
 .canvas-manager:active .settings-btn,
+.floating-ambient:active .settings-btn,
 .analog-clock.widget-touched .settings-btn,
 .floating-pomo.widget-touched .settings-btn,
 .floating-todo.widget-touched .settings-btn,
@@ -262,7 +274,8 @@
 .floating-web-browser.widget-touched .settings-btn,
 .floating-app-store.widget-touched .settings-btn,
 .floating-app.widget-touched .settings-btn,
-.canvas-manager.widget-touched .settings-btn {
+.canvas-manager.widget-touched .settings-btn,
+.floating-ambient.widget-touched .settings-btn {
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
 }

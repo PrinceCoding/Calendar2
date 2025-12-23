@@ -22,7 +22,8 @@
             'calendar': 'calendarAppSettings',
             'notes': 'notesAppSettings',
             'webBrowser': 'webBrowserAppSettings',
-            'canvas': 'canvasAppSettings'
+            'canvas': 'canvasAppSettings',
+            'ambient': 'ambientAppSettings'
         };
 
         // Function to show specific app settings
@@ -185,7 +186,7 @@
         }
 
         // ===== POMODORO SETTINGS =====
-        const pomoWorkDuration = document.getElementById('pomoWorkDuration');
+        const pomoFocusDuration = document.getElementById('pomoFocusDuration');
         const pomoBreakDuration = document.getElementById('pomoBreakDuration');
         const pomoLongBreak = document.getElementById('pomoLongBreak');
         const pomoSessionsBeforeLongBreak = document.getElementById('pomoSessionsBeforeLongBreak');
@@ -193,13 +194,13 @@
         const pomoSound = document.getElementById('pomoSound');
         const pomoNotifications = document.getElementById('pomoNotifications');
 
-        if (pomoWorkDuration) {
+        if (pomoFocusDuration) {
             const currentDuration = localStorage.getItem('pomo_duration_minutes') || 25;
-            pomoWorkDuration.value = currentDuration;
-            
-            pomoWorkDuration.addEventListener('change', () => {
-                const val = Math.max(1, Number(pomoWorkDuration.value) || 25);
-                pomoWorkDuration.value = val;
+            pomoFocusDuration.value = currentDuration;
+
+            pomoFocusDuration.addEventListener('change', () => {
+                const val = Math.max(1, Number(pomoFocusDuration.value) || 25);
+                pomoFocusDuration.value = val;
                 localStorage.setItem('pomo_duration_minutes', val);
                 
                 // Trigger timer reset if available

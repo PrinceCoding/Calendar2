@@ -265,7 +265,8 @@ function saveActiveCanvasState() {
     { el: document.getElementById('floatingNotes'), id: 'floatingNotes' },
     { el: document.getElementById('floatingWebBrowser'), id: 'floatingWebBrowser' },
     { el: document.getElementById('floatingAppStore'), id: 'floatingAppStore' },
-    { el: document.getElementById('canvasManager'), id: 'canvasManager' }
+    { el: document.getElementById('canvasManager'), id: 'canvasManager' },
+    { el: document.getElementById('floatingAmbient'), id: 'floatingAmbient' }
   ];
   // Append dynamic widgets present in DOM
   Array.from(document.querySelectorAll('.dynamic-widget')).forEach(el => {
@@ -319,7 +320,8 @@ function loadActiveCanvasState() {
     floatingNotes: { left: '700px', top: '450px' },
     floatingWebBrowser: { left: '900px', top: '120px' },
     floatingAppStore: { left: '300px', top: '120px' },
-    canvasManager: { left: '300px', top: '80px' }
+    canvasManager: { left: '300px', top: '80px' },
+    floatingAmbient: { left: '500px', top: '150px' }
   };
   
   // Default visibility (all hidden except canvas manager on new canvas)
@@ -333,7 +335,8 @@ function loadActiveCanvasState() {
     floatingNotes: false,
     floatingWebBrowser: false,
     floatingAppStore: false,
-    canvasManager: true
+    canvasManager: true,
+    floatingAmbient: false
   };
   
   // Widget configurations
@@ -347,7 +350,8 @@ function loadActiveCanvasState() {
     { el: document.getElementById('floatingNotes'), id: 'floatingNotes', display: 'flex' },
     { el: document.getElementById('floatingWebBrowser'), id: 'floatingWebBrowser', display: 'flex' },
     { el: document.getElementById('floatingAppStore'), id: 'floatingAppStore', display: 'flex' },
-    { el: document.getElementById('canvasManager'), id: 'canvasManager', display: 'flex' }
+    { el: document.getElementById('canvasManager'), id: 'canvasManager', display: 'flex' },
+    { el: document.getElementById('floatingAmbient'), id: 'floatingAmbient', display: 'flex' }
   ];
   // Append dynamic widgets found in DOM
   Array.from(document.querySelectorAll('.dynamic-widget')).forEach(el => {
@@ -376,7 +380,8 @@ function loadActiveCanvasState() {
       'floatingNotes': 'toggleNotesApp',
       'floatingWebBrowser': 'toggleWebBrowserApp',
       'floatingAppStore': 'toggleAppStore',
-      'canvasManager': 'toggleCanvasManagerApp'
+      'canvasManager': 'toggleCanvasManagerApp',
+      'floatingAmbient': 'toggleAmbientApp'
     };
     
     const toggleBtnId = toggleMap[id] || `toggle-${id}`;
