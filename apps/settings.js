@@ -329,11 +329,9 @@
                 if (confirmClear && !confirm('Clear all completed tasks?')) {
                     return;
                 }
-                const todos = JSON.parse(localStorage.getItem('calendar_todos') || '[]');
-                const remaining = todos.filter(t => !t.done);
-                localStorage.setItem('calendar_todos', JSON.stringify(remaining));
-                if (window.TodoWidget && window.TodoWidget.render) {
-                    window.TodoWidget.render();
+                // Use the global clearCompletedTodos function if available (defined in index.html)
+                if (window.clearCompletedTodos) {
+                    window.clearCompletedTodos();
                 }
             });
         }

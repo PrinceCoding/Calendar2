@@ -1,12 +1,11 @@
 // Notes Widget
+// Note: This file no longer handles notes content storage - all data is managed via Firebase in index.html
 (function() {
   'use strict';
 
   const floatingNotes = document.getElementById('floatingNotes');
   const notesEditor = document.getElementById('notesEditor');
   const toolButtons = document.querySelectorAll('.notes-tools button[data-cmd]');
-
-  const NOTES_KEY = 'calendar_notes_rich';
 
   // Rich text controls
   toolButtons.forEach(b => {
@@ -33,16 +32,13 @@
     }
   });
 
-  // Load and save notes
-  if (notesEditor) {
-    notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || '';
-    notesEditor.oninput = () => localStorage.setItem(NOTES_KEY, notesEditor.innerHTML);
-  }
+  // Notes content is now loaded and saved via Firebase in index.html
+  // No localStorage usage here
 
   // Export for main script
   window.NotesWidget = {
     element: floatingNotes,
-    getContent: () => notesEditor.innerHTML,
-    setContent: (html) => { notesEditor.innerHTML = html; }
+    getContent: () => notesEditor ? notesEditor.innerHTML : '',
+    setContent: (html) => { if (notesEditor) notesEditor.innerHTML = html; }
   };
 })();

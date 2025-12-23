@@ -1015,9 +1015,8 @@
     }
   });
 
-  const NOTES_KEY = 'calendar_notes_rich';
-  notesEditor.innerHTML = localStorage.getItem(NOTES_KEY) || '';
-  notesEditor.oninput = () => localStorage.setItem(NOTES_KEY, notesEditor.innerHTML);
+  // Notes content is loaded and saved via Firebase (see bottom of file)
+  // No localStorage usage for notes content to avoid conflicts
 
   renderCalendar(shownYear);
 
@@ -1075,12 +1074,9 @@
   updateTime();
   setInterval(updateTime, 1000);
 
-  const POMO_KEY = 'pomo_duration_minutes';
-  const POMO_SECS_LOCAL_KEY = 'pomo_secs_local';
   const DEVICE_ID_KEY = 'device_id';
-  let defaultPomoMinutes = Number(localStorage.getItem(POMO_KEY)) || 60;
-  let secsStored = Number(localStorage.getItem(POMO_SECS_LOCAL_KEY));
-  let secs = (!isNaN(secsStored) && secsStored > 0) ? secsStored : (defaultPomoMinutes * 60);
+  let defaultPomoMinutes = 60; // Default value, will be updated from Firebase
+  let secs = defaultPomoMinutes * 60;
   let timer = null; // local display tick interval
   let anchorStartMs = null; // when (ms) the session started (server/local)
   let anchorRemaining = null; // secs remaining at start
@@ -1109,7 +1105,7 @@
   }
 
   function saveLocalSecs() {
-    localStorage.setItem(POMO_SECS_LOCAL_KEY, String(secs));
+    // No longer saving to localStorage - using Firebase only
   }
 
   function setStartButtons(running) {
@@ -1201,7 +1197,6 @@
   window.resetPomoTimer = function(newDuration) {
     if (newDuration) {
       defaultPomoMinutes = newDuration;
-      localStorage.setItem(POMO_KEY, newDuration);
     }
     resetPomo();
     // Update input if it exists
@@ -1216,7 +1211,6 @@
       const val = Math.max(1, Number(pomoDurationInput.value) || 60);
       console.log('[POMO] Duration changed to', val, 'minutes');
       defaultPomoMinutes = val;
-      localStorage.setItem(POMO_KEY, val);
       secs = val * 60;
       updatePomoDisplay();
       clearLocalTimer();
@@ -1286,7 +1280,6 @@
       // Update duration if changed remotely
       if (typeof data.duration === 'number' && data.duration > 0 && data.duration !== defaultPomoMinutes) {
         defaultPomoMinutes = data.duration;
-        localStorage.setItem(POMO_KEY, String(defaultPomoMinutes));
         if (pomoDurationInput) pomoDurationInput.value = defaultPomoMinutes;
       }
 
@@ -2235,6 +2228,14 @@
   // Expose function for Firebase listener
   window.applyRemoteTodos = loadTodosFromFirebase;
 
+  // Expose function for clearing completed todos (used by settings)
+  window.clearCompletedTodos = function() {
+    const remaining = todos.filter(t => !t.completed);
+    todos = remaining;
+    renderTodos();
+    saveTodosToFirebase();
+  };
+
   // Set up event listeners
   if (todoAddBtn) {
     todoAddBtn.addEventListener('click', addTodo);
@@ -2612,11 +2613,10 @@
             window.applyRemoteState(data);
           }
         } else {
-          const localDuration = Number(localStorage.getItem('pomo_duration_minutes')) || 60;
-          const localSecs = Number(localStorage.getItem('pomo_secs_local')) || (localDuration * 60);
+          // No cloud data yet, initialize with default values
           setDoc(pomoRef, {
-            remaining: localSecs,
-            duration: localDuration,
+            remaining: 60 * 60,
+            duration: 60,
             running: false,
             startedAt: null,
             updatedAt: serverTimestamp()
