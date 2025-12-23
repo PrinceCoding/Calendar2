@@ -1179,8 +1179,8 @@
     const startedNow = Date.now();
     startLocalDisplayFromAnchor(remainAtStart, startedNow);
     console.log('[POMO] ▶ Started with', remainAtStart, 'seconds remaining');
-    // Persist start (no per-second writes)
-    syncToCloud(true, { remaining: remainAtStart, startedAt: window.serverTimestamp ? window.serverTimestamp() : null });
+    // Persist start (no per-second writes) - save actual timestamp for cross-device sync
+    syncToCloud(true, { remaining: remainAtStart, startedAt: startedNow });
   }
 
   function resetPomo() {
@@ -1275,7 +1275,8 @@
   window.applyRemoteState = (data) => {
     try {
       if (!data) return;
-      if (data.by && data.by === deviceId) return; // ignore self-originating updates
+      
+      console.log('[POMO] Applying remote state:', data);
 
       // Update duration if changed remotely
       if (typeof data.duration === 'number' && data.duration > 0 && data.duration !== defaultPomoMinutes) {
@@ -1288,11 +1289,16 @@
         ? data.remaining
         : (typeof data.secs === 'number' ? data.secs : defaultPomoMinutes * 60);
 
-      if (running && data.startedAt && typeof data.startedAt.toMillis === 'function') {
-        const startedAtMs = data.startedAt.toMillis();
+      if (running && data.startedAt) {
+        // Handle both Firestore Timestamp objects and numeric timestamps
+        const startedAtMs = (typeof data.startedAt.toMillis === 'function')
+          ? data.startedAt.toMillis()
+          : (typeof data.startedAt === 'number' ? data.startedAt : Date.now());
+        console.log('[POMO] Restoring running timer from', startedAtMs, 'with', remaining, 'seconds');
         startLocalDisplayFromAnchor(remaining, startedAtMs);
       } else if (running) {
         // Fallback if startedAt missing: just start from remaining now
+        console.log('[POMO] Fallback: Starting timer with', remaining, 'seconds');
         startLocalDisplayFromAnchor(remaining, Date.now());
       } else {
         clearLocalTimer();
