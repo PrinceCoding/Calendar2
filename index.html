@@ -2766,7 +2766,19 @@
     if (!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Logging in...');
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Store user info in Firestore
+      const user = userCredential.user;
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || '',
+          lastLogin: serverTimestamp(),
+        }, { merge: true });
+      }
     } catch (err) { handleAuthError(err); }
   };
 
@@ -2776,7 +2788,19 @@
     if (!email || !password) return setSyncStatus('Enter email & password');
     try {
       setSyncStatus('Creating account...');
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Store user info in Firestore
+      const user = userCredential.user;
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || '',
+          createdAt: serverTimestamp(),
+        }, { merge: true });
+      }
     } catch (err) { handleAuthError(err); }
   };
 
@@ -2830,8 +2854,21 @@
   let unsubscribeEvents = null;
   let unsubscribeTodo = null;
 
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
+      // Store/update user info in Firestore on login
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || '',
+          lastLogin: serverTimestamp(),
+        }, { merge: true });
+      } catch (err) {
+        console.error('Error writing user info to Firestore:', err);
+      }
       if (loggedOutUI) loggedOutUI.style.display = 'none';
       if (loggedInUI) loggedInUI.style.display = 'block';
       if (userEmailDisplay) userEmailDisplay.textContent = `Logged in as: ${user.email}`;
