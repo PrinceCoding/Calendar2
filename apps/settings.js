@@ -6,11 +6,15 @@
         // Navigation between main settings and app settings
         const mainSettingsView = document.getElementById('mainSettingsView');
         const appSettingsView = document.getElementById('appSettingsView');
+        const appsListView = document.getElementById('appsListView');
         const backToSettings = document.getElementById('backToSettings');
+        const backToSettingsFromApps = document.getElementById('backToSettingsFromApps');
+        const showAppsListBtn = document.getElementById('showAppsListBtn');
         const settingsPage = document.getElementById('settingsPage');
 
         console.log('[Settings] Init - mainSettingsView:', mainSettingsView);
         console.log('[Settings] Init - appSettingsView:', appSettingsView);
+        console.log('[Settings] Init - appsListView:', appsListView);
 
         // App name to settings detail mapping
         const appSettingsMap = {
@@ -32,10 +36,14 @@
         function showAppSettings(appName) {
             console.log('[Settings] showAppSettings called for:', appName);
             
-            // Hide main view, show app settings view
+            // Hide main view and apps list view, show app settings view
             if (mainSettingsView) {
                 mainSettingsView.style.display = 'none';
                 console.log('[Settings] Main view hidden');
+            }
+            if (appsListView) {
+                appsListView.style.display = 'none';
+                console.log('[Settings] Apps list view hidden');
             }
             if (appSettingsView) {
                 appSettingsView.style.display = 'block';
@@ -65,13 +73,29 @@
         if (backToSettings) {
             backToSettings.addEventListener('click', () => {
                 if (appSettingsView) appSettingsView.style.display = 'none';
+                if (appsListView) appsListView.style.display = 'block';
+            });
+        }
+
+        // Show Apps List button handler
+        if (showAppsListBtn) {
+            showAppsListBtn.addEventListener('click', () => {
+                if (mainSettingsView) mainSettingsView.style.display = 'none';
+                if (appsListView) appsListView.style.display = 'block';
+            });
+        }
+
+        // Back to Settings from Apps List handler
+        if (backToSettingsFromApps) {
+            backToSettingsFromApps.addEventListener('click', () => {
+                if (appsListView) appsListView.style.display = 'none';
                 if (mainSettingsView) mainSettingsView.style.display = 'block';
             });
         }
 
         // Function to populate settings app list with installed apps only
         async function populateSettingsAppList() {
-            const settingsAppListContainer = document.querySelector('.settings-app-list');
+            const settingsAppListContainer = document.getElementById('appsListContainer');
             if (!settingsAppListContainer) return;
 
             // App metadata for creating list items
@@ -154,19 +178,18 @@
         // Expose function globally so app store can refresh it
         window.refreshSettingsAppList = populateSettingsAppList;
 
-        // Settings app list click handlers (for initial HTML items)
-        const settingsAppItems = document.querySelectorAll('.settings-app-item');
-        console.log('[Settings] Found app items:', settingsAppItems.length);
-        
-        settingsAppItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const appName = item.dataset.app;
-                console.log('[Settings] App item clicked:', appName);
-                if (appName) {
+        // Settings app list click handlers (for items in appsListView)
+        const appsListContainer = document.getElementById('appsListContainer');
+        if (appsListContainer) {
+            appsListContainer.addEventListener('click', (e) => {
+                const item = e.target.closest('.settings-app-item');
+                if (item && item.dataset.app) {
+                    const appName = item.dataset.app;
+                    console.log('[Settings] App item clicked:', appName);
                     showAppSettings(appName);
                 }
             });
-        });
+        }
 
         // Widget settings button handlers - open global settings to specific app
         function setupWidgetSettingsButton(buttonId, appName) {

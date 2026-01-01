@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Year Calendar with Notes</title>
+  <title>CANVAS</title>
 
   <!-- =========================
         STYLES (CSS)
@@ -508,73 +508,87 @@
       <!-- About -->
       <div class="month" style="margin-bottom:1rem;">
         <h3>About</h3>
-        <p style="font-size:0.75rem;color:var(--muted)">Year Calendar with Notes</p>
+        <p style="font-size:0.75rem;color:var(--muted)">CANVAS - Multi-workspace productivity platform</p>
       </div>
 
       <!-- Apps Section (iOS Style) -->
       <div class="month">
         <h3>Apps</h3>
         <div class="settings-app-list">
-          <div class="settings-app-item" data-app="clock">
-            <span class="settings-app-icon">🕒</span>
-            <span class="settings-app-name">Clock</span>
+          <div class="settings-app-item" id="showAppsListBtn">
+            <span class="settings-app-icon">📱</span>
+            <span class="settings-app-name">Apps</span>
             <span class="settings-app-chevron">›</span>
           </div>
-          <div class="settings-app-item" data-app="pomodoro">
-            <span class="settings-app-icon">🍅</span>
-            <span class="settings-app-name">Pomodoro</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="todo">
-            <span class="settings-app-icon">✅</span>
-            <span class="settings-app-name">Todo</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="countdown">
-            <span class="settings-app-icon">⏰</span>
-            <span class="settings-app-name">Countdown</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="calculator">
-            <span class="settings-app-icon">🔢</span>
-            <span class="settings-app-name">Calculator</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="events">
-            <span class="settings-app-icon">📅</span>
-            <span class="settings-app-name">Events</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="calendar">
-            <span class="settings-app-icon">📆</span>
-            <span class="settings-app-name">Calendar</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="notes">
-            <span class="settings-app-icon">📝</span>
-            <span class="settings-app-name">Notes</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="webBrowser">
-            <span class="settings-app-icon">🌐</span>
-            <span class="settings-app-name">Web Browser</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="canvas">
-            <span class="settings-app-icon">📑</span>
-            <span class="settings-app-name">Canvas Manager</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="ambient">
-            <span class="settings-app-icon">🎵</span>
-            <span class="settings-app-name">Ambient Sounds</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
-          <div class="settings-app-item" data-app="appStore">
-            <span class="settings-app-icon">🛍️</span>
-            <span class="settings-app-name">App Store</span>
-            <span class="settings-app-chevron">›</span>
-          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apps List View -->
+    <div id="appsListView" style="display:none;">
+      <button id="backToSettingsFromApps" class="settings-back-btn">‹ Settings</button>
+      
+      <h2 style="margin-top:0">Apps</h2>
+      <div class="settings-app-list" id="appsListContainer">
+        <div class="settings-app-item" data-app="clock">
+          <span class="settings-app-icon">🕒</span>
+          <span class="settings-app-name">Clock</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="pomodoro">
+          <span class="settings-app-icon">🍅</span>
+          <span class="settings-app-name">Pomodoro</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="todo">
+          <span class="settings-app-icon">✅</span>
+          <span class="settings-app-name">Todo</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="countdown">
+          <span class="settings-app-icon">⏰</span>
+          <span class="settings-app-name">Countdown</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="calculator">
+          <span class="settings-app-icon">🔢</span>
+          <span class="settings-app-name">Calculator</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="events">
+          <span class="settings-app-icon">📅</span>
+          <span class="settings-app-name">Events</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="calendar">
+          <span class="settings-app-icon">📆</span>
+          <span class="settings-app-name">Calendar</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="notes">
+          <span class="settings-app-icon">📝</span>
+          <span class="settings-app-name">Notes</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="webBrowser">
+          <span class="settings-app-icon">🌐</span>
+          <span class="settings-app-name">Web Browser</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="canvas">
+          <span class="settings-app-icon">📑</span>
+          <span class="settings-app-name">Canvas Manager</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="ambient">
+          <span class="settings-app-icon">🎵</span>
+          <span class="settings-app-name">Ambient Sounds</span>
+          <span class="settings-app-chevron">›</span>
+        </div>
+        <div class="settings-app-item" data-app="appStore">
+          <span class="settings-app-icon">🛍️</span>
+          <span class="settings-app-name">App Store</span>
+          <span class="settings-app-chevron">›</span>
         </div>
       </div>
     </div>
