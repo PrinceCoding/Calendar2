@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>C</text></svg>">
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="pwa/manifest.json">
   <meta name="theme-color" content="#007AFF">
   <meta name="apple-mobile-web-app-title" content="CANVAS">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23007AFF' rx='40'/><text x='90' y='130' font-size='110' text-anchor='middle' fill='white' font-family='system-ui' font-weight='600'>C</text></svg>">
@@ -19,22 +19,22 @@
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/base.css?v=2">
   <link rel="stylesheet" href="css/header.css?v=2">
-  <link rel="stylesheet" href="css/calendar.css?v=2">
-  <link rel="stylesheet" href="css/notes.css?v=2">
-  <link rel="stylesheet" href="css/web-browser.css?v=2">
-  <link rel="stylesheet" href="css/clock.css?v=2">
-  <link rel="stylesheet" href="css/pomodoro.css?v=2">
-  <link rel="stylesheet" href="css/todo.css?v=2">
-  <link rel="stylesheet" href="css/calculator.css?v=2">
-  <link rel="stylesheet" href="css/events.css?v=2">
+  <link rel="stylesheet" href="apps/calendar/calendar.css?v=2">
+  <link rel="stylesheet" href="apps/notes/notes.css?v=2">
+  <link rel="stylesheet" href="apps/web-browser/web-browser.css?v=2">
+  <link rel="stylesheet" href="apps/clock/clock.css?v=2">
+  <link rel="stylesheet" href="apps/pomodoro/pomodoro.css?v=2">
+  <link rel="stylesheet" href="apps/todo/todo.css?v=2">
+  <link rel="stylesheet" href="apps/calculator/calculator.css?v=2">
+  <link rel="stylesheet" href="apps/events/events.css?v=2">
   <link rel="stylesheet" href="css/app-launcher.css?v=2">
-  <link rel="stylesheet" href="css/canvas-tabs.css?v=2">
+  <link rel="stylesheet" href="apps/canvas-manager/canvas-manager.css?v=2">
   <link rel="stylesheet" href="css/widgets.css?v=2">
   <link rel="stylesheet" href="css/dragging.css?v=2">
-  <link rel="stylesheet" href="css/settings.css?v=2">
-  <link rel="stylesheet" href="css/ambient-sounds.css?v=2">
-  <link rel="stylesheet" href="css/countdown.css?v=2">
-  <link rel="stylesheet" href="css/app-store.css?v=2">
+  <link rel="stylesheet" href="apps/settings/settings.css?v=2">
+  <link rel="stylesheet" href="apps/ambient-sounds/ambient-sounds.css?v=2">
+  <link rel="stylesheet" href="apps/countdown/countdown.css?v=2">
+  <link rel="stylesheet" href="apps/app-store/app-store.css?v=2">
 </head>
 <body>
 
@@ -1154,142 +1154,11 @@
 </div><!-- End Canvas Workspace -->
 
 <script>
-  const calEl = document.getElementById('calendar');
   const settingsBtn = document.getElementById('settingsBtn');
   const settingsPage = document.getElementById('settingsPage');
   const closeSettings = document.getElementById('closeSettings');
-  const yearEl = document.getElementById('year');
   const notesEditor = document.getElementById('notesEditor');
   const toolButtons = document.querySelectorAll('.notes-tools button');
-
-  const now = new Date();
-  const CURRENT_YEAR = now.getFullYear();
-  const TODAY_DATE = now.getDate();
-  const TODAY_MONTH = now.getMonth();
-  let shownYear = CURRENT_YEAR;
-
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  let monthViewIndex = null;
-  const monthToggleBtn = document.getElementById('monthToggleBtn');
-  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-  // Events data (initialized early for calendar rendering)
-  // Start with empty - will be loaded from Firebase when authenticated
-  let events = [];
-  let eventsLoaded = false; // Track if Firebase data has been loaded
-  let selectedCalendarDate = null;
-
-  function renderCalendar(year) {
-    calEl.innerHTML = '';
-    yearEl.textContent = `Calendar ${year}`;
-
-    // Get calendar settings
-    const weekStart = parseInt(localStorage.getItem('calendarWeekStart') || '0');
-    const showWeekNumbers = localStorage.getItem('calendarShowWeekNumbers') === 'true';
-    const highlightWeekends = localStorage.getItem('calendarHighlightWeekends') !== 'false';
-    const showToday = localStorage.getItem('calendarShowToday') !== 'false';
-
-    // Reorder DAYS array based on week start
-    let orderedDays = [...DAYS];
-    if (weekStart > 0) {
-      orderedDays = [...DAYS.slice(weekStart), ...DAYS.slice(0, weekStart)];
-    }
-
-    MONTHS.forEach((m, i) => {
-      if (monthViewIndex !== null && monthViewIndex !== i) return;
-      const box = document.createElement('div');
-      box.className = 'month';
-      box.innerHTML = `<h2 data-month="${i}" style="cursor:pointer">${m}</h2>`;
-
-      const w = document.createElement('div');
-      w.className = 'weekdays';
-      
-      // Add week number header if enabled
-      if (showWeekNumbers) {
-        w.innerHTML += '<div style="font-weight:bold;font-size:0.7rem;">Wk</div>';
-      }
-      
-      orderedDays.forEach((d, idx) => {
-        const isWeekend = highlightWeekends && ((idx + weekStart) % 7 === 0 || (idx + weekStart) % 7 === 6);
-        const style = isWeekend ? 'color:var(--accent);font-weight:600;' : '';
-        w.innerHTML += `<div style="${style}">${d}</div>`;
-      });
-
-      const g = document.createElement('div');
-      g.className = 'days';
-      g.style.gridTemplateColumns = showWeekNumbers ? 'repeat(8, 1fr)' : 'repeat(7, 1fr)';
-      
-      const first = new Date(year, i, 1).getDay();
-      const total = new Date(year, i + 1, 0).getDate();
-      
-      // Adjust first day based on week start
-      let adjustedFirst = (first - weekStart + 7) % 7;
-
-      // Add week number for first week if enabled
-      if (showWeekNumbers) {
-        const firstDate = new Date(year, i, 1);
-        const weekNum = getWeekNumber(firstDate);
-        g.innerHTML += `<div style="font-size:0.7rem;color:var(--muted);display:flex;align-items:center;justify-content:center;">${weekNum}</div>`;
-      }
-
-      for (let j = 0; j < adjustedFirst; j++) g.innerHTML += '<div></div>';
-      
-      for (let d = 1; d <= total; d++) {
-        // Add week number at start of each week
-        if (showWeekNumbers && (adjustedFirst + d - 1) % 7 === 0 && d > 1) {
-          const currentDate = new Date(year, i, d);
-          const weekNum = getWeekNumber(currentDate);
-          g.innerHTML += `<div style="font-size:0.7rem;color:var(--muted);display:flex;align-items:center;justify-content:center;">${weekNum}</div>`;
-        }
-        
-        const isToday = d === TODAY_DATE && i === TODAY_MONTH && year === CURRENT_YEAR;
-        const shouldShowToday = showToday && isToday;
-        const dateStr = `${year}-${String(i + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const hasEvent = events.some(e => e.date === dateStr);
-        const dotHtml = hasEvent ? '<span class="event-dot"></span>' : '';
-        
-        // Check if it's a weekend
-        const dayOfWeek = new Date(year, i, d).getDay();
-        const isWeekend = highlightWeekends && (dayOfWeek === 0 || dayOfWeek === 6);
-        const weekendClass = isWeekend ? 'weekend-day' : '';
-        
-        g.innerHTML += `<div class="${shouldShowToday ? 'today' : ''} ${weekendClass}" data-date="${dateStr}" style="cursor:pointer">${d}${dotHtml}</div>`;
-      }
-
-      box.append(w, g);
-      calEl.appendChild(box);
-    });
-
-    // Add click handlers to dates for event viewing
-    calEl.querySelectorAll('.days div[data-date]').forEach(dayEl => {
-      dayEl.onclick = (e) => {
-        const dateStr = e.currentTarget.dataset.date;
-        if (!dateStr) return;
-        selectedCalendarDate = dateStr;
-        const eventDateInput = document.getElementById('eventDateInput');
-        if (eventDateInput) eventDateInput.value = dateStr;
-        if (window.renderEvents) window.renderEvents(dateStr);
-        
-        // Show events widget if hidden
-        const eventsWidget = document.getElementById('floatingEvents');
-        if (eventsWidget && eventsWidget.style.display === 'none') {
-          if (window.updateEventsVisibility) window.updateEventsVisibility(true);
-        }
-      };
-    });
-  }
-
-  // Helper function to get week number
-  function getWeekNumber(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  }
-
-  // Expose renderCalendar globally
-  window.renderCalendar = renderCalendar;
 
   function updateTime() {
     const d = new Date();
@@ -1323,8 +1192,6 @@
   // Notes content is loaded and saved via Firebase (see bottom of file)
   // No localStorage usage for notes content to avoid conflicts
 
-  renderCalendar(shownYear);
-
   // Font size controls
   const fontButtons = document.querySelectorAll('.font-btn');
   fontButtons.forEach(btn => {
@@ -1355,27 +1222,6 @@
     }
   });
 
-  monthToggleBtn.onclick = () => {
-    if (monthViewIndex === null) {
-      monthViewIndex = TODAY_MONTH;
-      monthToggleBtn.textContent = '� Year View';
-      yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
-    } else {
-      monthViewIndex = null;
-      monthToggleBtn.textContent = '📅 Month View';
-      yearEl.textContent = `Calendar ${shownYear}`;
-    }
-    renderCalendar(shownYear);
-  };
-
-  calEl.addEventListener('click', (e) => {
-    const h = e.target.closest('h2[data-month]');
-    if (!h) return;
-    monthViewIndex = Number(h.dataset.month);
-    monthToggleBtn.textContent = '📅 Year View';
-    yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
-    renderCalendar(shownYear);
-  });
   updateTime();
   setInterval(updateTime, 1000);
 
@@ -1738,36 +1584,7 @@
     }
   };
 
-  document.getElementById('prev').onclick = () => {
-    if (monthViewIndex !== null) {
-      monthViewIndex = (monthViewIndex + 11) % 12;
-      yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
-      renderCalendar(shownYear);
-    } else {
-      renderCalendar(--shownYear);
-    }
-  };
-  document.getElementById('next').onclick = () => {
-    if (monthViewIndex !== null) {
-      monthViewIndex = (monthViewIndex + 1) % 12;
-      yearEl.textContent = `${MONTHS[monthViewIndex]} ${shownYear}`;
-      renderCalendar(shownYear);
-    } else {
-      renderCalendar(++shownYear);
-    }
-  };
-  todayBtn.onclick = () => {
-    if (monthViewIndex === null) {
-      shownYear = CURRENT_YEAR;
-      renderCalendar(shownYear);
-      return;
-    }
-    shownYear = CURRENT_YEAR;
-    monthViewIndex = TODAY_MONTH;
-    monthToggleBtn.textContent = '🗓 Year';
-    yearEl.textContent = `${MONTHS[TODAY_MONTH]} ${shownYear}`;
-    renderCalendar(shownYear);
-  };
+  // Calendar navigation now handled by calendar.js app
 
   const themes = [
     { name: '🍎 macOS', class: '' },
@@ -1884,14 +1701,13 @@
   const CANVAS_TABS_VIS_KEY = 'show_canvas_tabs';
   const AMBIENT_VIS_KEY = 'show_ambient_sounds';
 
+  // Calendar visibility now handled by calendar.js app
+  // Kept here for backward compatibility
   function updateCalendarVisibility(visible) {
-    if (!floatingCalendar) return;
-    floatingCalendar.style.display = visible ? 'flex' : 'none';
-    if (visible) bringToFront(floatingCalendar);
-    if (toggleCalendarApp) toggleCalendarApp.classList.toggle('active', !!visible);
-    if (window.saveCurrentCanvas) window.saveCurrentCanvas();
+    if (window.updateCalendarVisibility) {
+      window.updateCalendarVisibility(visible);
+    }
   }
-  window.updateCalendarVisibility = updateCalendarVisibility;
 
   function updateClockVisibility(visible) {
     if (!clock) return;
@@ -2812,166 +2628,10 @@
       selectedCalendarDate = null;
       renderEvents(null);
     };
-  }
+</div><!-- End Canvas Workspace -->
 
-  function renderEvents(filterDate = null) {
-    if (!eventsList) return;
-    eventsList.innerHTML = '';
-    
-    // Show loading state if not loaded yet and user is authenticated
-    if (!eventsLoaded && window.auth && auth.currentUser) {
-      eventsList.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Loading events from cloud...</div>';
-      return;
-    }
-    
-    // Filter events by date if specified
-    const filteredEvents = filterDate 
-      ? events.filter(e => e.date === filterDate)
-      : events;
-
-    // Sort events by date (newest first)
-    filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    filteredEvents.forEach((event) => {
-      const actualIndex = events.findIndex(e => e.id === event.id);
-      const item = document.createElement('div');
-      item.className = 'event-item';
-      const dateObj = new Date(event.date + 'T00:00:00');
-      const dateStr = dateObj.toLocaleDateString(undefined, { 
-        weekday: 'short', 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      });
-      item.innerHTML = `
-        <div class="event-date-badge">${dateStr}</div>
-        <div class="event-text">${event.text}</div>
-        <button class="event-delete" data-index="${actualIndex}">✕</button>
-      `;
-      eventsList.appendChild(item);
-    });
-
-    // Event listeners
-    eventsList.querySelectorAll('.event-delete').forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const idx = Number(e.currentTarget.dataset.index);
-        events.splice(idx, 1);
-        renderEvents(selectedCalendarDate);
-        renderCalendar(shownYear);
-        syncEventsToCloud();
-      };
-    });
-
-    // Update selected date badge and show all button
-    if (selectedDateBadge) {
-      if (filterDate) {
-        const dateObj = new Date(filterDate + 'T00:00:00');
-        selectedDateBadge.textContent = '📆 ' + dateObj.toLocaleDateString(undefined, { 
-          month: 'short', 
-          day: 'numeric' 
-        });
-        selectedDateBadge.style.display = 'inline-block';
-        if (showAllEventsBtn) showAllEventsBtn.style.display = 'inline-block';
-      } else {
-        selectedDateBadge.textContent = '';
-        selectedDateBadge.style.display = 'none';
-        if (showAllEventsBtn) showAllEventsBtn.style.display = 'none';
-      }
-    }
-  }
-  window.renderEvents = renderEvents;
-
-  function addEvent() {
-    if (!eventDateInput || !eventTextInput) return;
-    const date = eventDateInput.value;
-    const text = eventTextInput.value.trim();
-    if (!date || !text) return;
-    
-    events.push({ 
-      date, 
-      text, 
-      id: Date.now() + Math.random() 
-    });
-    
-    eventTextInput.value = '';
-    // Keep current filter (if any) after adding
-    renderEvents(selectedCalendarDate);
-    renderCalendar(shownYear);
-    syncEventsToCloud();
-  }
-
-  async function syncEventsToCloud() {
-    try {
-      console.log('[EVENTS] syncEventsToCloud called, events count:', events.length);
-      
-      // Require authentication for data operations
-      if (!window.auth || !auth.currentUser || !window.db || !window.doc || !window.setDoc || !window.serverTimestamp) {
-        console.warn('[EVENTS] Not authenticated - data not saved');
-        return;
-      }
-      
-      // Get deviceId from global scope or localStorage
-      const deviceId = window.deviceId || localStorage.getItem('device_id') || 'unknown';
-      console.log('[EVENTS] Syncing', events.length, 'events to Firebase...');
-      
-      const ref = doc(db, 'user_events', auth.currentUser.uid);
-      await setDoc(ref, {
-        items: events,
-        by: deviceId,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-      
-      console.log('[EVENTS] ✓ Successfully synced to Firebase');
-    } catch (err) {
-      console.error('[EVENTS] Cloud sync failed:', err);
-      console.error('[EVENTS] Error details:', err.message, err.code);
-    }
-  }
-
-  window.applyRemoteEvents = (data) => {
-    try {
-      if (!data) {
-        console.log('[EVENTS] No data received');
-        eventsLoaded = true;
-        renderEvents(selectedCalendarDate);
-        renderCalendar(shownYear);
-        return;
-      }
-      console.log('[EVENTS] Received data:', data);
-      // Don't skip if from same device - we need to load on page refresh
-      // if (data.by && data.by === deviceId) return;
-      if (Array.isArray(data.items)) {
-        events = data.items;
-        eventsLoaded = true;
-        console.log('[EVENTS] Loaded', events.length, 'events from Firebase');
-        // Preserve current filter when receiving remote updates
-        renderEvents(selectedCalendarDate);
-        renderCalendar(shownYear);
-      } else {
-        console.warn('[EVENTS] data.items is not an array:', data.items);
-        eventsLoaded = true;
-        renderEvents(selectedCalendarDate);
-        renderCalendar(shownYear);
-      }
-    } catch (e) {
-      console.error('[EVENTS] applyRemoteEvents error:', e);
-      eventsLoaded = true;
-      renderEvents(selectedCalendarDate);
-      renderCalendar(shownYear);
-    }
-  };
-
-  if (eventAddBtn) eventAddBtn.onclick = addEvent;
-  if (eventTextInput) {
-    eventTextInput.onkeypress = (e) => {
-      if (e.key === 'Enter') addEvent();
-    };
-  }
-
-  // Show all events initially (no filter)
-  renderEvents(null);
-</script>
+<!-- Main Application Logic -->
+<script src="js/main.js"></script>
 
 <!-- Firebase Module -->
 <script type="module">
@@ -3106,9 +2766,9 @@
   if (logoutBtn) logoutBtn.onclick = async () => {
     // Clear all app data from memory
     todos = [];
-    events = [];
+    if (window.updateCalendarEvents) window.updateCalendarEvents([]);
+    if (window.setEventsLoaded) window.setEventsLoaded(false);
     todosLoaded = false;
-    eventsLoaded = false;
     
     // Clear all cached data from localStorage
     console.log('[LOGOUT] Clearing all cached data...');
@@ -3296,9 +2956,9 @@
       
       // Clear all data when logged out (cloud-first approach)
       todos = [];
-      events = [];
+      if (window.updateCalendarEvents) window.updateCalendarEvents([]);
+      if (window.setEventsLoaded) window.setEventsLoaded(false);
       todosLoaded = false;
-      eventsLoaded = false;
       if (notesEditor) notesEditor.innerHTML = '';
       if (todoList) todoList.innerHTML = '';
       if (eventsList) eventsList.innerHTML = '';
@@ -3487,17 +3147,19 @@
 </script>
 
 <!-- Widget/App Scripts -->
-<script src="apps/clock.js"></script>
-<script src="apps/pomodoro.js"></script>
-<script src="apps/todo.js"></script>
-<script src="apps/countdown.js"></script>
-<script src="apps/calculator.js"></script>
-<script src="apps/notes.js"></script>
-<script src="apps/web-browser.js"></script>
-<script src="apps/canvas-manager.js"></script>
-<script src="apps/settings.js"></script>
-<script src="apps/ambient-sounds.js"></script>
-<script src="apps/app-store.js"></script>
+<script src="apps/calendar/calendar.js"></script>
+<script src="apps/events/events.js"></script>
+<script src="apps/clock/clock.js"></script>
+<script src="apps/pomodoro/pomodoro.js"></script>
+<script src="apps/todo/todo.js"></script>
+<script src="apps/countdown/countdown.js"></script>
+<script src="apps/calculator/calculator.js"></script>
+<script src="apps/notes/notes.js"></script>
+<script src="apps/web-browser/web-browser.js"></script>
+<script src="apps/canvas-manager/canvas-manager.js"></script>
+<script src="apps/settings/settings.js"></script>
+<script src="apps/ambient-sounds/ambient-sounds.js"></script>
+<script src="apps/app-store/app-store.js"></script>
 
 <script>
   // Initialize canvas manager after all scripts are loaded
@@ -3510,7 +3172,7 @@
   // =========================
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
+      navigator.serviceWorker.register('./pwa/sw.js')
         .then((registration) => {
           console.log('[PWA] Service Worker registered:', registration.scope);
           
