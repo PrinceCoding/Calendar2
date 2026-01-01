@@ -7,6 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>C</text></svg>">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007AFF">
+  <meta name="apple-mobile-web-app-title" content="CANVAS">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23007AFF' rx='40'/><text x='90' y='130' font-size='110' text-anchor='middle' fill='white' font-family='system-ui' font-weight='600'>C</text></svg>">
   <title>CANVAS</title>
 
   <!-- =========================
@@ -3500,7 +3504,140 @@
   if (window.initializeCanvasManager) {
     window.initializeCanvasManager();
   }
+
+  // =========================
+  // PWA SERVICE WORKER
+  // =========================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then((registration) => {
+          console.log('[PWA] Service Worker registered:', registration.scope);
+          
+          // Check for updates periodically
+          setInterval(() => {
+            registration.update();
+          }, 60000); // Check every minute
+          
+          // Handle service worker updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker available, prompt user to refresh
+                if (confirm('New version available! Reload to update?')) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              }
+            });
+          });
+        })
+        .catch((error) => {
+          console.log('[PWA] Service Worker registration failed:', error);
+        });
+    });
+
+    // Reload page when new service worker takes control
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+  }
+
+  // =========================
+  // PWA INSTALL PROMPT
+  // =========================
+  let deferredPrompt;
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show install button/banner (you can create a custom UI here)
+    console.log('[PWA] Install prompt available');
+    
+    // Optional: Show a custom install banner
+    showInstallPromotion();
+  });
+
+  function showInstallPromotion() {
+    // Create a simple install prompt
+    const installBanner = document.createElement('div');
+    installBanner.id = 'installBanner';
+    installBanner.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.9rem;
+      animation: slideUp 0.3s ease;
+    `;
+    
+    installBanner.innerHTML = `
+      <span>📱 Install CANVAS app</span>
+      <button id="installBtn" style="background: white; color: var(--primary); border: none; padding: 6px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Install</button>
+      <button id="dismissInstall" style="background: transparent; color: white; border: 1px solid white; padding: 6px 12px; border-radius: 6px; cursor: pointer;">✕</button>
+    `;
+    
+    document.body.appendChild(installBanner);
+    
+    // Install button handler
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] User response: ${outcome}`);
+        deferredPrompt = null;
+        installBanner.remove();
+      }
+    });
+    
+    // Dismiss button handler
+    document.getElementById('dismissInstall').addEventListener('click', () => {
+      installBanner.remove();
+    });
+  }
+
+  // Track when app is installed
+  window.addEventListener('appinstalled', () => {
+    console.log('[PWA] App installed successfully');
+    deferredPrompt = null;
+    const banner = document.getElementById('installBanner');
+    if (banner) banner.remove();
+  });
+
+  // Detect if running as installed PWA
+  window.addEventListener('load', () => {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      console.log('[PWA] Running as installed app');
+      document.body.classList.add('pwa-installed');
+    }
+  });
 </script>
+
+<style>
+  @keyframes slideUp {
+    from {
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+</style>
 
 </body>
 </html>

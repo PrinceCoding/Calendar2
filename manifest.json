@@ -1,0 +1,63 @@
+{
+  "name": "CANVAS - Multi-Workspace Productivity",
+  "short_name": "CANVAS",
+  "description": "A multi-canvas workspace with calendar, notes, and productivity widgets",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007AFF",
+  "orientation": "any",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%23007AFF' rx='48'/><text x='96' y='140' font-size='120' text-anchor='middle' fill='white' font-family='system-ui, -apple-system, sans-serif' font-weight='600'>C</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23007AFF' rx='128'/><text x='256' y='380' font-size='320' text-anchor='middle' fill='white' font-family='system-ui, -apple-system, sans-serif' font-weight='600'>C</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'><rect width='1280' height='720' fill='%23f5f5f7'/><text x='640' y='360' font-size='48' text-anchor='middle' fill='%23333' font-family='system-ui'>CANVAS Workspace</text></svg>",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Canvas",
+      "short_name": "Canvas",
+      "description": "Create a new canvas workspace",
+      "url": "./index.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='.9em' font-size='90'>📑</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "App Store",
+      "short_name": "Store",
+      "description": "Browse and install apps",
+      "url": "./index.html#app-store",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='.9em' font-size='90'>🛍️</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
