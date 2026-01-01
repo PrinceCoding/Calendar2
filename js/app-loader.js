@@ -62,28 +62,23 @@
 
     todo: () => `
       <div class="floating-todo glass-card hidden" id="floatingTodo">
-        <button class="close-widget-btn k-button k-button-fill k-button-small k-color-red absolute top-3 right-3 !w-10 !h-10 !min-w-0 rounded-full z-10" onclick="closeWidget('floatingTodo')">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button class="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200 z-10" onclick="closeWidget('floatingTodo')">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
-        <div class="p-4 sm:p-6 flex flex-col h-full">
-          <div class="flex items-center gap-2 mb-4 text-green-600 dark:text-green-400">
-            <i data-lucide="check-square" class="w-6 h-6"></i>
-            <h3 class="text-xl font-bold gradient-text bg-gradient-to-r from-green-600 to-emerald-600">To-Do List</h3>
-          </div>
-          <div class="k-list k-list-inset mb-4">
-            <div class="k-list-item k-list-item-input">
-              <div class="k-list-item-content k-list-item-content-input">
-                <div class="k-list-item-input-wrap">
-                  <input type="text" id="todoInput" placeholder="Add a new task..." class="k-input !text-base" />
-                </div>
-              </div>
+        <div class="p-6 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <i data-lucide="check-square" class="w-6 h-6"></i>
+              <h3 class="text-xl font-bold gradient-text bg-gradient-to-r from-green-600 to-emerald-600">To-Do List</h3>
             </div>
           </div>
+          <div class="flex gap-2 mb-4">
+            <input type="text" id="todoInput" placeholder="Add a new task..." class="flex-1 px-4 py-3 bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 transition-all duration-200" />
+            <button onclick="addTodo()" class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+          </div>
           <div id="todoList" class="flex-1 overflow-y-auto space-y-2"></div>
-          <button onclick="addTodo()" class="k-button k-button-fill k-button-large k-color-green mt-4">
-            <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-            <span>Add Task</span>
-          </button>
         </div>
       </div>
     `,
@@ -180,15 +175,15 @@
 
     notes: () => `
       <div class="floating-notes glass-card hidden" id="floatingNotes">
-        <button class="close-widget-btn k-button k-button-fill k-button-small k-color-red absolute top-3 right-3 !w-10 !h-10 !min-w-0 rounded-full z-10" onclick="closeWidget('floatingNotes')">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button class="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200 z-10" onclick="closeWidget('floatingNotes')">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
-        <div class="p-4 sm:p-6 flex flex-col h-full">
+        <div class="p-6 flex flex-col h-full">
           <div class="flex items-center gap-2 mb-4 text-amber-600 dark:text-amber-400">
             <i data-lucide="sticky-note" class="w-6 h-6"></i>
             <h3 class="text-xl font-bold gradient-text bg-gradient-to-r from-amber-600 to-yellow-600">Notes</h3>
           </div>
-          <textarea id="notesText" placeholder="Write your notes here..." class="k-input flex-1 resize-none !text-base min-h-[300px] sm:min-h-[400px]"></textarea>
+          <textarea id="notesText" placeholder="Write your notes here..." class="flex-1 px-4 py-3 bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all duration-200 resize-none"></textarea>
         </div>
       </div>
     `,
