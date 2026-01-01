@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="css/dragging.css?v=2">
   <link rel="stylesheet" href="css/settings.css?v=2">
   <link rel="stylesheet" href="css/ambient-sounds.css?v=2">
+  <link rel="stylesheet" href="css/countdown.css?v=2">
 </head>
 <body>
 
@@ -139,6 +140,22 @@
     <button id="todoAddBtn" class="todo-add-btn">+</button>
   </div>
   <div id="todoList" class="todo-list"></div>
+</div>
+
+<!-- Floating Countdown Widget -->
+<div id="floatingCountdown" class="floating-countdown">
+  <button id="closeCountdownBtn" class="close-widget-btn" title="Close Countdown">✕</button>
+  <button id="countdownSettingsBtn" class="settings-btn" title="Countdown Settings">⚙️</button>
+  <div class="resize-handle"></div>
+  <div class="countdown-header">⏰ Countdowns</div>
+  <div class="countdown-input-container">
+    <div class="countdown-input-row">
+      <input type="text" id="countdownTitleInput" class="countdown-title-input" placeholder="Event name..." />
+      <input type="date" id="countdownDateInput" class="countdown-date-input" />
+    </div>
+    <button id="countdownAddBtn" class="countdown-add-btn">+ Add Countdown</button>
+  </div>
+  <div id="countdownList" class="countdown-list"></div>
 </div>
 
 <!-- Floating Calculator Widget -->
@@ -337,6 +354,14 @@
           <div class="app-desc">Task management</div>
         </div>
         <div class="app-toggle" id="toggleTodoApp"></div>
+      </div>
+      <div class="app-item" data-app="countdown">
+        <div class="app-icon">⏰</div>
+        <div class="app-info">
+          <div class="app-name">Countdown</div>
+          <div class="app-desc">Track events</div>
+        </div>
+        <div class="app-toggle" id="toggleCountdownApp"></div>
       </div>
       <div class="app-item" data-app="events">
         <div class="app-icon">📅</div>
@@ -1609,6 +1634,7 @@
   const toggleClockApp = document.getElementById('toggleClockApp');
   const togglePomoApp = document.getElementById('togglePomoApp');
   const toggleTodoApp = document.getElementById('toggleTodoApp');
+  const toggleCountdownApp = document.getElementById('toggleCountdownApp');
   const toggleEventsApp = document.getElementById('toggleEventsApp');
   const toggleNotesApp = document.getElementById('toggleNotesApp');
   const toggleWebBrowserApp = document.getElementById('toggleWebBrowserApp');
@@ -1650,6 +1676,8 @@
   const closePomoBtn = document.getElementById('closePomoBtn');
   const floatingTodo = document.getElementById('floatingTodo');
   const closeTodoBtn = document.getElementById('closeTodoBtn');
+  const floatingCountdown = document.getElementById('floatingCountdown');
+  const closeCountdownBtn = document.getElementById('closeCountdownBtn');
   const floatingEvents = document.getElementById('floatingEvents');
   const closeEventsBtn = document.getElementById('closeEventsBtn');
   const floatingCalendar = document.getElementById('floatingCalendar');
@@ -1666,6 +1694,7 @@
   const CLOCK_VIS_KEY = 'show_analog_clock';
   const POMO_VIS_KEY = 'show_floating_pomo';
   const TODO_VIS_KEY = 'show_floating_todo';
+  const COUNTDOWN_VIS_KEY = 'show_floating_countdown';
   const EVENTS_VIS_KEY = 'show_floating_events';
   const CALENDAR_VIS_KEY = 'show_floating_calendar';
   const NOTES_VIS_KEY = 'show_floating_notes';
@@ -1699,6 +1728,13 @@
     if (!floatingTodo) return;
     floatingTodo.style.display = visible ? 'flex' : 'none';
     if (toggleTodoApp) toggleTodoApp.classList.toggle('active', !!visible);
+    if (window.saveCurrentCanvas) window.saveCurrentCanvas();
+  }
+
+  function updateCountdownVisibility(visible) {
+    if (!floatingCountdown) return;
+    floatingCountdown.style.display = visible ? 'flex' : 'none';
+    if (toggleCountdownApp) toggleCountdownApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
 
@@ -1774,6 +1810,13 @@
       updateTodoVisibility(!isVisible);
     };
   }
+  if (toggleCountdownApp) {
+    toggleCountdownApp.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = floatingCountdown && floatingCountdown.style.display !== 'none';
+      updateCountdownVisibility(!isVisible);
+    };
+  }
   if (toggleEventsApp) {
     toggleEventsApp.onclick = (e) => {
       e.stopPropagation();
@@ -1815,6 +1858,7 @@
   if (closeClockBtn) closeClockBtn.onclick = (e) => { e.stopPropagation(); updateClockVisibility(false); };
   if (closePomoBtn) closePomoBtn.onclick = (e) => { e.stopPropagation(); updatePomoVisibility(false); };
   if (closeTodoBtn) closeTodoBtn.onclick = (e) => { e.stopPropagation(); updateTodoVisibility(false); };
+  if (closeCountdownBtn) closeCountdownBtn.onclick = (e) => { e.stopPropagation(); updateCountdownVisibility(false); };
   if (closeEventsBtn) closeEventsBtn.onclick = (e) => { e.stopPropagation(); updateEventsVisibility(false); };
   if (closeNotesBtn) closeNotesBtn.onclick = (e) => { e.stopPropagation(); updateNotesVisibility(false); };
   if (closeWebBrowserBtn) closeWebBrowserBtn.onclick = (e) => { e.stopPropagation(); updateWebBrowserVisibility(false); };
@@ -2124,6 +2168,7 @@
   makeDraggable(clock, null, 'analogClock');
   makeDraggable(floatingPomo, '.pomo-header', 'floatingPomo');
   makeDraggable(floatingTodo, '.todo-header', 'floatingTodo');
+  makeDraggable(floatingCountdown, '.countdown-header', 'floatingCountdown');
   makeDraggable(floatingEvents, '.events-header', 'floatingEvents');
   makeDraggable(floatingCalculator, '.calc-header', 'floatingCalculator');
   makeDraggable(floatingCalendar, '.calendar-header', 'floatingCalendar');
@@ -2135,6 +2180,7 @@
   // Make widgets resizable
   makeResizable(floatingPomo, 'floatingPomo');
   makeResizable(floatingTodo, 'floatingTodo');
+  makeResizable(floatingCountdown, 'floatingCountdown');
   makeResizable(floatingEvents, 'floatingEvents');
   makeResizable(floatingCalculator, 'floatingCalculator');
   makeResizable(floatingCalendar, 'floatingCalendar');
@@ -2144,7 +2190,7 @@
   makeResizable(floatingAmbient, 'floatingAmbient');
 
   // Add click handlers to bring widgets to front
-  const allWidgets = [clock, floatingPomo, floatingTodo, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes, floatingWebBrowser, canvasManager, floatingAmbient];
+  const allWidgets = [clock, floatingPomo, floatingTodo, floatingCountdown, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes, floatingWebBrowser, canvasManager, floatingAmbient];
   
   // Touch handling for close button visibility
   const touchTimers = new Map();
@@ -2853,6 +2899,7 @@
   let unsubscribePomo = null;
   let unsubscribeEvents = null;
   let unsubscribeTodo = null;
+  let unsubscribeCountdown = null;
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -2968,6 +3015,31 @@
         console.error('[EVENTS] Error message:', err.message);
       });
 
+      // Countdown listener - Cloud Sync
+      const countdownRef = doc(db, 'user_countdowns', user.uid);
+      if (unsubscribeCountdown) unsubscribeCountdown();
+      console.log('[COUNTDOWN] ☁️ Setting up cloud sync for user:', user.uid);
+      unsubscribeCountdown = onSnapshot(countdownRef, (snap) => {
+        console.log('[COUNTDOWN] Cloud snapshot received, exists:', snap.exists());
+        if (snap.exists()) {
+          const data = snap.data();
+          console.log('[COUNTDOWN] Cloud data:', data);
+          if (window.applyRemoteCountdowns) {
+            window.applyRemoteCountdowns(data);
+          }
+        } else {
+          console.log('[COUNTDOWN] No cloud data found, initializing...');
+          setDoc(countdownRef, {
+            items: [],
+            updatedAt: serverTimestamp()
+          }).catch(err => console.error('[COUNTDOWN] ❌ Cloud init error:', err));
+        }
+      }, (err) => {
+        console.error('[COUNTDOWN] ❌ Cloud sync error:', err);
+        console.error('[COUNTDOWN] Error code:', err.code);
+        console.error('[COUNTDOWN] Error message:', err.message);
+      });
+
     } else {
       if (loggedOutUI) loggedOutUI.style.display = 'block';
       if (loggedInUI) loggedInUI.style.display = 'none';
@@ -3019,6 +3091,7 @@
 <script src="apps/clock.js"></script>
 <script src="apps/pomodoro.js"></script>
 <script src="apps/todo.js"></script>
+<script src="apps/countdown.js"></script>
 <script src="apps/calculator.js"></script>
 <script src="apps/notes.js"></script>
 <script src="apps/web-browser.js"></script>

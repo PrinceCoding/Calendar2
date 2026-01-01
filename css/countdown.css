@@ -1,0 +1,284 @@
+/* =========================
+    FLOATING COUNTDOWN
+    ========================= */
+.floating-countdown {
+  position: absolute;
+  top: 200px;
+  left: 700px;
+  width: 320px;
+  max-height: calc(100vh - 250px);
+  padding: 0.8rem;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft), var(--shadow-float);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  cursor: grab;
+  z-index: 1009;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.floating-countdown:active { 
+  cursor: grabbing; 
+}
+
+.countdown-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.countdown-header:active {
+  cursor: grabbing;
+}
+
+.countdown-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  touch-action: auto;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.countdown-input-row {
+  display: flex;
+  gap: 0.4rem;
+  touch-action: auto;
+  pointer-events: auto;
+}
+
+.countdown-title-input {
+  flex: 1;
+  height: 28px;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.5);
+  color: var(--text);
+  outline: none;
+  touch-action: auto;
+  pointer-events: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+.countdown-date-input {
+  flex: 1;
+  height: 28px;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.5);
+  color: var(--text);
+  outline: none;
+  touch-action: auto;
+  pointer-events: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: pointer;
+}
+
+body.dark .countdown-title-input,
+body.dark .countdown-date-input {
+  background: rgba(0,0,0,0.25);
+}
+
+.countdown-add-btn {
+  height: 28px;
+  padding: 0 1rem;
+  border-radius: 8px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  touch-action: auto;
+}
+
+.countdown-add-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.countdown-add-btn:active {
+  transform: scale(0.95);
+}
+
+.countdown-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  touch-action: auto;
+  pointer-events: auto;
+}
+
+.countdown-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.countdown-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.countdown-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.countdown-item {
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: auto;
+  pointer-events: auto;
+}
+
+body.dark .countdown-item {
+  background: rgba(0,0,0,0.2);
+}
+
+.countdown-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.countdown-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.countdown-item-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  word-break: break-word;
+}
+
+.countdown-item-delete {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+  border: none;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 0.4rem;
+  touch-action: auto;
+}
+
+.countdown-item-delete:hover {
+  background: rgba(255, 59, 48, 0.2);
+  transform: scale(1.1);
+}
+
+.countdown-item-delete:active {
+  transform: scale(0.9);
+}
+
+.countdown-item-date {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.countdown-item-time {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.countdown-time-block {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: white;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  text-align: center;
+  min-width: 50px;
+  flex: 1;
+}
+
+.countdown-time-value {
+  font-size: 1rem;
+  font-weight: 700;
+  display: block;
+  line-height: 1;
+}
+
+.countdown-time-label {
+  font-size: 0.6rem;
+  opacity: 0.9;
+  display: block;
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.countdown-item-expired {
+  opacity: 0.6;
+}
+
+.countdown-item-expired .countdown-time-block {
+  background: linear-gradient(135deg, #999 0%, #666 100%);
+}
+
+.countdown-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.countdown-empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+/* Resize handle */
+.floating-countdown .resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  background: linear-gradient(-45deg, transparent 50%, var(--border) 50%);
+  border-radius: 0 0 16px 0;
+  pointer-events: auto;
+}
