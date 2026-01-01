@@ -14,8 +14,81 @@
   <title>CANVAS</title>
 
   <!-- =========================
+        MODERN UI/UX LIBRARIES
+        ========================= -->
+  <!-- Tailwind CSS - Modern utility-first CSS framework -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'scale-in': 'scaleIn 0.3s ease-out',
+            'bounce-soft': 'bounceSoft 0.6s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            scaleIn: {
+              '0%': { transform: 'scale(0.95)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            },
+            bounceSoft: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+          },
+          backdropBlur: {
+            'xs': '2px',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons - Beautiful & consistent icon set -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Animate.css - Ready-to-use CSS animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- GSAP - Professional-grade animation library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <!-- AOS - Animate On Scroll library -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <!-- =========================
         STYLES (CSS)
         ========================= -->
+  <!-- Modern Enhancements -->
+  <link rel="stylesheet" href="css/modern-enhancements.css?v=3">
+  
+  <!-- Original Styles -->
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/base.css?v=2">
   <link rel="stylesheet" href="css/header.css?v=2">
@@ -36,142 +109,341 @@
   <link rel="stylesheet" href="apps/countdown/countdown.css?v=2">
   <link rel="stylesheet" href="apps/app-store/app-store.css?v=2">
 </head>
-<body>
+<body class="antialiased">
 
-<header>
-  <button id="appLauncherBtn" class="app-launcher-btn" title="Apps">▦</button>
-  
-  <div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:wrap;justify-content:center;">
-    <div class="dynamic-island canvas-switcher" id="canvasSwitcher">
-      📑 <span id="canvasNameDisplay">Canvas 1</span> <span class="dropdown-arrow">▾</span>
-      <div class="canvas-dropdown" id="canvasDropdown"></div>
+<!-- Modern Header with Tailwind -->
+<header class="fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 z-50 shadow-sm">
+  <div class="h-full px-4 flex items-center justify-between gap-4">
+    
+    <!-- Left: App Launcher -->
+    <button id="appLauncherBtn" 
+            class="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            title="Apps">
+      <i data-lucide="grid-3x3" class="w-5 h-5"></i>
+    </button>
+    
+    <!-- Center: Dynamic Islands -->
+    <div class="flex items-center gap-2 flex-wrap justify-center flex-1">
+      <!-- Canvas Switcher -->
+      <div class="relative group">
+        <button id="canvasSwitcher" 
+                class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 shadow-md hover:shadow-lg">
+          <i data-lucide="folder" class="w-4 h-4"></i>
+          <span id="canvasNameDisplay" class="font-medium text-sm">Canvas 1</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-hover:rotate-180 duration-300"></i>
+        </button>
+        <div id="canvasDropdown" class="absolute top-full mt-2 left-0 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 min-w-[200px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"></div>
+      </div>
+      
+      <!-- Date/Time Island -->
+      <div id="dynamicIslandDateTime" 
+           class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full shadow-md">
+        <i data-lucide="clock" class="w-4 h-4"></i>
+        <span id="dtText" class="text-sm font-medium"></span>
+      </div>
+      
+      <!-- Pomodoro Island -->
+      <div id="dynamicIslandPomodoro" 
+           class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 rounded-full shadow-md">
+        <i data-lucide="timer" class="w-4 h-4"></i>
+        <span id="pomoTime" class="text-sm font-medium">60:00</span>
+        <button id="pomoStart" class="p-1 hover:bg-white/50 dark:hover:bg-black/20 rounded transition-all">
+          <i data-lucide="play" class="w-3 h-3"></i>
+        </button>
+        <button id="pomoReset" class="p-1 hover:bg-white/50 dark:hover:bg-black/20 rounded transition-all">
+          <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+        </button>
+      </div>
+      
+      <div id="dynamicIslandAdditional" class="hidden"></div>
     </div>
-    <div class="dynamic-island" id="dynamicIslandDateTime"><span id="dtText"></span></div>
-    <div class="dynamic-island" id="dynamicIslandPomodoro">🍅 <span id="pomoTime">60:00</span>
-      <button id="pomoStart" class="pomo-btn">▶</button>
-      <button id="pomoReset" class="pomo-btn">⟳</button>
+
+    <!-- Right: Theme & Settings -->
+    <div class="flex items-center gap-2">
+      <button id="themeBtn" 
+              class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 shadow-md hover:shadow-lg">
+        <i data-lucide="sun" class="w-4 h-4"></i>
+        <span class="text-sm font-medium hidden sm:inline">macOS</span>
+      </button>
+      <button id="settingsBtn" 
+              class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 shadow-md hover:shadow-lg">
+        <i data-lucide="settings" class="w-5 h-5"></i>
+      </button>
     </div>
-    <div class="dynamic-island" id="dynamicIslandAdditional" style="display:none;"></div>
   </div>
-
-  <button id="themeBtn" class="theme-btn">🍎 macOS</button>
-  <button id="settingsBtn" class="theme-btn">⚙️</button>
 </header>
 
-<!-- Canvas Workspace -->
-<div id="canvasWorkspace">
-
-<!-- Canvas Helper Hint -->
-<div class="canvas-hint" id="canvasHint">
-  💡 <strong>Quick Tips:</strong> Hold <kbd>Space</kbd> + drag to pan • Drag widgets anywhere • Use Canvas Manager to switch workspaces • Click <strong>▦</strong> for apps
-</div>
-
-<!-- Floating Analog Clock -->
-<div id="analogClock" class="analog-clock">
-  <button id="closeClockBtn" class="close-widget-btn" title="Close Clock">✕</button>
-  <button id="clockSettingsBtn" class="settings-btn" title="Clock Settings">⚙️</button>
-  <div class="clock-face">
-    <div class="hour-marks">
-      <span></span><span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="hand hour" id="hourHand"></div>
-    <div class="hand minute" id="minuteHand"></div>
-    <div class="hand second" id="secondHand"></div>
-    <div class="clock-center"></div>
-    <div class="clock-date"><div id="clockDay"></div><div id="clockNum"></div></div>
-  </div>
-</div>
-
-<!-- Floating Pomodoro -->
-<div id="floatingPomo" class="floating-pomo">
-  <button id="closePomoBtn" class="close-widget-btn" title="Close Pomodoro">✕</button>
-  <button id="pomoSettingsBtn" class="settings-btn" title="Pomodoro Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="pomo-header">
-    <span class="pomo-title">Pomodoro</span>
-  </div>
-  <div class="pomo-content">
-    <svg class="pomo-progress-ring" width="180" height="180">
-      <defs>
-        <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#EC4899;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <circle class="pomo-progress-bg" cx="90" cy="90" r="75" />
-      <circle class="pomo-progress-bar" cx="90" cy="90" r="75" id="pomoProgressCircle" />
-    </svg>
-    <div class="pomo-center">
-      <div class="pomo-mode-label" id="pomoMode">Focus</div>
-      <div class="pomo-time" id="floatingPomoTime">60:00</div>
-      <div class="pomo-controls-center">
-        <button id="floatingPomoStart" class="pomo-play-btn">▶</button>
-        <button id="floatingPomoReset" class="pomo-nav-btn pomo-reset-center" title="Reset">⟳</button>
+<!-- Canvas Workspace with Modern Grid -->
+<div id="canvasWorkspace" class="fixed top-14 left-0 right-0 bottom-0 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+  
+  <!-- Canvas Helper Hint with Modern Design -->
+  <div id="canvasHint" 
+       class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 z-50 animate__animated animate__fadeInUp"
+       data-aos="fade-up">
+    <div class="flex items-center gap-3">
+      <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-500"></i>
+      <div>
+        <strong class="font-semibold">Quick Tips:</strong> 
+        Hold <kbd class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs font-mono">Space</kbd> + drag to pan • 
+        Drag widgets anywhere • 
+        Use Canvas Manager to switch workspaces • 
+        Click <strong>▦</strong> for apps
       </div>
     </div>
   </div>
-  <div class="pomo-mode-toggle">
-    <button class="pomo-mode-btn active" id="pomoFocusBtn" data-mode="focus">Focus</button>
-    <button class="pomo-mode-btn" id="pomoBreakBtn" data-mode="break">Break</button>
-    <button class="pomo-mode-btn" id="pomoLongBreakBtn" data-mode="longbreak">Long Break</button>
-  </div>
-</div>
 
-<!-- Floating Ambient Sounds Widget -->
-<div id="floatingAmbient" class="floating-ambient">
-  <button id="closeAmbientBtn" class="close-widget-btn" title="Close Ambient Sounds">✕</button>
-  <button id="ambientSettingsBtn" class="settings-btn" title="Ambient Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="ambient-header">
-    <h2>🎵 Ambient Sounds</h2>
-  </div>
-  <div class="ambient-controls">
-    <button class="ambient-control-btn" id="stopAllSoundsBtn">Stop All</button>
-    <button class="ambient-control-btn" id="randomMixBtn">Random Mix</button>
-  </div>
-  <div class="ambient-sounds-grid" id="ambientSoundsGrid">
-    <!-- Sound cards will be generated by JavaScript -->
-  </div>
-</div>
-
-<!-- Floating Todo List -->
-<div id="floatingTodo" class="floating-todo">
-  <button id="closeTodoBtn" class="close-widget-btn" title="Close Todo">✕</button>
-  <button id="todoSettingsBtn" class="settings-btn" title="Todo Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="todo-header">📝 To-Do List</div>
-  <div class="todo-input-container">
-    <input type="text" id="todoInput" class="todo-input" placeholder="Add a task..." />
-    <button id="todoAddBtn" class="todo-add-btn">+</button>
-  </div>
-  <div id="todoList" class="todo-list"></div>
-</div>
-
-<!-- Floating Countdown Widget -->
-<div id="floatingCountdown" class="floating-countdown">
-  <button id="closeCountdownBtn" class="close-widget-btn" title="Close Countdown">✕</button>
-  <button id="countdownSettingsBtn" class="settings-btn" title="Countdown Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="countdown-header">⏰ Countdowns</div>
-  <div class="countdown-input-container">
-    <div class="countdown-input-row">
-      <input type="text" id="countdownTitleInput" class="countdown-title-input" placeholder="Event name..." />
-      <input type="date" id="countdownDateInput" class="countdown-date-input" />
+  <!-- Modern Floating Analog Clock -->
+  <div id="analogClock" 
+       class="absolute top-20 left-20 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6"
+       data-aos="zoom-in">
+    <div class="absolute top-3 right-3 flex gap-2">
+      <button id="clockSettingsBtn" 
+              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+        <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+      </button>
+      <button id="closeClockBtn" 
+              class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
     </div>
-    <button id="countdownAddBtn" class="countdown-add-btn">+ Add Countdown</button>
+    
+    <div class="clock-face relative w-64 h-64 mx-auto mt-8">
+      <div class="absolute inset-0 rounded-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 shadow-inner"></div>
+      <div class="hour-marks absolute inset-0">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="hand hour absolute" id="hourHand"></div>
+      <div class="hand minute absolute" id="minuteHand"></div>
+      <div class="hand second absolute" id="secondHand"></div>
+      <div class="clock-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg"></div>
+      <div class="clock-date absolute bottom-16 left-1/2 -translate-x-1/2 text-center">
+        <div id="clockDay" class="text-sm font-semibold text-gray-600 dark:text-gray-300"></div>
+        <div id="clockNum" class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"></div>
+      </div>
+    </div>
   </div>
-  <div id="countdownList" class="countdown-list"></div>
+
+  <!-- Modern Floating Pomodoro Widget -->
+  <div id="floatingPomo" 
+       class="absolute top-20 right-20 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+       data-aos="zoom-in"
+       data-aos-delay="100">
+    <div class="absolute top-3 right-3 flex gap-2 z-10">
+      <button id="pomoSettingsBtn" 
+              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+        <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+      </button>
+      <button id="closePomoBtn" 
+              class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize opacity-0 hover:opacity-100 transition-opacity"></div>
+    
+    <div class="p-6">
+      <h3 class="text-2xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Pomodoro Timer</h3>
+      
+      <div class="relative flex items-center justify-center mb-6">
+        <svg class="pomo-progress-ring w-48 h-48 -rotate-90" viewBox="0 0 180 180">
+          <defs>
+            <linearGradient id="pomoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#EC4899;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle class="stroke-gray-200 dark:stroke-gray-700" cx="90" cy="90" r="75" stroke-width="8" fill="none" />
+          <circle class="pomo-progress-bar" cx="90" cy="90" r="75" id="pomoProgressCircle" stroke="url(#pomoGradient)" stroke-width="8" fill="none" stroke-linecap="round" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div id="pomoMode" class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Focus</div>
+          <div id="floatingPomoTime" class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">60:00</div>
+          <div class="flex items-center gap-3 mt-4">
+            <button id="floatingPomoStart" 
+                    class="p-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
+              <i data-lucide="play" class="w-6 h-6"></i>
+            </button>
+            <button id="floatingPomoReset" 
+                    class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300">
+              <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-2 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+        <button class="pomo-mode-btn flex-1 py-2 px-3 rounded-lg font-medium text-sm transition-all duration-300 active bg-white dark:bg-gray-800 shadow-md" 
+                id="pomoFocusBtn" data-mode="focus">
+          <i data-lucide="brain" class="w-4 h-4 inline mr-1"></i>Focus
+        </button>
+        <button class="pomo-mode-btn flex-1 py-2 px-3 rounded-lg font-medium text-sm transition-all duration-300 hover:bg-white/50 dark:hover:bg-gray-800/50" 
+                id="pomoBreakBtn" data-mode="break">
+          <i data-lucide="coffee" class="w-4 h-4 inline mr-1"></i>Break
+        </button>
+        <button class="pomo-mode-btn flex-1 py-2 px-3 rounded-lg font-medium text-sm transition-all duration-300 hover:bg-white/50 dark:hover:bg-gray-800/50" 
+                id="pomoLongBreakBtn" data-mode="longbreak">
+          <i data-lucide="sunset" class="w-4 h-4 inline mr-1"></i>Long
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modern Floating Ambient Sounds Widget -->
+  <div id="floatingAmbient" 
+       class="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] max-w-[90vw] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700"
+       data-aos="fade-down"
+       data-aos-delay="200">
+    <div class="absolute top-3 right-3 flex gap-2 z-10">
+      <button id="ambientSettingsBtn" 
+              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+        <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+      </button>
+      <button id="closeAmbientBtn" 
+              class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize opacity-0 hover:opacity-100 transition-opacity"></div>
+    
+    <div class="p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
+          <i data-lucide="music" class="w-6 h-6 text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Ambient Sounds</h2>
+      </div>
+      
+      <div class="flex gap-2 mb-4">
+        <button id="stopAllSoundsBtn" 
+                class="px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300 font-medium">
+          <i data-lucide="stop-circle" class="w-4 h-4 inline mr-2"></i>Stop All
+        </button>
+        <button id="randomMixBtn" 
+                class="px-4 py-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all duration-300 font-medium">
+          <i data-lucide="shuffle" class="w-4 h-4 inline mr-2"></i>Random Mix
+        </button>
+      </div>
+      
+      <div id="ambientSoundsGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <!-- Sound cards will be generated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modern Floating Todo List -->
+  <div id="floatingTodo" 
+       class="absolute bottom-20 right-20 w-96 max-h-[600px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+       data-aos="fade-up"
+       data-aos-delay="300">
+    <div class="absolute top-3 right-3 flex gap-2 z-10">
+      <button id="todoSettingsBtn" 
+              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+        <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+      </button>
+      <button id="closeTodoBtn" 
+              class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize opacity-0 hover:opacity-100 transition-opacity"></div>
+    
+    <div class="p-6 flex-shrink-0">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600">
+          <i data-lucide="check-square" class="w-6 h-6 text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">To-Do List</h2>
+      </div>
+      
+      <div class="flex gap-2">
+        <input type="text" 
+               id="todoInput" 
+               class="flex-1 px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-green-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-300 outline-none" 
+               placeholder="Add a new task..." />
+        <button id="todoAddBtn" 
+                class="px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <i data-lucide="plus" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div id="todoList" class="flex-1 overflow-y-auto px-6 pb-6 space-y-2">
+      <!-- Todo items will be added here -->
+    </div>
+  </div>
+
+<!-- Modern Floating Countdown Widget -->
+<div id="floatingCountdown" 
+     class="absolute bottom-20 left-20 w-[450px] max-h-[600px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+     data-aos="fade-up"
+     data-aos-delay="400">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="countdownSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeCountdownBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <div class="resize-handle"></div>
+  
+  <div class="p-6 flex-shrink-0">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600">
+        <i data-lucide="calendar-clock" class="w-6 h-6 text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">Countdowns</h2>
+    </div>
+    
+    <div class="space-y-3">
+      <input type="text" 
+             id="countdownTitleInput" 
+             class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-300 outline-none" 
+             placeholder="Event name..." />
+      <input type="date" 
+             id="countdownDateInput" 
+             class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-300 outline-none" />
+      <button id="countdownAddBtn" 
+              class="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+        <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>Add Countdown
+      </button>
+    </div>
+  </div>
+  
+  <div id="countdownList" class="flex-1 overflow-y-auto px-6 pb-6 space-y-3">
+    <!-- Countdown items will be added here -->
+  </div>
 </div>
 
-<!-- Floating Calculator Widget -->
-<div id="floatingCalculator" class="floating-calculator">
-  <button id="closeCalculatorBtn" class="close-widget-btn" title="Close Calculator">✕</button>
-  <button id="calculatorSettingsBtn" class="settings-btn" title="Calculator Settings">⚙️</button>
+<!-- Modern Floating Calculator Widget -->
+<div id="floatingCalculator" 
+     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+     data-aos="zoom-in"
+     data-aos-delay="500">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="calculatorSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeCalculatorBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
   <div class="resize-handle"></div>
-  <div class="calc-header">🔢 Calculator</div>
-  <div id="calcDisplay" class="calc-display">0</div>
+  
+  <div class="p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
+        <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Calculator</h2>
+    </div>
+    
+    <div id="calcDisplay" class="w-full h-20 px-6 py-4 mb-4 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-right text-3xl font-bold text-gray-800 dark:text-white shadow-inner flex items-center justify-end">0</div>
   
   <!-- Scientific buttons (hidden by default) -->
   <div class="calc-scientific-buttons" style="display:none;">
@@ -190,120 +462,287 @@
     <button class="calc-btn sci" data-calc="%">%</button>
     <button class="calc-btn sci" data-calc="!">n!</button>
   </div>
+    
+    <div class="grid grid-cols-4 gap-2">
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-bold text-lg transition-all duration-200 transform active:scale-95" data-calc="C">C</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="(">(</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc=")">)</button>
+      <button class="calc-btn operator col-span-1 p-4 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold text-lg transition-all duration-200 transform active:scale-95" data-calc="/">÷</button>
+      
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="7">7</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="8">8</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="9">9</button>
+      <button class="calc-btn operator col-span-1 p-4 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold text-lg transition-all duration-200 transform active:scale-95" data-calc="*">×</button>
+      
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="4">4</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="5">5</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="6">6</button>
+      <button class="calc-btn operator col-span-1 p-4 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold text-lg transition-all duration-200 transform active:scale-95" data-calc="-">−</button>
+      
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="1">1</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="2">2</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="3">3</button>
+      <button class="calc-btn operator col-span-1 p-4 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 font-bold text-lg transition-all duration-200 transform active:scale-95" data-calc="+">+</button>
+      
+      <button class="calc-btn col-span-2 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc="0">0</button>
+      <button class="calc-btn col-span-1 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-lg transition-all duration-200 transform active:scale-95" data-calc=".">.</button>
+      <button class="calc-btn equals col-span-1 p-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xl shadow-lg hover:shadow-xl transition-all duration-200 transform active:scale-95" data-calc="=">=</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modern Floating Events Widget -->
+<div id="floatingEvents" 
+     class="absolute top-20 left-1/3 w-[500px] max-h-[700px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+     data-aos="fade-down"
+     data-aos-delay="350">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="eventsSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeEventsBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <div class="resize-handle"></div>
   
-  <div class="calc-buttons">
-    <button class="calc-btn clear" data-calc="C">C</button>
-    <button class="calc-btn" data-calc="(">(</button>
-    <button class="calc-btn" data-calc=")">)</button>
-    <button class="calc-btn operator" data-calc="/">÷</button>
+  <div class="p-6 flex-shrink-0">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-3 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600">
+        <i data-lucide="calendar-days" class="w-6 h-6 text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">Events</h2>
+      <span id="selectedDateBadge" class="ml-auto px-3 py-1 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 text-sm font-medium cursor-pointer hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-all" title="Click to show all events"></span>
+    </div>
     
-    <button class="calc-btn" data-calc="7">7</button>
-    <button class="calc-btn" data-calc="8">8</button>
-    <button class="calc-btn" data-calc="9">9</button>
-    <button class="calc-btn operator" data-calc="*">×</button>
-    
-    <button class="calc-btn" data-calc="4">4</button>
-    <button class="calc-btn" data-calc="5">5</button>
-    <button class="calc-btn" data-calc="6">6</button>
-    <button class="calc-btn operator" data-calc="-">−</button>
-    
-    <button class="calc-btn" data-calc="1">1</button>
-    <button class="calc-btn" data-calc="2">2</button>
-    <button class="calc-btn" data-calc="3">3</button>
-    <button class="calc-btn operator" data-calc="+">+</button>
-    
-    <button class="calc-btn" data-calc="0">0</button>
-    <button class="calc-btn" data-calc=".">.</button>
-    <button class="calc-btn equals" data-calc="=">=</button>
+    <div class="space-y-3 mb-4">
+      <input type="date" 
+             id="eventDateInput" 
+             class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-pink-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-300 outline-none" />
+      <input type="text" 
+             id="eventTextInput" 
+             class="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-pink-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-300 outline-none" 
+             placeholder="Event description..." />
+      <div class="flex gap-2">
+        <button id="eventAddBtn" 
+                class="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>Add Event
+        </button>
+        <button id="showAllEventsBtn" 
+                class="px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition-all duration-300">
+          <i data-lucide="list" class="w-5 h-5 inline"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="eventsList" class="flex-1 overflow-y-auto px-6 pb-6 space-y-2">
+    <!-- Events will be added here -->
   </div>
 </div>
 
-<!-- Floating Events Widget -->
-<div id="floatingEvents" class="floating-events">
-  <button id="closeEventsBtn" class="close-widget-btn" title="Close Events">✕</button>
-  <button id="eventsSettingsBtn" class="settings-btn" title="Events Settings">⚙️</button>
+<!-- Modern Floating Calendar Widget -->
+<div id="floatingCalendar" 
+     class="absolute top-40 left-40 w-[900px] max-w-[90vw] max-h-[85vh] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+     data-aos="zoom-in-up"
+     data-aos-delay="250">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="calendarSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeCalendarBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
   <div class="resize-handle"></div>
-  <div class="events-header">
-    <span>📅 Events</span>
-    <span id="selectedDateBadge" class="selected-date-badge" style="cursor:pointer" title="Click to show all events"></span>
-    <button id="showAllEventsBtn" class="show-all-btn">Show All</button>
-  </div>
-  <div class="events-input-container">
-    <div class="events-input-row">
-      <input type="date" id="eventDateInput" class="event-date-input" />
-      <input type="text" id="eventTextInput" class="event-text-input" placeholder="Event description..." />
-    </div>
-    <button id="eventAddBtn" class="event-add-btn">+ Add Event</button>
-  </div>
-  <div id="eventsList" class="events-list"></div>
-</div>
-
-<!-- Floating Calendar Widget -->
-<div id="floatingCalendar" class="floating-calendar">
-  <button id="closeCalendarBtn" class="close-widget-btn" title="Close Calendar">✕</button>
-  <button id="calendarSettingsBtn" class="settings-btn" title="Calendar Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="calendar-header">
-    <h1 class="calendar-title" id="year">Calendar 2025</h1>
-    <div class="calendar-controls">
-      <button id="todayBtn" class="calendar-today-btn">📍 Today</button>
-      <button id="monthToggleBtn" class="calendar-month-btn">📅 Year View</button>
-      <button id="prev" class="calendar-nav-btn">◀</button>
-      <button id="next" class="calendar-nav-btn">▶</button>
-    </div>
-  </div>
-  <div id="calendar" class="calendar"></div>
-</div>
-
-<!-- Floating Notes Widget -->
-<div id="floatingNotes" class="floating-notes">
-  <button id="closeNotesBtn" class="close-widget-btn" title="Close Notes">✕</button>
-  <button id="notesSettingsBtn" class="settings-btn" title="Notes Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="notes-header">
-    <div style="display:flex;align-items:center;gap:0.6rem;">
-      <h2 style="margin:0">Notes</h2>
-      <div id="syncStatus" style="font-size:0.75rem;color:var(--muted)">Not signed in</div>
-    </div>
-    <div class="notes-tools">
-      <button data-cmd="bold"><b>B</b></button>
-      <button data-cmd="italic"><i>I</i></button>
-      <button data-cmd="underline"><u>U</u></button>
-      <button data-cmd="insertUnorderedList">• List</button>
-    </div>
-  </div>
-  <div id="notesEditor" class="notes-editor" contenteditable="true"></div>
-</div>
-
-<!-- Web Browser Widget -->
-<div id="floatingWebBrowser" class="floating-web-browser">
-  <button id="closeWebBrowserBtn" class="close-widget-btn" title="Close Browser">✕</button>
-  <button id="webBrowserSettingsBtn" class="settings-btn" title="Browser Settings">⚙️</button>
-  <div class="resize-handle"></div>
-  <div class="browser-header">🌐 Web Browser</div>
-  <div class="browser-toolbar">
-    <button id="browserBackBtn" class="browser-nav-btn" title="Back" disabled>←</button>
-    <button id="browserForwardBtn" class="browser-nav-btn" title="Forward" disabled>→</button>
-    <button id="browserRefreshBtn" class="browser-nav-btn" title="Refresh">↻</button>
-    <button id="browserHomeBtn" class="browser-nav-btn" title="Home">🏠</button>
-    <input type="text" id="browserUrlInput" placeholder="Enter URL or search..." class="browser-url-input">
-    <button id="browserGoBtn" class="browser-go-btn" title="Go">Go</button>
-    <button id="browserNewTabBtn" class="browser-nav-btn" title="New Instance">↗</button>
-    <button id="browserBookmarkBtn" class="browser-bookmark-btn" title="Bookmark">★</button>
-  </div>
-  <div class="browser-bookmarks" id="browserBookmarks" style="display:none;"></div>
-  <div class="browser-content">
-    <iframe id="browserIframe" class="browser-iframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-modals allow-downloads" allowfullscreen></iframe>
-    <div id="browserErrorOverlay" class="browser-error-overlay" style="display:none;">
-      <div class="browser-error-content">
-        <div class="browser-error-icon">🚫</div>
-        <h3>Can't Display This Page</h3>
-        <p id="browserErrorMessage">This website cannot be displayed in an iframe due to security restrictions.</p>
-        <div class="browser-error-actions">
-          <button id="browserOpenNewTabError" class="browser-error-btn">Open Externally</button>
-          <button id="browserTryAgain" class="browser-error-btn secondary">Try Again</button>
+  
+  <div class="p-6 flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600">
+          <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
         </div>
-        <small style="color:var(--muted);margin-top:1rem;display:block;">
+        <h1 id="year" class="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Calendar 2026</h1>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button id="todayBtn" 
+                class="px-4 py-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-200 dark:hover:bg-cyan-900/50 font-medium transition-all duration-300">
+          <i data-lucide="pin" class="w-4 h-4 inline mr-2"></i>Today
+        </button>
+        <button id="monthToggleBtn" 
+                class="px-4 py-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 font-medium transition-all duration-300">
+          <i data-lucide="layout-grid" class="w-4 h-4 inline mr-2"></i>Year View
+        </button>
+        <button id="prev" 
+                class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <button id="next" 
+                class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="calendar" class="flex-1 overflow-y-auto p-6">
+    <!-- Calendar grid will be generated here -->
+  </div>
+</div>
+
+<!-- Modern Floating Notes Widget -->
+<div id="floatingNotes" 
+     class="absolute top-60 right-60 w-[600px] h-[500px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+     data-aos="flip-left"
+     data-aos-delay="300">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="notesSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeNotesBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <div class="resize-handle"></div>
+  
+  <div class="p-6 flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600">
+          <i data-lucide="sticky-note" class="w-6 h-6 text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">Notes</h2>
+        <div id="syncStatus" class="ml-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-medium text-gray-500 dark:text-gray-400">
+          <i data-lucide="cloud-off" class="w-3 h-3 inline mr-1"></i>Not signed in
+        </div>
+      </div>
+      
+      <div class="notes-tools flex gap-1">
+        <button data-cmd="bold" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200" title="Bold">
+          <i data-lucide="bold" class="w-4 h-4"></i>
+        </button>
+        <button data-cmd="italic" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200" title="Italic">
+          <i data-lucide="italic" class="w-4 h-4"></i>
+        </button>
+        <button data-cmd="underline" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200" title="Underline">
+          <i data-lucide="underline" class="w-4 h-4"></i>
+        </button>
+        <button data-cmd="insertUnorderedList" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200" title="List">
+          <i data-lucide="list" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="notesEditor" 
+       class="flex-1 overflow-y-auto px-6 py-4 focus:outline-none text-base leading-relaxed" 
+       contenteditable="true" 
+       placeholder="Start typing your notes...">
+  </div>
+</div>
+
+<!-- Modern Web Browser Widget -->
+<div id="floatingWebBrowser" 
+     class="absolute bottom-40 left-1/3 w-[800px] h-[600px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+     data-aos="fade-up"
+     data-aos-delay="450">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="webBrowserSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeWebBrowserBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <div class="resize-handle"></div>
+  
+  <div class="p-4 flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600">
+        <i data-lucide="globe" class="w-6 h-6 text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Web Browser</h2>
+    </div>
+    
+    <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-xl p-2">
+      <button id="browserBackBtn" 
+              class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed" 
+              title="Back" disabled>
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      </button>
+      <button id="browserForwardBtn" 
+              class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-600 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed" 
+              title="Forward" disabled>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+      <button id="browserRefreshBtn" 
+              class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-600 transition-all duration-200" 
+              title="Refresh">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      </button>
+      <button id="browserHomeBtn" 
+              class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-600 transition-all duration-200" 
+              title="Home">
+        <i data-lucide="home" class="w-4 h-4"></i>
+      </button>
+      <input type="text" 
+             id="browserUrlInput" 
+             placeholder="Enter URL or search..." 
+             class="flex-1 px-4 py-2 rounded-lg bg-white dark:bg-gray-600 border-2 border-transparent focus:border-violet-500 transition-all duration-300 outline-none">
+      <button id="browserGoBtn" 
+              class="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-semibold transition-all duration-300" 
+              title="Go">
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+      <button id="browserNewTabBtn" 
+              class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-600 transition-all duration-200" 
+              title="New Instance">
+        <i data-lucide="external-link" class="w-4 h-4"></i>
+      </button>
+      <button id="browserBookmarkBtn" 
+              class="p-2 rounded-lg hover:bg-white dark:hover:bg-gray-600 transition-all duration-200" 
+              title="Bookmark">
+        <i data-lucide="star" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div id="browserBookmarks" class="hidden px-4 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 flex gap-2 flex-wrap">
+    <!-- Bookmarks will be added here -->
+  </div>
+  
+  <div class="flex-1 relative bg-gray-50 dark:bg-gray-900">
+    <iframe id="browserIframe" 
+            class="w-full h-full border-0" 
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-modals allow-downloads" 
+            allowfullscreen></iframe>
+    <div id="browserErrorOverlay" class="absolute inset-0 hidden items-center justify-center bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
+      <div class="text-center p-8 max-w-md">
+        <div class="mb-4">
+          <i data-lucide="alert-circle" class="w-16 h-16 mx-auto text-red-500"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Can't Display This Page</h3>
+        <p id="browserErrorMessage" class="text-gray-600 dark:text-gray-400 mb-6">This website cannot be displayed in an iframe due to security restrictions.</p>
+        <div class="flex gap-3 justify-center">
+          <button id="browserOpenNewTabError" 
+                  class="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+            <i data-lucide="external-link" class="w-4 h-4 inline mr-2"></i>Open Externally
+          </button>
+          <button id="browserTryAgain" 
+                  class="px-6 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-semibold transition-all duration-300">
+            Try Again
+          </button>
+        </div>
+        <small class="block mt-4 text-gray-500 dark:text-gray-400">
           Many sites like Google, Facebook, and YouTube block iframe embedding for security.<br>
           <strong>Try the Popular Sites section below for guaranteed compatibility!</strong>
         </small>
@@ -312,119 +751,184 @@
   </div>
 </div>
 
-<!-- Canvas Manager Widget -->
-<div id="canvasManager" class="canvas-manager">
-  <button id="closeCanvasManagerBtn" class="close-widget-btn" title="Close">✕</button>
-  <button id="canvasManagerSettingsBtn" class="settings-btn" title="Canvas Settings">⚙️</button>
+<!-- Modern Canvas Manager Widget -->
+<div id="canvasManager" 
+     class="absolute top-1/3 right-1/4 w-[550px] max-h-[600px] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+     data-aos="flip-right"
+     data-aos-delay="500">
+  <div class="absolute top-3 right-3 flex gap-2 z-10">
+    <button id="canvasManagerSettingsBtn" 
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 group">
+      <i data-lucide="settings" class="w-4 h-4 group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+    <button id="closeCanvasManagerBtn" 
+            class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 transition-all duration-300">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
   <div class="resize-handle"></div>
-  <div class="canvas-manager-header">📑 Canvas Manager</div>
-  <div id="canvasTabsContainer" class="canvas-tabs-container">
-    <!-- Tabs will be rendered here by JavaScript -->
+  
+  <div class="p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600">
+        <i data-lucide="layout-dashboard" class="w-6 h-6 text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Canvas Manager</h2>
+    </div>
+    
+    <div id="canvasTabsContainer" class="grid grid-cols-2 gap-3">
+      <!-- Canvas tabs will be rendered here by JavaScript -->
+    </div>
   </div>
 </div>
 
 </div><!-- End Canvas Workspace -->
 
-<!-- App Drawer Overlay -->
-<div id="appDrawer" class="app-drawer">
-  <div class="app-drawer-content">
-    <div class="app-drawer-header">🚀 Apps</div>
-    <div class="app-list">
-      <div class="app-item" data-app="calendar">
-        <div class="app-icon">📆</div>
-        <div class="app-info">
-          <div class="app-name">Calendar</div>
-          <div class="app-desc">Full year view</div>
+<!-- Modern App Drawer Overlay -->
+<div id="appDrawer" class="fixed inset-0 z-[9999] hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="document.getElementById('appDrawer').classList.add('hidden')"></div>
+  <div class="absolute top-16 left-1/2 -translate-x-1/2 w-[600px] max-w-[90vw] max-h-[80vh] bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate__animated animate__fadeInDown">
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-3">
+        <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
+          <i data-lucide="grid-3x3" class="w-6 h-6 text-white"></i>
         </div>
-        <div class="app-toggle" id="toggleCalendarApp"></div>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Apps</h2>
       </div>
-      <div class="app-item" data-app="clock">
-        <div class="app-icon">🕐</div>
-        <div class="app-info">
-          <div class="app-name">Analog Clock</div>
-          <div class="app-desc">Live time display</div>
+    </div>
+    
+    <div class="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
+      <div class="grid grid-cols-1 gap-2">\n        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="calendar">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Calendar</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Full year view</div>
+          </div>
+          <div class="app-toggle" id="toggleCalendarApp"></div>
         </div>
-        <div class="app-toggle" id="toggleClockApp"></div>
-      </div>
-      <div class="app-item" data-app="pomodoro">
-        <div class="app-icon">🍅</div>
-        <div class="app-info">
-          <div class="app-name">Pomodoro Timer</div>
-          <div class="app-desc">Focus timer</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="clock">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="clock" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Analog Clock</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Live time display</div>
+          </div>
+          <div class="app-toggle" id="toggleClockApp"></div>
         </div>
-        <div class="app-toggle" id="togglePomoApp"></div>
-      </div>
-      <div class="app-item" data-app="todo">
-        <div class="app-icon">✅</div>
-        <div class="app-info">
-          <div class="app-name">To-Do List</div>
-          <div class="app-desc">Task management</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="pomodoro">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="timer" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Pomodoro Timer</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Focus timer</div>
+          </div>
+          <div class="app-toggle" id="togglePomoApp"></div>
         </div>
-        <div class="app-toggle" id="toggleTodoApp"></div>
-      </div>
-      <div class="app-item" data-app="countdown">
-        <div class="app-icon">⏰</div>
-        <div class="app-info">
-          <div class="app-name">Countdown</div>
-          <div class="app-desc">Track events</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="todo">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="check-square" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">To-Do List</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Task management</div>
+          </div>
+          <div class="app-toggle" id="toggleTodoApp"></div>
         </div>
-        <div class="app-toggle" id="toggleCountdownApp"></div>
-      </div>
-      <div class="app-item" data-app="events">
-        <div class="app-icon">📅</div>
-        <div class="app-info">
-          <div class="app-name">Events</div>
-          <div class="app-desc">Track events</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="countdown">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="calendar-clock" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Countdown</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Track events</div>
+          </div>
+          <div class="app-toggle" id="toggleCountdownApp"></div>
         </div>
-        <div class="app-toggle" id="toggleEventsApp"></div>
-      </div>
-      <div class="app-item" data-app="calculator">
-        <div class="app-icon">🔢</div>
-        <div class="app-info">
-          <div class="app-name">Calculator</div>
-          <div class="app-desc">Quick calculations</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="events">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="calendar-days" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Events</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Track events</div>
+          </div>
+          <div class="app-toggle" id="toggleEventsApp"></div>
         </div>
-        <div class="app-toggle" id="toggleCalculatorApp"></div>
-      </div>
-      <div class="app-item" data-app="notes">
-        <div class="app-icon">📝</div>
-        <div class="app-info">
-          <div class="app-name">Notes</div>
-          <div class="app-desc">Quick notes</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="calculator">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Calculator</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Quick calculations</div>
+          </div>
+          <div class="app-toggle" id="toggleCalculatorApp"></div>
         </div>
-        <div class="app-toggle" id="toggleNotesApp"></div>
-      </div>
-      <div class="app-item" data-app="webBrowser">
-        <div class="app-icon">🌐</div>
-        <div class="app-info">
-          <div class="app-name">Web Browser</div>
-          <div class="app-desc">Browse the web</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="notes">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="sticky-note" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Notes</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Quick notes</div>
+          </div>
+          <div class="app-toggle" id="toggleNotesApp"></div>
         </div>
-        <div class="app-toggle" id="toggleWebBrowserApp"></div>
-      </div>
-      <div class="app-item" data-app="canvasManager">
-        <div class="app-icon">📑</div>
-        <div class="app-info">
-          <div class="app-name">Canvas Manager</div>
-          <div class="app-desc">Manage canvases</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="webBrowser">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="globe" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Web Browser</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Browse the web</div>
+          </div>
+          <div class="app-toggle" id="toggleWebBrowserApp"></div>
         </div>
-        <div class="app-toggle" id="toggleCanvasManagerApp"></div>
-      </div>
-      <div class="app-item" data-app="ambientSounds">
-        <div class="app-icon">🎵</div>
-        <div class="app-info">
-          <div class="app-name">Ambient Sounds</div>
-          <div class="app-desc">Focus & relax</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="canvasManager">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="layout-dashboard" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Canvas Manager</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Manage canvases</div>
+          </div>
+          <div class="app-toggle" id="toggleCanvasManagerApp"></div>
         </div>
-        <div class="app-toggle" id="toggleAmbientApp"></div>
-      </div>
-      <div class="app-item" data-app="appStore">
-        <div class="app-icon">🛍️</div>
-        <div class="app-info">
-          <div class="app-name">App Store</div>
-          <div class="app-desc">Browse & install apps</div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="ambientSounds">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="music" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">Ambient Sounds</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Focus & relax</div>
+          </div>
+          <div class="app-toggle" id="toggleAmbientApp"></div>
         </div>
-        <div class="app-toggle" id="toggleAppStoreApp"></div>
+        
+        <div class="app-item group flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 cursor-pointer" data-app="appStore">
+          <div class="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-900 dark:text-white">App Store</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Browse & install apps</div>
+          </div>
+          <div class="app-toggle" id="toggleAppStoreApp"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2630,6 +3134,9 @@
     };
 </div><!-- End Canvas Workspace -->
 
+<!-- Dynamic App Loader - Only loads installed apps -->
+<script src="js/app-loader.js"></script>
+
 <!-- Main Application Logic -->
 <script src="js/main.js"></script>
 
@@ -3144,6 +3651,97 @@
   window.updateDynamicTodo = updateDynamicTodo;
   window.updateDynamicEvents = updateDynamicEvents;
   window.updateDynamicCountdown = updateDynamicCountdown;
+</script>
+
+<!-- Initialize Modern UI Libraries -->
+<script>
+  // Initialize Lucide Icons
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    
+    // Initialize AOS (Animate On Scroll)
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 50,
+      delay: 100
+    });
+    
+    // GSAP Enhancements
+    // Animate header on load
+    gsap.from('header', {
+      y: -100,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out'
+    });
+    
+    // Animate dynamic islands
+    gsap.from('.dynamic-island, [id*="dynamic"]', {
+      scale: 0.8,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'back.out(1.7)',
+      delay: 0.5
+    });
+    
+    // Add hover animations to buttons
+    const buttons = document.querySelectorAll('button:not(.no-hover)');
+    buttons.forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        gsap.to(btn, {
+          scale: 1.05,
+          duration: 0.2,
+          ease: 'power2.out'
+        });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, {
+          scale: 1,
+          duration: 0.2,
+          ease: 'power2.out'
+        });
+      });
+    });
+    
+    // Smooth scroll for canvas workspace
+    const canvasWorkspace = document.getElementById('canvasWorkspace');
+    if (canvasWorkspace) {
+      canvasWorkspace.style.scrollBehavior = 'smooth';
+    }
+    
+    // Add entrance animations to widgets
+    const widgets = document.querySelectorAll('[id*="floating"]');
+    widgets.forEach((widget, index) => {
+      gsap.from(widget, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.6,
+        delay: 1 + (index * 0.1),
+        ease: 'back.out(1.7)',
+        onComplete: () => {
+          widget.style.transform = ''; // Reset for drag functionality
+        }
+      });
+    });
+    
+    // Refresh icons after dynamic content loads
+    setTimeout(() => {
+      lucide.createIcons();
+    }, 1000);
+    
+    // Re-initialize icons when content changes
+    const observer = new MutationObserver(() => {
+      lucide.createIcons();
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
 </script>
 
 <!-- Widget/App Scripts -->

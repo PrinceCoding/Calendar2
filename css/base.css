@@ -1,15 +1,16 @@
 /* =========================
     BASE STYLES
+    Now using Tailwind CSS for most styling
+    This file contains essential base styles only
     ========================= */
+    
 *, *::before, *::after { 
   box-sizing: border-box; 
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui;
-  background: var(--bg);
-  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
@@ -21,17 +22,26 @@ body {
   min-height: -webkit-fill-available;
 }
 
-/* Canvas Workspace */
+/* Tailwind handles most body styling, but keep legacy theme var support */
+body {
+  background: var(--bg, #f5f5f7);
+  color: var(--text, #1d1d1f);
+}
+
+body.dark {
+  background: var(--bg, #000000);
+  color: var(--text, #f5f5f7);
+}
+
+/* Canvas workspace - now mostly styled with Tailwind */
+/* Keep essential positioning and behavior */
 #canvasWorkspace {
   position: fixed;
-  top: 44px;
+  top: 56px; /* Updated for new header height */
   left: 0;
   right: 0;
   bottom: 0;
   overflow: auto;
-  border-top: 2px solid rgba(0, 0, 0, 0.15);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  background: var(--bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -39,35 +49,13 @@ body {
   z-index: 1;
 }
 
-body.dark #canvasWorkspace {
-  border-top: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
 #canvasWorkspace.panning {
   cursor: grabbing !important;
   user-select: none;
 }
 
-/* Canvas content area - dynamic sizing based on widgets with grid background */
-#canvasWorkspace::before {
-  content: '';
-  display: block;
-  min-width: 100vw;
-  min-height: 100vh;
-  pointer-events: none;
-  background-image: 
-    linear-gradient(rgba(128, 128, 128, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  background-position: -1px -1px;
-}
-
-body.dark #canvasWorkspace::before {
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-}
+/* Legacy grid background - Tailwind handles new dot grid */
+/* Kept for fallback */
 
 #canvasContent {
   position: absolute;

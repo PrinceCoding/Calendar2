@@ -2,6 +2,9 @@
 // CORE APPLICATION LOGIC
 // =========================
 
+// Modern UI Enhancements
+console.log('%c🎨 CANVAS - Modern Workspace', 'font-size: 20px; font-weight: bold; background: linear-gradient(to right, #667eea, #764ba2); color: white; padding: 10px; border-radius: 5px;');
+
 // Settings and UI Elements
 const settingsBtn = document.getElementById('settingsBtn');
 const settingsPage = document.getElementById('settingsPage');
@@ -10,13 +13,67 @@ const notesEditor = document.getElementById('notesEditor');
 const toolButtons = document.querySelectorAll('.notes-tools button');
 
 // =========================
-// DATE/TIME
+// MODERN UI UTILITIES
+// =========================
+
+// Smooth notification system
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  const icons = {
+    info: 'info',
+    success: 'check-circle',
+    warning: 'alert-triangle',
+    error: 'x-circle'
+  };
+  const colors = {
+    info: 'from-blue-500 to-cyan-500',
+    success: 'from-green-500 to-emerald-500',
+    warning: 'from-yellow-500 to-orange-500',
+    error: 'from-red-500 to-pink-500'
+  };
+  
+  notification.className = `fixed top-20 right-6 px-6 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-l-4 border-${type} z-[9999] flex items-center gap-3 animate__animated animate__fadeInRight`;
+  notification.innerHTML = `
+    <div class="p-2 rounded-lg bg-gradient-to-r ${colors[type]}">
+      <i data-lucide="${icons[type]}" class="w-5 h-5 text-white"></i>
+    </div>
+    <span class="font-medium">${message}</span>
+  `;
+  
+  document.body.appendChild(notification);
+  lucide.createIcons();
+  
+  // Animate out and remove
+  setTimeout(() => {
+    notification.classList.add('animate__fadeOutRight');
+    setTimeout(() => notification.remove(), 500);
+  }, 3000);
+}
+
+// Add to window for global access
+window.showNotification = showNotification;
+
+// =========================
+// DATE/TIME WITH ANIMATIONS
 // =========================
 function updateTime() {
   const d = new Date();
   const dtText = document.getElementById('dtText');
   if(dtText) {
-    dtText.textContent = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
+    const newText = d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' • ' + d.toLocaleTimeString();
+    if (dtText.textContent !== newText) {
+      // Animate time change
+      gsap.to(dtText, {
+        scale: 1.05,
+        duration: 0.2,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          dtText.textContent = newText;
+        }
+      });
+    }
   }
 }
 
