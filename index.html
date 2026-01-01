@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪟</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>C</text></svg>">
   <title>CANVAS</title>
 
   <!-- =========================
@@ -1883,6 +1883,7 @@
   function updateCalendarVisibility(visible) {
     if (!floatingCalendar) return;
     floatingCalendar.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingCalendar);
     if (toggleCalendarApp) toggleCalendarApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1891,6 +1892,7 @@
   function updateClockVisibility(visible) {
     if (!clock) return;
     clock.style.display = visible ? 'block' : 'none';
+    if (visible) bringToFront(clock);
     if (toggleClockApp) toggleClockApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1898,6 +1900,7 @@
   function updatePomoVisibility(visible) {
     if (!floatingPomo) return;
     floatingPomo.style.display = visible ? 'block' : 'none';
+    if (visible) bringToFront(floatingPomo);
     if (togglePomoApp) togglePomoApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1905,6 +1908,7 @@
   function updateTodoVisibility(visible) {
     if (!floatingTodo) return;
     floatingTodo.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingTodo);
     if (toggleTodoApp) toggleTodoApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1912,6 +1916,7 @@
   function updateCountdownVisibility(visible) {
     if (!floatingCountdown) return;
     floatingCountdown.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingCountdown);
     if (toggleCountdownApp) toggleCountdownApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1919,6 +1924,7 @@
   function updateEventsVisibility(visible) {
     if (!floatingEvents) return;
     floatingEvents.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingEvents);
     if (toggleEventsApp) toggleEventsApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1927,6 +1933,7 @@
   function updateNotesVisibility(visible) {
     if (!floatingNotes) return;
     floatingNotes.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingNotes);
     if (toggleNotesApp) toggleNotesApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1935,6 +1942,7 @@
   function updateWebBrowserVisibility(visible) {
     if (!floatingWebBrowser) return;
     floatingWebBrowser.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingWebBrowser);
     if (toggleWebBrowserApp) toggleWebBrowserApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1943,6 +1951,7 @@
   function updateCanvasManagerVisibility(visible) {
     if (!canvasManager) return;
     canvasManager.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(canvasManager);
     if (toggleCanvasManagerApp) toggleCanvasManagerApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -1951,6 +1960,7 @@
   function updateAmbientVisibility(visible) {
     if (!floatingAmbient) return;
     floatingAmbient.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingAmbient);
     if (toggleAmbientApp) toggleAmbientApp.classList.toggle('active', !!visible);
     if (window.saveCurrentCanvas) window.saveCurrentCanvas();
   }
@@ -2077,6 +2087,7 @@
   function updateCalculatorVisibility(visible) {
     if (!floatingCalculator) return;
     floatingCalculator.style.display = visible ? 'flex' : 'none';
+    if (visible) bringToFront(floatingCalculator);
     localStorage.setItem(CALCULATOR_VIS_KEY, String(visible));
     if (toggleCalculatorApp) toggleCalculatorApp.classList.toggle('active', !!visible);
   }
