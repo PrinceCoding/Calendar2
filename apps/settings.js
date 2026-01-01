@@ -17,13 +17,15 @@
             'clock': 'clockAppSettings',
             'pomodoro': 'pomodoroAppSettings',
             'todo': 'todoAppSettings',
+            'countdown': 'countdownAppSettings',
             'calculator': 'calculatorAppSettings',
             'events': 'eventsAppSettings',
             'calendar': 'calendarAppSettings',
             'notes': 'notesAppSettings',
             'webBrowser': 'webBrowserAppSettings',
-            'canvas': 'canvasAppSettings',
-            'ambient': 'ambientAppSettings'
+            'canvasManager': 'canvasAppSettings',
+            'ambientSounds': 'ambientAppSettings',
+            'appStore': 'appStoreAppSettings'
         };
 
         // Function to show specific app settings
@@ -67,7 +69,92 @@
             });
         }
 
-        // Settings app list click handlers
+        // Function to populate settings app list with installed apps only
+        async function populateSettingsAppList() {
+            const settingsAppListContainer = document.querySelector('.settings-app-list');
+            if (!settingsAppListContainer) return;
+
+            // App metadata for creating list items
+            const appMetadata = {
+                'clock': { icon: '🕒', name: 'Clock' },
+                'pomodoro': { icon: '🍅', name: 'Pomodoro' },
+                'todo': { icon: '✅', name: 'Todo' },
+                'countdown': { icon: '⏰', name: 'Countdown' },
+                'calculator': { icon: '🔢', name: 'Calculator' },
+                'events': { icon: '📅', name: 'Events' },
+                'calendar': { icon: '📆', name: 'Calendar' },
+                'notes': { icon: '📝', name: 'Notes' },
+                'webBrowser': { icon: '🌐', name: 'Web Browser' },
+                'canvasManager': { icon: '📑', name: 'Canvas Manager' },
+                'ambientSounds': { icon: '🎵', name: 'Ambient Sounds' },
+                'appStore': { icon: '🛍️', name: 'App Store' }
+            };
+
+            // Get installed apps - prefer window.getInstalledApps for immediate data
+            let installedApps = [];
+            
+            if (window.getInstalledApps) {
+                installedApps = window.getInstalledApps();
+                console.log('[Settings] Loaded', installedApps.length, 'apps from app store');
+            } else if (window.auth && window.auth.currentUser && window.db && window.doc && window.getDoc) {
+                // Fallback to Firebase if getInstalledApps not available
+                try {
+                    const userId = window.auth.currentUser.uid;
+                    const ref = window.doc(window.db, 'user_installed_apps', userId);
+                    const snapshot = await window.getDoc(ref);
+                    
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        if (Array.isArray(data.apps)) {
+                            installedApps = data.apps;
+                            console.log('[Settings] Loaded', installedApps.length, 'apps from Firebase');
+                        }
+                    }
+                } catch (error) {
+                    console.error('[Settings] Error loading from Firebase:', error);
+                }
+            }
+
+            // Always include appStore
+            if (!installedApps.includes('appStore')) {
+                installedApps.push('appStore');
+            }
+
+            // Clear existing items
+            settingsAppListContainer.innerHTML = '';
+
+            // Create items for installed apps only
+            installedApps.forEach(appId => {
+                const metadata = appMetadata[appId];
+                if (!metadata) return;
+
+                const item = document.createElement('div');
+                item.className = 'settings-app-item';
+                item.dataset.app = appId;
+                item.innerHTML = `
+                    <span class="settings-app-icon">${metadata.icon}</span>
+                    <span class="settings-app-name">${metadata.name}</span>
+                    <span class="settings-app-chevron">›</span>
+                `;
+
+                // Add click handler
+                item.addEventListener('click', () => {
+                    showAppSettings(appId);
+                });
+
+                settingsAppListContainer.appendChild(item);
+            });
+
+            console.log('[Settings] Populated app list with', installedApps.length, 'apps');
+        }
+
+        // Initial population
+        populateSettingsAppList();
+
+        // Expose function globally so app store can refresh it
+        window.refreshSettingsAppList = populateSettingsAppList;
+
+        // Settings app list click handlers (for initial HTML items)
         const settingsAppItems = document.querySelectorAll('.settings-app-item');
         console.log('[Settings] Found app items:', settingsAppItems.length);
         

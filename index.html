@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="css/settings.css?v=2">
   <link rel="stylesheet" href="css/ambient-sounds.css?v=2">
   <link rel="stylesheet" href="css/countdown.css?v=2">
+  <link rel="stylesheet" href="css/app-store.css?v=2">
 </head>
 <body>
 
@@ -411,6 +412,14 @@
         </div>
         <div class="app-toggle" id="toggleAmbientApp"></div>
       </div>
+      <div class="app-item" data-app="appStore">
+        <div class="app-icon">🛍️</div>
+        <div class="app-info">
+          <div class="app-name">App Store</div>
+          <div class="app-desc">Browse & install apps</div>
+        </div>
+        <div class="app-toggle" id="toggleAppStoreApp"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -488,6 +497,11 @@
             <span class="settings-app-name">Todo</span>
             <span class="settings-app-chevron">›</span>
           </div>
+          <div class="settings-app-item" data-app="countdown">
+            <span class="settings-app-icon">⏰</span>
+            <span class="settings-app-name">Countdown</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
           <div class="settings-app-item" data-app="calculator">
             <span class="settings-app-icon">🔢</span>
             <span class="settings-app-name">Calculator</span>
@@ -521,6 +535,11 @@
           <div class="settings-app-item" data-app="ambient">
             <span class="settings-app-icon">🎵</span>
             <span class="settings-app-name">Ambient Sounds</span>
+            <span class="settings-app-chevron">›</span>
+          </div>
+          <div class="settings-app-item" data-app="appStore">
+            <span class="settings-app-icon">🛍️</span>
+            <span class="settings-app-name">App Store</span>
             <span class="settings-app-chevron">›</span>
           </div>
         </div>
@@ -720,6 +739,50 @@
               <option value="title">Title</option>
             </select>
           </label>
+        </div>
+      </div>
+
+      <!-- Countdown Settings -->
+      <div id="countdownAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>⏰ Countdown</h2>
+        <div class="settings-group">
+          <label class="settings-label">
+            <span>Show past countdowns</span>
+            <input type="checkbox" id="countdownShowPast">
+          </label>
+          <label class="settings-label">
+            <span>Enable notifications</span>
+            <input type="checkbox" id="countdownNotifications" checked>
+          </label>
+          <label class="settings-label">
+            <span>Notify when countdown reaches zero</span>
+            <input type="checkbox" id="countdownNotifyZero" checked>
+          </label>
+          <label class="settings-label">
+            <span>Default time format</span>
+            <select id="countdownTimeFormat" class="settings-select">
+              <option value="short" selected>Short (2d 5h 30m)</option>
+              <option value="long">Long (2 days, 5 hours, 30 minutes)</option>
+              <option value="compact">Compact (2:05:30:15)</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Sort by</span>
+            <select id="countdownSortOrder" class="settings-select">
+              <option value="date" selected>Date (soonest first)</option>
+              <option value="created">Created</option>
+              <option value="name">Name</option>
+            </select>
+          </label>
+          <label class="settings-label">
+            <span>Show emoji icons</span>
+            <input type="checkbox" id="countdownShowEmoji" checked>
+          </label>
+          <label class="settings-label">
+            <span>Auto-delete expired countdowns</span>
+            <input type="checkbox" id="countdownAutoDelete">
+          </label>
+          <button id="countdownClearAll" class="settings-action-btn">Clear All Countdowns</button>
         </div>
       </div>
 
@@ -946,6 +1009,67 @@
               • Adjust individual volume sliders<br>
               • Use "Stop All" to silence everything<br>
               • Try "Random Mix" for instant ambiance
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Store Settings -->
+      <div id="appStoreAppSettings" class="app-settings-detail" style="display:none;">
+        <h2>🛍️ App Store</h2>
+        <div class="settings-group">
+          <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.85rem;">
+            Manage your app installations and store preferences.
+          </p>
+          
+          <label class="settings-label">
+            <span>Show featured apps badge</span>
+            <input type="checkbox" id="appStoreShowFeatured" checked>
+          </label>
+          
+          <label class="settings-label">
+            <span>Show popular apps badge</span>
+            <input type="checkbox" id="appStoreShowPopular" checked>
+          </label>
+          
+          <label class="settings-label">
+            <span>Default filter</span>
+            <select id="appStoreDefaultFilter" class="settings-select">
+              <option value="all" selected>All Apps</option>
+              <option value="featured">Featured</option>
+              <option value="popular">Popular</option>
+              <option value="Productivity">Productivity</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Lifestyle">Lifestyle</option>
+              <option value="Internet">Internet</option>
+            </select>
+          </label>
+          
+          <label class="settings-label">
+            <span>Show app ratings</span>
+            <input type="checkbox" id="appStoreShowRatings" checked>
+          </label>
+          
+          <label class="settings-label">
+            <span>Show app reviews count</span>
+            <input type="checkbox" id="appStoreShowReviews" checked>
+          </label>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+              <strong>Cloud Sync:</strong>
+            </p>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+              Your installed apps are automatically synced across all devices when signed in.
+            </p>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+              <strong>Available Categories:</strong>
+            </p>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+              📊 Productivity • 🔧 Utilities • 🎨 Lifestyle • 🌐 Internet
             </p>
           </div>
         </div>
@@ -1640,6 +1764,7 @@
   const toggleWebBrowserApp = document.getElementById('toggleWebBrowserApp');
   const toggleCanvasManagerApp = document.getElementById('toggleCanvasManagerApp');
   const toggleAmbientApp = document.getElementById('toggleAmbientApp');
+  const toggleAppStoreApp = document.getElementById('toggleAppStoreApp');
 
   // Open/close app drawer
   if (appLauncherBtn) {
@@ -1648,6 +1773,11 @@
         appDrawer.style.display = 'none';
       } else {
         appDrawer.style.display = 'block';
+        
+        // Sync toggle button states when opening
+        if (window.syncAppStoreToggleStates) {
+          setTimeout(window.syncAppStoreToggleStates, 50);
+        }
       }
     };
   }
@@ -1778,6 +1908,16 @@
   }
   window.updateAmbientVisibility = updateAmbientVisibility;
 
+  function updateAppStoreVisibility(visible) {
+    const appStore = window.appStoreWidget || document.getElementById('appStore');
+    if (!appStore) return;
+    appStore.style.display = visible ? 'flex' : 'none';
+    if (toggleAppStoreApp) toggleAppStoreApp.classList.toggle('active', !!visible);
+    if (visible) bringToFront(appStore);
+    if (window.saveCurrentCanvas) window.saveCurrentCanvas();
+  }
+  window.updateAppStoreVisibility = updateAppStoreVisibility;
+
   // Widget visibility initialization is now handled by canvas manager
 
   // App toggle click handlers
@@ -1850,6 +1990,14 @@
       e.stopPropagation();
       const isVisible = floatingAmbient && floatingAmbient.style.display !== 'none';
       updateAmbientVisibility(!isVisible);
+    };
+  }
+  if (toggleAppStoreApp) {
+    toggleAppStoreApp.onclick = (e) => {
+      e.stopPropagation();
+      const appStore = window.appStoreWidget || document.getElementById('appStore');
+      const isVisible = appStore && appStore.style.display !== 'none';
+      updateAppStoreVisibility(!isVisible);
     };
   }
 
@@ -2155,6 +2303,10 @@
     window.addEventListener('touchend', endResize);
   }
 
+  // Expose globally for app store
+  window.makeDraggable = makeDraggable;
+  window.makeResizable = makeResizable;
+
   // Restore saved positions - commented out, canvas manager handles this
   // restoreWidgetPosition(clock, 'analogClock');
   // restoreWidgetPosition(floatingPomo, 'floatingPomo');
@@ -2190,7 +2342,17 @@
   makeResizable(floatingAmbient, 'floatingAmbient');
 
   // Add click handlers to bring widgets to front
+  // Note: appStore will be added dynamically when created
   const allWidgets = [clock, floatingPomo, floatingTodo, floatingCountdown, floatingEvents, floatingCalculator, floatingCalendar, floatingNotes, floatingWebBrowser, canvasManager, floatingAmbient];
+  
+  // Function to add app store to widgets array
+  window.addAppStoreToWidgets = function() {
+    const appStore = window.appStoreWidget;
+    if (appStore && !allWidgets.includes(appStore)) {
+      allWidgets.push(appStore);
+      console.log('[WIDGETS] App Store added to allWidgets');
+    }
+  };
   
   // Touch handling for close button visibility
   const touchTimers = new Map();
@@ -2753,7 +2915,7 @@
     signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail,
     signInWithCustomToken
   } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
-  import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
   // Firebase config
   const firebaseConfig = {
@@ -2774,8 +2936,10 @@
   window.auth = auth;
   window.db = db;
   window.doc = doc;
+  window.getDoc = getDoc;
   window.setDoc = setDoc;
   window.serverTimestamp = serverTimestamp;
+  window.onSnapshot = onSnapshot;
 
   // UI elements
   const loginBtn = document.getElementById('loginBtn');
@@ -2825,6 +2989,10 @@
           lastLogin: serverTimestamp(),
         }, { merge: true });
       }
+      setSyncStatus('Logged in! ✓');
+      setTimeout(() => {
+        settingsPage.style.display = 'none';
+      }, 800);
     } catch (err) { handleAuthError(err); }
   };
 
@@ -2846,6 +3014,15 @@
           photoURL: user.photoURL || '',
           createdAt: serverTimestamp(),
         }, { merge: true });
+      }
+      
+      // Success - close settings automatically
+      setSyncStatus('Account created! ✓');
+      const settingsPage = document.getElementById('settingsPage');
+      if (settingsPage) {
+        setTimeout(() => {
+          settingsPage.style.display = 'none';
+        }, 800);
       }
     } catch (err) { handleAuthError(err); }
   };
@@ -3098,6 +3275,7 @@
 <script src="apps/canvas-manager.js"></script>
 <script src="apps/settings.js"></script>
 <script src="apps/ambient-sounds.js"></script>
+<script src="apps/app-store.js"></script>
 
 <script>
   // Initialize canvas manager after all scripts are loaded

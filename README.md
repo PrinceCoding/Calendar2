@@ -2,6 +2,21 @@
 
 An infinite canvas workspace for organizing your productivity widgets - inspired by MS Whiteboard and OneNote.
 
+## 🛍️ App Store - Like iOS & Google Play!
+
+**Cloud-based app management integrated seamlessly into your workspace!**
+
+- ✨ **Cloud-Based**: Install/uninstall apps with instant Firebase sync across devices
+- 🎯 **Integrated**: App Store appears in the App Drawer alongside all other apps
+- 📱 **11 Premium Apps**: Calendar, Clock, Pomodoro, To-Do, Events, Calculator, Notes, Web Browser, Canvas Manager, Ambient Sounds, Countdown
+- ⭐ **Full Featured**: Ratings, reviews, screenshots, categories, featured & popular apps
+- 🔍 **Smart Search**: Find apps by name, description, or category
+- 🖱️ **Consistent UX**: Draggable, resizable, with close/settings buttons just like other widgets
+
+**Open the App Store**: Click ▦ (Apps) → Toggle on "App Store" 🛍️
+
+👉 **[Full App Store Documentation](APP_STORE_README.md)**
+
 ## 🎨 Canvas Features
 
 - **Infinite Workspace**: Place widgets anywhere on an unlimited canvas with a grid background
@@ -13,13 +28,18 @@ An infinite canvas workspace for organizing your productivity widgets - inspired
 
 ## 📱 Available Widgets
 
+- �️ **App Store** - Browse and install apps (cloud-synced)
 - 📆 **Calendar** - Full year view with month navigation
 - 🕐 **Analog Clock** - Live time display
 - 🍅 **Pomodoro Timer** - Focus timer for productivity
 - ✅ **To-Do List** - Task management
-- 📅 **Events** - Track important dates
-- 🔢 **Calculator** - Quick calculations
+- ⏰ **Countdown** - Track upcoming events
+- 📅 **Events** - Manage important dates
+- 🔢 **Calculator** - Quick calculations with history
 - 📝 **Notes** - Rich text note-taking with cloud sync
+- 🌐 **Web Browser** - Built-in browser widget
+- 📑 **Canvas Manager** - Switch between workspaces
+- 🎵 **Ambient Sounds** - Focus with relaxing sounds
 
 ## 🎮 Controls
 
