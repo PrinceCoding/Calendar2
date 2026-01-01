@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -69,6 +69,9 @@
     }
   </script>
   
+  <!-- Konsta UI - Mobile-first UI components with Tailwind -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/konsta@latest/css/konsta.min.css">
+  
   <!-- Lucide Icons - Beautiful & consistent icon set -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
@@ -88,28 +91,23 @@
   <!-- Modern Enhancements -->
   <link rel="stylesheet" href="css/modern-enhancements.css?v=3">
   
-  <!-- Original Styles -->
+  <!-- Core Styles -->
   <link rel="stylesheet" href="css/themes.css?v=2">
   <link rel="stylesheet" href="css/base.css?v=2">
-  <link rel="stylesheet" href="css/header.css?v=2">
-  <link rel="stylesheet" href="apps/calendar/calendar.css?v=2">
-  <link rel="stylesheet" href="apps/notes/notes.css?v=2">
-  <link rel="stylesheet" href="apps/web-browser/web-browser.css?v=2">
-  <link rel="stylesheet" href="apps/clock/clock.css?v=2">
-  <link rel="stylesheet" href="apps/pomodoro/pomodoro.css?v=2">
-  <link rel="stylesheet" href="apps/todo/todo.css?v=2">
-  <link rel="stylesheet" href="apps/calculator/calculator.css?v=2">
-  <link rel="stylesheet" href="apps/events/events.css?v=2">
-  <link rel="stylesheet" href="css/app-launcher.css?v=2">
-  <link rel="stylesheet" href="apps/canvas-manager/canvas-manager.css?v=2">
-  <link rel="stylesheet" href="css/widgets.css?v=2">
   <link rel="stylesheet" href="css/dragging.css?v=2">
-  <link rel="stylesheet" href="apps/settings/settings.css?v=2">
-  <link rel="stylesheet" href="apps/ambient-sounds/ambient-sounds.css?v=2">
-  <link rel="stylesheet" href="apps/countdown/countdown.css?v=2">
-  <link rel="stylesheet" href="apps/app-store/app-store.css?v=2">
+  <link rel="stylesheet" href="css/mobile-konsta.css?v=1">
 </head>
-<body class="antialiased">
+<body class="antialiased k-ios safe-areas">
+
+<!-- Auto-detect mobile platform -->
+<script>
+  // Detect Android for Material Design styling
+  if (/android/i.test(navigator.userAgent)) {
+    document.body.classList.remove('k-ios');
+    document.body.classList.add('k-material-theme', 'k-material');
+  }
+  // iOS is default (k-ios already added)
+</script>
 
 <!-- Modern Header with Tailwind -->
 <header class="fixed top-0 left-0 right-0 h-14 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 z-50 shadow-sm">

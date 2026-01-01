@@ -1,0 +1,174 @@
+/* =========================
+   MOBILE OPTIMIZATIONS WITH KONSTA UI
+   ========================= */
+
+/* iOS zoom prevention on inputs */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Touch-friendly tap highlights */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Prevent body overscroll */
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Safe area support for iPhone */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  header {
+    padding-top: calc(0.75rem + env(safe-area-inset-top));
+  }
+}
+
+/* Mobile-specific widget positioning */
+@media (max-width: 768px) {
+  /* Bottom sheet style for widgets */
+  .floating-todo,
+  .floating-events,
+  .floating-notes,
+  .floating-calendar,
+  .floating-pomo,
+  .floating-countdown,
+  .floating-calculator,
+  .floating-web-browser,
+  .canvas-manager,
+  .floating-ambient {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 90vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+    transform: none !important;
+  }
+  
+  /* Bottom sheet slide-up animation */
+  @keyframes slideUpSheet {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .floating-todo,
+  .floating-events,
+  .floating-notes,
+  .floating-calendar {
+    animation: slideUpSheet 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Hide resize handles on mobile */
+  .resize-handle {
+    display: none !important;
+  }
+  
+  /* Better close buttons on mobile */
+  .close-widget-btn {
+    width: 40px !important;
+    height: 40px !important;
+    top: 0.75rem !important;
+    right: 0.75rem !important;
+  }
+  
+  /* Analog clock - centered and smaller */
+  .analog-clock {
+    width: 250px !important;
+    height: 250px !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    bottom: auto !important;
+  }
+  
+  /* Full-width app drawer */
+  .app-drawer-content {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
+  
+  /* Optimize header for mobile */
+  header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .dynamic-island {
+    font-size: 0.75rem;
+    padding: 0 0.75rem;
+    height: 36px;
+  }
+  
+  /* Canvas workspace adjustment */
+  #canvasWorkspace {
+    touch-action: pan-x pan-y;
+  }
+}
+
+/* Small phones optimization */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+  
+  header {
+    padding: 0.5rem;
+  }
+  
+  .dynamic-island {
+    font-size: 0.7rem;
+    height: 32px;
+    padding: 0 0.6rem;
+  }
+  
+  /* Stack header items */
+  header > div:nth-child(2) {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  button:active,
+  .k-button:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+  
+  .k-list-item:active {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  body.dark .k-list-item:active {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
