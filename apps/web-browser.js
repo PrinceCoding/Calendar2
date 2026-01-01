@@ -444,6 +444,11 @@
       // Make draggable/resizable
       if (window.makeDraggable) makeDraggable(el, '.browser-header', id);
       if (window.makeResizable) makeResizable(el, id);
+      
+      // Add interaction handlers to bring to front
+      if (window.addWidgetInteractionHandlers) {
+        window.addWidgetInteractionHandlers(el);
+      }
 
       // Wire up instance-specific behavior
       initBrowserInstance(el, initialUrl);

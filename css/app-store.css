@@ -35,6 +35,11 @@
   border-bottom: 1px solid var(--border);
   background: var(--bg);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .store-title-section {
@@ -91,6 +96,11 @@
   background: var(--card);
   scrollbar-width: none;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .store-filters::-webkit-scrollbar {

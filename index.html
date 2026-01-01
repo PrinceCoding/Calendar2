@@ -2409,8 +2409,38 @@
     const appStore = window.appStoreWidget;
     if (appStore && !allWidgets.includes(appStore)) {
       allWidgets.push(appStore);
-      console.log('[WIDGETS] App Store added to allWidgets');
+      window.addWidgetInteractionHandlers(appStore);
+      console.log('[WIDGETS] App Store added to allWidgets with interaction handlers');
     }
+  };
+
+  // Global function to add interaction handlers to any widget
+  window.addWidgetInteractionHandlers = function(widget) {
+    if (!widget) return;
+    
+    // Bring to front on any interaction
+    widget.addEventListener('mousedown', (e) => {
+      bringToFront(widget);
+    });
+    widget.addEventListener('click', (e) => {
+      bringToFront(widget);
+    });
+    widget.addEventListener('focus', (e) => {
+      bringToFront(widget);
+    }, true); // Use capture to catch focus on children
+    
+    widget.addEventListener('touchstart', (e) => {
+      bringToFront(widget);
+      widget.classList.add('widget-touched');
+      if (touchTimers.has(widget)) {
+        clearTimeout(touchTimers.get(widget));
+      }
+      const timer = setTimeout(() => {
+        widget.classList.remove('widget-touched');
+        touchTimers.delete(widget);
+      }, 3000);
+      touchTimers.set(widget, timer);
+    });
   };
   
   // Touch handling for close button visibility
@@ -2418,34 +2448,7 @@
   
   allWidgets.forEach(widget => {
     if (widget) {
-      widget.addEventListener('mousedown', () => bringToFront(widget));
-      
-      // Touch handling - keep close button visible longer
-      widget.addEventListener('touchstart', (e) => {
-        bringToFront(widget);
-        
-        // Add touched class to show close button
-        widget.classList.add('widget-touched');
-        
-        // Clear any existing timer for this widget
-        if (touchTimers.has(widget)) {
-          clearTimeout(touchTimers.get(widget));
-        }
-        
-        // Keep close button visible for 3 seconds after touch
-        const timer = setTimeout(() => {
-          widget.classList.remove('widget-touched');
-          touchTimers.delete(widget);
-        }, 3000);
-        
-        touchTimers.set(widget, timer);
-      });
-      
-      // Also remove on touchend if user taps elsewhere quickly
-      widget.addEventListener('touchend', (e) => {
-        // Don't remove immediately - let the timer handle it
-        // This gives users time to tap the close button
-      });
+      window.addWidgetInteractionHandlers(widget);
     }
   });
 
